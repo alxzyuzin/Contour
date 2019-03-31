@@ -1,0 +1,24 @@
+﻿<UserControl
+    x:Class="Contour.LayerDisplayParams"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Contour"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="40"
+    d:DesignWidth="400">
+
+    <Grid Background="Gray">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="tbl_Layer" Grid.Column="0" Text="Layer" VerticalAlignment="Center" Margin=" 20,0,0,0"/>
+        <ToggleSwitch x:Name="tgs_Shape" Grid.Column="1"   OffContent="" OnContent="" Toggled="tgs_Shape_Toggled" />
+        <ToggleSwitch x:Name="tgs_Contour" Grid.Column="2" OffContent="" OnContent="" Toggled="tgs_Contour_Toggled"/>
+        <Button x:Name="btn_Outline" Grid.Column="3" Content="Outline" Tapped="btn_Outline_Tapped"/>
+    </Grid>
+</UserControl>
