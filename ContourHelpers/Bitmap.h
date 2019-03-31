@@ -78,7 +78,6 @@ namespace ContourHelpers
 	private:	//Methods
 		Level*  ExtractSingleLevel(byte color);
 		void	DisplayLevelShapes(byte color);
-//		void	DisplayLevelShapes(byte color, byte* pPixelBuffer);
 		void	DisplayLevelContours(byte color);
 		Level*	SelectLevel(byte color);
 		void	SortColorMap(std::vector<byte>* colormap);

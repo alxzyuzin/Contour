@@ -214,7 +214,7 @@ void Bitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 {
 	ClearPixelBuffer();
 	
-	for (int i = 0; i < parameters->Length; i++)
+	for (unsigned int i = 0; i < parameters->Length; i++)
 	{
 		if (parameters[i]->DisplayShapes)
 		{

@@ -7,7 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="40"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+    DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
     <Grid Background="Gray">
         <Grid.ColumnDefinitions>
@@ -16,9 +17,9 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock x:Name="tbl_Layer" Grid.Column="0" Text="Layer" VerticalAlignment="Center" Margin=" 20,0,0,0"/>
-        <ToggleSwitch x:Name="tgs_Shape" Grid.Column="1"   OffContent="" OnContent="" Toggled="tgs_Shape_Toggled" />
-        <ToggleSwitch x:Name="tgs_Contour" Grid.Column="2" OffContent="" OnContent="" Toggled="tgs_Contour_Toggled"/>
-        <Button x:Name="btn_Outline" Grid.Column="3" Content="Outline" Tapped="btn_Outline_Tapped"/>
+        <TextBlock    Grid.Column="0" Text="{Binding LayerName}" VerticalAlignment="Center" Margin=" 20,0,0,0"/>
+        <ToggleSwitch Grid.Column="1" OffContent="" OnContent="" Toggled="Shape_Toggled" />
+        <ToggleSwitch Grid.Column="2" OffContent="" OnContent="" Toggled="Contour_Toggled"/>
+        <Button       Grid.Column="3" Content="Outline" Tapped="Outline_Tapped"/>
     </Grid>
 </UserControl>

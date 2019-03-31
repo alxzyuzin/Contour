@@ -176,7 +176,7 @@ namespace Contour
 
         private void OnOutlineButtonTapped(object obj, TappedRoutedEventArgs e)
         {
-            int i = 0;
+            ;
         }
 
         private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)
