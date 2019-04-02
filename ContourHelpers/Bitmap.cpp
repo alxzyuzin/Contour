@@ -296,10 +296,14 @@ void Bitmap::OutlineImage()
 void Bitmap::DisplayLevelContours(byte color)
 {
 	Level* selectedLevel = SelectLevel(color);
+	Point* point;
 
-	for (vector<Point*>* contour : selectedLevel->m_Contours)
-		for(Point* point: *contour)
+	for (Contour* contour : selectedLevel->m_Contours)
+		for (int i = 0; i < contour->Size(); i++)
+		{
+			point = contour->GetPoint(i);
 			SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF);
+		}
 }
 
 void Bitmap::RectifyLevel(byte color, int size)

@@ -1,9 +1,7 @@
 ﻿#include "pch.h"
 #include "Level.h"
-//#include "Outline.h"
 
 using namespace ContourHelpers;
-
 
 Level::Level(int width, int height, byte levelColor, byte* pPixelBuffer)
 {
@@ -42,8 +40,6 @@ Level::~Level()
 {
 	for (auto contour : m_Contours)
 	{
-		for (Point * point : *contour)
-			delete(point);
 		delete contour;
 	}
 
@@ -53,13 +49,8 @@ Level::~Level()
 
 void Level::Clear()
 {
-	
 	for (auto contour : m_Contours)
-	{
-		for (Point * point : *contour)
-			delete(point);
 		delete contour;
-	}
 	
 	delete[] m_pBuffer;
 	m_BufferLength = 0;
@@ -116,24 +107,40 @@ void Level::GetLevelShapes(byte* pPixelBuffer)
 			}
 		}
 	}
-
-
 }
 
-void Level::FindAllContours()
+void Level::Outline()
 {
-	vector<Point*>* contour = new vector<Point*>();
+	Contour* contour;
 	do
 	{
-		contour = FindContour();
-		if (contour->size() > 0)
+		contour = FindExternalContour(nullptr);
+		if (contour->Size() > 0)
 		{
 			RemoveShape(contour);
 			m_Contours.push_back(contour);
 		}
 
-	} while (contour->size() > 0);
+	} while (contour->Size() > 0);
+}
 
+int FindInternalContours(Contour* parentContour, byte shapeColor)
+{
+	return 0;
+}
+
+void Level::FindAllContours()
+{
+	Contour* contour;
+	do
+	{
+		contour = FindExternalContour(nullptr);
+		if (contour->Size() > 0)
+		{
+			RemoveShape(contour);
+			m_Contours.push_back(contour);
+		}
+	} while (contour->Size() > 0);
 }
 
 
@@ -141,7 +148,7 @@ void Level::FindAllContours()
 // Находит граничную точку первой областе для оконтуривания
 //----------------------------------------------------------------------------
 
-Point* Level::FindFirstContourPoint()
+Point* Level::FindFirstExternalContourPoint(Contour* parentContour)
 {
 	for (int y = 0; y < m_Height; y++)
 		for (int x = 0; x < m_Width; x++)
@@ -155,44 +162,44 @@ Point* Level::FindFirstContourPoint()
 //----------------------------------------------------------------------------
 // Извлекает первый контур в слое
 //----------------------------------------------------------------------------
-std::vector<Point*>* Level::FindContour()
+Contour* Level::FindExternalContour(Contour* parentContour)
 {
-	vector<Point*>* contour =  new vector<Point*>();
-	Point* firstPoint = FindFirstContourPoint();
+	Contour* contour =  new Contour();
+	Point* firstPoint = FindFirstExternalContourPoint(nullptr);
 	Point* currentPoint = firstPoint;
 
 	if (firstPoint)
 	{
-		contour->push_back(firstPoint);
+		contour->AddPoint(firstPoint);
 		
-		Point *checkPoint;
+		Point *nextPoint;
 		Direction searchDirection = Direction::E;
 		while (1)
 		{
 			searchDirection = StartDirection(searchDirection);
-			checkPoint = nullptr;
+			nextPoint = nullptr;
 
 			int l;
 			for (l = 0; l < 8; l++)
 			{
-				checkPoint	= FindNextContourPoint(currentPoint, searchDirection);
-				if (checkPoint)
+				nextPoint = FindNextExternalContourPoint(currentPoint, searchDirection);
+				if (nextPoint)
 				{
-					if (GetPixel(checkPoint) == m_Color)
+					if (GetPixel(nextPoint) == m_Color)
 					{
-						if ((checkPoint->X == firstPoint->X) && (checkPoint->Y == firstPoint->Y))
+						if ((nextPoint->X == firstPoint->X) && (nextPoint->Y == firstPoint->Y))
 							return contour;
 						else
 						{
-							currentPoint = checkPoint;
+							currentPoint = nextPoint;
 							// возможно здесь происходит копирование структуры из указателя в vector
 							// тогда нужно освобождать память выделенную исходной структуре
-							contour->push_back(currentPoint);
+							contour->AddPoint(currentPoint);
 							break;
 						}
 					}
 					else
-						delete(checkPoint);
+						delete(nextPoint);
 				}
 				searchDirection = NextDirection(searchDirection);
 			}
@@ -212,10 +219,10 @@ std::vector<Point*>* Level::FindContour()
 //						следующей точки контура
 //----------------------------------------------------------------------------
 
-Point* Level::FindNextContourPoint(Point* currentPoint, Direction startDirection)
+Point* Level::FindNextExternalContourPoint(Point* currentPoint, Direction startDirection)
 {
 	Direction direction = startDirection;
-	bool nextPixelFound = false;
+	//bool nextPixelFound = false;
 	Point* newPoint = nullptr;
 
 	int Width = m_Width - 1;
@@ -334,9 +341,12 @@ int Level::comparePoints(const void * a, const void * b)
 }
 
 // Удаляет фигуру внутри заданного контура (закрашивает белым цветом)
+// Закрашивание выполняем по строкам
+// Для каждой точки контура находим точку лежащую на противоположной стороне контура
+// и рисуем линию от текущей точки до точки на противоположной стороне контура
 //
 //----------------------------------------------------------------------------
-void Level::RemoveShape(vector<Point*>* contour)
+void Level::RemoveShape(Contour* contour)
 {
 	byte baseColor = 0xFF;
 	std::clock_t    start;
@@ -386,82 +396,40 @@ void Level::RemoveShape(vector<Point*>* contour)
 	Point* p1 = nullptr;
 	Point* p2 = nullptr;
 	Point* p3 = nullptr;
-
-	for (unsigned int i = 0; i < contour->size() - 1; i++)
+	
+	for (unsigned int i = 0; i < contour->Size() - 1; i++)
 	{
-		p1 = (*contour)[i];
-		p2 = (*contour)[i+1];
+		// выбираем две последовательные точки контура и определяем направление
+		// отрисовки контура по оси Y
+		p1 = contour->GetPoint(i);
+		p2 = contour->GetPoint(i+1);
+		// Если координата Y увеличивается ищем точку на противоположнойстороне контура слева
 		if (p2->Y >= p1->Y)
 		{
-			p3 = FindLeftNearestPoint(contour, i + 1);
+			p3 = contour->FindLeftNearestPoint(i + 1);
 			if (!p3)
 				continue;
 			for (int x = p2->X; x >= p3->X; x--)
 				SetPixel(x, p2->Y, baseColor);
 		}
-		
+		// Если координата Y уменьшается ищем точку на противоположнойстороне контура справ
 		if (p2->Y <= p1->Y)
 		{
-			p3 = FindRightNearestPoint(contour, i + 1);
+			p3 = contour->FindRightNearestPoint(i + 1);
 			if (!p3)
 				continue;
 			for (int x = p2->X; x <= p3->X; x++)
 				SetPixel(x, p2->Y, baseColor);
 		}
 	}
-
-	for (unsigned int i = 0; i < contour->size(); i++)
-		SetPixel((*contour)[i], baseColor);
+	// Закрашиваем сам контур 
+	for (unsigned int i = 0; i < contour->Size(); i++)
+		SetPixel(contour->GetPoint(i), baseColor);
 	std::clock_t end = std::clock();
 
 double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 sec//153072ms
 }
 
-/* Находит ближайшую слева точку контура лежащую в той же строке что и заданная 
-----------------------------------------------------------------------------*/
-Point* Level::FindLeftNearestPoint(vector<Point*>* contour, int pointnumber)
-{
-	// Найдём ближайжую слева точку контура лежащую в той же строке что и p2
-	int lastDistance = -m_Width;
-	Point *p = nullptr;
-	for (unsigned int l = 0; l < contour->size(); l++)
-	{
-		if (l == pointnumber)
-			continue;
-		if ((*contour)[l]->Y == (*contour)[pointnumber]->Y)
-		{
-			int newDistance = (*contour)[l]->X - (*contour)[pointnumber]->X;
-			if (newDistance <= 0 && newDistance > lastDistance)
-			{
-				lastDistance = newDistance;
-				p = (*contour)[l];
-			}
-		}
-	}
-	return p;
-}
-
-Point* Level::FindRightNearestPoint(vector<Point*>* contour, int pointnumber)
-{
-	// Найдём точку контура ближайжую к точке с номером pointnumber лежащую справа в той же строке что и p2.  
-	int lastDistance = m_Width;
-	Point *p = nullptr;
-	for (unsigned int l = 0; l < contour->size(); l++)
-	{
-		if (l == pointnumber)
-			continue;
-		if ((*contour)[l]->Y == (*contour)[pointnumber]->Y)
-		{
-			int newDistance = (*contour)[l]->X - (*contour)[pointnumber]->X;
-			if (newDistance >= 0 && newDistance < lastDistance)
-			{
-				lastDistance = newDistance;
-				p = (*contour)[l];
-			}
-		}
-	}
-	return p;
-}
 
 inline void Level::DrawHorizontalLine(int x1, int x2, int y, byte color)
 {

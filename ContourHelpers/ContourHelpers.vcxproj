@@ -207,11 +207,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Contour.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Bitmap.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Contour.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
