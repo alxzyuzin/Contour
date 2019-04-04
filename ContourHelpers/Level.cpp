@@ -118,9 +118,9 @@ void Level::FindInternalContours(Contour* parentContour, byte shapeColor)
 		Contour* contour = FindContour(parentContour, shapeColor);
 		if (contour == nullptr)
 			break;
-
-//		byte newShapeColor = (shapeColor == m_Color) ? 0xFF : shapeColor;
-//		FindInternalContours(contour, newShapeColor);
+		// Найдём внутренние контуры нового контура
+		byte newShapeColor = (shapeColor == m_Color) ? 0xFF : shapeColor;
+		//FindInternalContours(contour, newShapeColor);
 
 		RemoveShape(contour);
 		m_Contours.push_back(contour);
@@ -180,20 +180,25 @@ Point* Level::FindNextContourPoint(Contour* parentContour, Point* currentPoint, 
 		case NW: --x; --y;	break;
 	}
 
+	Point newPoint = Point(x, y);
 	if (parentContour == nullptr)
 	{
-		if (y < 0 || y >= m_Height || x < 0 || x >= m_Width)
-			return nullptr;
-		else
+		// Проверяем не выходит ли точка за границы изображения
+		if (y >= 0 && y < m_Height && x >= 0 && x < m_Width)
 			return new Point(x, y);
 	}
 	else
 	{
-		if (!parentContour->ContainPoint(x,y) && GetPixel(x, y) == shapeColor)
-			return new Point(x, y);
-		else
+		if (parentContour->ContainPoint(x,y))
 			return nullptr;
+//		if (!parentContour->EnclosePoint(x,y))
+//			return nullptr;
+		if (GetPixel(x, y) != shapeColor)
+			return nullptr;
+
+		return new Point(x, y);
 	}
+	return nullptr;
 }
 
 Contour* Level::FindContour(Contour* parentContour, byte shapeColor)
@@ -204,7 +209,7 @@ Contour* Level::FindContour(Contour* parentContour, byte shapeColor)
 		return nullptr;
 
 	Contour* contour = new Contour();
-	contour->AddPoint(firstPoint);
+	contour->AddPoint(*firstPoint);
 
 	Point* currentPoint = firstPoint;
 
@@ -226,7 +231,7 @@ Contour* Level::FindContour(Contour* parentContour, byte shapeColor)
 					else
 					{
 						currentPoint = nextPoint;
-						contour->AddPoint(currentPoint);
+						contour->AddPoint(*currentPoint);
 						break;
 					}
 				}
@@ -283,7 +288,7 @@ Contour* Level::FindExternalContour(Contour* parentContour)
 
 	if (firstPoint)
 	{
-		contour->AddPoint(firstPoint);
+		contour->AddPoint(*firstPoint);
 		
 		Point *nextPoint;
 		Direction searchDirection = Direction::E;
@@ -307,7 +312,7 @@ Contour* Level::FindExternalContour(Contour* parentContour)
 							currentPoint = nextPoint;
 							// возможно здесь происходит копирование структуры из указателя в vector
 							// тогда нужно освобождать память выделенную исходной структуре
-							contour->AddPoint(currentPoint);
+							contour->AddPoint(*currentPoint);
 							break;
 						}
 					}

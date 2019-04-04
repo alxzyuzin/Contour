@@ -28,9 +28,9 @@ namespace ContourHelpers
 		return m_Points[i];
 	}
 
-	void Contour::AddPoint(Point* point)
+	void Contour::AddPoint(Point point)
 	{
-		m_Points.push_back(*point);
+		m_Points.push_back(point);
 	}
 
 	Point* Contour::GetPoint(int i)
@@ -69,7 +69,7 @@ namespace ContourHelpers
 
 	Point* Contour::FindRightNearestPoint(int pointnumber)
 	{
-		// Найдём точку контура ближайжую к точке с номером pointnumber лежащую справа в той же строке что и p2.  
+		// Найдём точку контура ближайшую к точке с номером pointnumber лежащую справа в той же строке что и p2.  
 		int lastDistance = MAXINT;
 		Point *p = nullptr;
 		for (unsigned int l = 0; l < m_Points.size(); l++)
@@ -89,6 +89,31 @@ namespace ContourHelpers
 		return p;
 	}
 
+	Point* Contour::FindRightNearestPoint(Point* point)
+	{
+		// Найдём точку контура ближайшую к точке с координатами point.X, point.Y лежащую справа в той же строке что и point.  
+		int lastDistance = MAXINT;
+		Point *p = nullptr;
+		for (unsigned int i = 0; i < m_Points.size(); i++)
+		{
+			if (m_Points[i].Y == point->Y)
+			{
+				if (m_Points[i].X == point->X)
+					continue;
+
+				int newDistance = m_Points[i].X - point->X;
+				if (newDistance >= 0 && newDistance < lastDistance)
+				{
+					lastDistance = newDistance;
+					p = &m_Points[i];
+				}
+			}
+		}
+		return p;
+
+	}
+
+
 	bool Contour::Contains(Point* point)
 	{
 		for (Point p : m_Points)
@@ -107,4 +132,41 @@ namespace ContourHelpers
 		}
 		return false;
 	}
-}
+	
+	/*
+		Проверяет принадлежит ли заданная точка контуру
+		Возвращаемое значение
+			true -  если точка является точкой контура
+			false - если точка не является точкой контура
+	*/
+	bool Contour::ContainPoint(Point* point)
+	{
+		for (Point contourPoint : m_Points)
+		{
+			if (contourPoint.X == point->X && contourPoint.Y == point->Y)
+				return true;
+		}
+		return false;
+	}
+	/*
+		Проверяет лежит ли заданная точка внутри контура
+		Возвращаемое значение 
+			true -  если точка лежит внутри контура или принадлежит контуру
+			false - если точка лежит вне контура
+	*/
+	bool Contour::EnclosePoint(Point* point)
+	{
+		int i = 0;
+		Point* rightNearestPoint = FindRightNearestPoint(point);
+		while (rightNearestPoint)
+		{
+			++i;
+			rightNearestPoint = FindRightNearestPoint(rightNearestPoint);
+		}
+		// Если количество точек контура справа от заданной точки чётное,
+		// то точка лежит вне контура. Иначе внутри контура
+		return i % 2 == 0 ? false : true;
+	}
+
+	
+}  // namespace ContourHelpers
