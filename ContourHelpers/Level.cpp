@@ -89,17 +89,17 @@ byte Level::GetPixel(int x, int y)
 
 void Level::GetLevelShapes(byte* pPixelBuffer)
 {
-	for (int j = 0; j < m_Height; j++)
+	for (int y = 0; y < m_Height; y++)
 	{
-		for (int i = 0, k = 0; i < (m_Width * 4); i += 4, k++)
+		for (int x = 0; x < m_Width; x++)
 		{
-			int PixelBufferOffset = j * (m_Width * 4) + i;
-			byte pixelColor = m_pShapesBuffer[j * m_Width + k];
+			int PixelBufferOffset = (y * m_Width + x) * 4;
+			byte pixelColor = m_pShapesBuffer[y * m_Width + x];
 			if (pixelColor == m_Color)
 			{
-				pPixelBuffer[PixelBufferOffset] = pixelColor;
-				pPixelBuffer[PixelBufferOffset + 1] = pixelColor;
-				pPixelBuffer[PixelBufferOffset + 2] = pixelColor;
+				pPixelBuffer[PixelBufferOffset] = m_Color;
+				pPixelBuffer[PixelBufferOffset + 1] = m_Color;
+				pPixelBuffer[PixelBufferOffset + 2] = m_Color;
 				pPixelBuffer[PixelBufferOffset + 3] = 0xFF;
 			}
 		}
