@@ -31,7 +31,10 @@ namespace ContourHelpers
 		void SetPixel(int pos, byte color);
 		void GetLevelShapes(byte* pPixelBuffer);
 
-		int FindInternalContours(Contour* parentContour, byte shapeColor);
+		void FindInternalContours(Contour* parentContour, byte shapeColor);
+		Contour* FindContour(Contour* parentContour, byte shapeColor);
+		Point* FindFirstContourPoint(Contour* parentContour, byte shapeColor);
+		Point* FindNextContourPoint(Contour* parentContour, Point* point, Direction direction, byte shapeColor);
 
 
 	private:

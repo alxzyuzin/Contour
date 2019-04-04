@@ -89,4 +89,22 @@ namespace ContourHelpers
 		return p;
 	}
 
+	bool Contour::Contains(Point* point)
+	{
+		for (Point p : m_Points)
+		{
+			if (p.X == point->X && p.Y == point->Y)
+				return true;
+		}
+		return false;
+	}
+	bool Contour::ContainPoint(int x, int y)
+	{
+		for (Point point : m_Points)
+		{
+			if (point.X == x && point.Y == y)
+				return true;
+		}
+		return false;
+	}
 }

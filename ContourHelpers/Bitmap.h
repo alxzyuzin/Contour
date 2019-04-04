@@ -76,7 +76,6 @@ namespace ContourHelpers
 		void RectifyLevel(byte color, int size);
 
 	private:	//Methods
-		Level*  ExtractSingleLevel(byte color);
 		void	DisplayLevelShapes(byte color);
 		void	DisplayLevelContours(byte color);
 		Level*	SelectLevel(byte color);

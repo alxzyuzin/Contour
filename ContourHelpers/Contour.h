@@ -39,6 +39,8 @@ namespace ContourHelpers
 		Point* Contour::FindRightNearestPoint(int pointnumber);
 
 		Point& operator[](int i);
+		bool Contains(Point* point);
+		bool ContainPoint(int x, int y);
 		
 
 	private:

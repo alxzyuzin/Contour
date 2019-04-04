@@ -76,10 +76,7 @@ void Bitmap::SetSource(IRandomAccessStream^ stream)
 void Bitmap::ConvertToGrayscale(byte levels)
 {
 	// Убедимся что входной параметр нажодится в допустимом диапазоне
-	if (levels < 0 || levels > 255)
-	{
-		throw ref new InvalidArgumentException();
-	}
+	if (levels < 0 || levels > 255) throw ref new InvalidArgumentException();
 
 	int range = 255 / levels;
 
@@ -89,6 +86,8 @@ void Bitmap::ConvertToGrayscale(byte levels)
 		{
 			int pos = j * (m_Width * 4) + (i);
 			byte pixelColor = (((m_pPixelBuffer[pos] + m_pPixelBuffer[pos + 1] + m_pPixelBuffer[pos + 2]) / 3) / range)*range;
+			// Зарезервируем цвет 0xFF для пикселей фона
+			pixelColor = pixelColor == 0xFF ? 0xFE : pixelColor;
 			m_pPixelBuffer[pos] = pixelColor;
 			m_pPixelBuffer[pos + 1] = pixelColor;
 			m_pPixelBuffer[pos + 2] = pixelColor;
@@ -133,10 +132,7 @@ void Bitmap::ExtractLevels()
 
 	// Вынесем каждый оттенок в отдельный буфер
 	for (byte levelColor : colormap)
-	{
-		Level* level = ExtractSingleLevel(levelColor);
-		m_Levels.push_back(level);
-	}
+		m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer));
 	return;
 }
 
@@ -210,6 +206,7 @@ void Bitmap::ClearPixelBuffer()
 	}
 
 }
+
 void Bitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 {
 	ClearPixelBuffer();
@@ -239,23 +236,6 @@ void Bitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 //-----------------------------------------------------------------------------
 
 
-Level* Bitmap::ExtractSingleLevel(byte color)
-{
-	Level* level = new Level(m_Width, m_Height, color, m_pPixelBuffer);
-//	for (int j = 0; j < m_Height; j++)
-//	{
-//		for (int i = 0, k=0; i < (m_Width * 4); i+=4,k++)
-//		{
-//			int pos = j * (m_Width * 4) + i;
-//			int levelpos = j * m_Width + k;
-//
-//			if (m_pPixelBuffer[pos] == color)
-//				level->SetPixel(levelpos, m_pPixelBuffer[pos]);
-//		}
-//	}
-	return level;
-}
-
 ///
 /// Переносит данные одного слоя в буфер для отображения на экране
 ///
@@ -264,32 +244,13 @@ void Bitmap::DisplayLevelShapes(byte color)
 	Level* selectedLevel = SelectLevel(color);
 	if (!selectedLevel) return;
 	selectedLevel->GetLevelShapes(m_pPixelBuffer);
-	
-	
-	
-//	byte pixelColor = selectedLevel->m_Color;
-	/*for (int j = 0; j < m_Height; j++)
-	{
-		for (int i = 0, k = 0; i < (m_Width * 4); i += 4, k++)
-		{
-			int offset = j * (m_Width * 4) + i;
-			int levelpos = j * m_Width + k;
-			byte pixelColor = selectedLevel->GetPixel(levelpos);
-			if (pixelColor == selectedLevel->m_Color)
-			{
-				m_pPixelBuffer[offset] = pixelColor;
-				m_pPixelBuffer[offset + 1] = pixelColor;
-				m_pPixelBuffer[offset + 2] = pixelColor;
-				m_pPixelBuffer[offset + 3] = 0xFF;
-			}
-		}
-	}*/
 }
 
 void Bitmap::OutlineImage()
 {
 	for (Level* level : m_Levels)
-		level->FindAllContours();
+		level->Outline();
+		//level->FindAllContours();
 }
 
 

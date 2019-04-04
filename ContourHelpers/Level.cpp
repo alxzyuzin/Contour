@@ -22,12 +22,9 @@ Level::Level(int width, int height, byte levelColor, byte* pPixelBuffer)
 	{
 		for (int x = 0, k = 0; x < (m_Width * 4); x += 4, k++)
 		{
-			//int pixelBufferOffset = y * (m_Width * 4) + x;
 			byte bitmapPixelColor = pPixelBuffer[y * (m_Width * 4) + x];
 			int levelOffset = y * m_Width + k;
-
-			if (bitmapPixelColor == levelColor)
-				SetPixel(levelOffset, levelColor);
+			m_pBuffer[y * m_Width + k] = (bitmapPixelColor == levelColor) ? levelColor : 0xFF;
 		}
 	}
 
@@ -111,23 +108,138 @@ void Level::GetLevelShapes(byte* pPixelBuffer)
 
 void Level::Outline()
 {
-	Contour* contour;
-	do
-	{
-		contour = FindExternalContour(nullptr);
-		if (contour->Size() > 0)
-		{
-			RemoveShape(contour);
-			m_Contours.push_back(contour);
-		}
-
-	} while (contour->Size() > 0);
+	FindInternalContours(nullptr, m_Color);
 }
 
-int FindInternalContours(Contour* parentContour, byte shapeColor)
+void Level::FindInternalContours(Contour* parentContour, byte shapeColor)
 {
-	return 0;
+	while (true)
+	{
+		Contour* contour = FindContour(parentContour, shapeColor);
+		if (contour == nullptr)
+			break;
+
+//		byte newShapeColor = (shapeColor == m_Color) ? 0xFF : shapeColor;
+//		FindInternalContours(contour, newShapeColor);
+
+		RemoveShape(contour);
+		m_Contours.push_back(contour);
+	} 
 }
+
+Point* Level::FindFirstContourPoint(Contour* parentContour, byte shapeColor)
+{
+	if (parentContour == nullptr)
+	{
+		// parentCountour - рамка изображения
+		for (int y = 0; y < m_Height; y++)
+			for (int x = 0; x < m_Width; x++)
+			{
+				byte c = m_pBuffer[y * m_Width + x]; //
+				if (m_pBuffer[y * m_Width + x] == shapeColor)
+					return new Point(x, y);
+			}
+	}
+	else
+		// Ищем контур внутри контура parentCountour
+	{
+		for (int i = (parentContour->Size() - 1); i >= 0; i--) // обходим контур против часовой стрелки
+		{
+			Point* StartPoint = parentContour->GetPoint(i);
+			Point* EndPoint =	parentContour->FindRightNearestPoint(i);
+			for (int x = StartPoint->X + 1; x < EndPoint->X; x++)
+			{
+				byte c = m_pBuffer[StartPoint->Y * m_Width + x];
+				if (m_pBuffer[StartPoint->Y * m_Width + x] == shapeColor)
+					return new Point(x, StartPoint->Y);
+			}
+		}
+	}
+	return nullptr;
+}
+
+/*
+Находит следующую точку контура
+Если такая точка найдена то создаёт новый объект Point и возвращает указатель на него
+Если точка не найдена то возвращает nullptr
+*/
+Point* Level::FindNextContourPoint(Contour* parentContour, Point* currentPoint, Direction direction, byte shapeColor)
+{
+	int x = currentPoint->X;
+	int y = currentPoint->Y;
+
+	switch (direction)
+	{
+		case N:  --y;		break;
+		case NE: ++x; --y;	break;
+		case E:  ++x;		break;
+		case SE: ++x; ++y; 	break;
+		case S:  ++y; 		break;
+		case SW: --x; ++y;	break;
+		case W:  --x; 		break;
+		case NW: --x; --y;	break;
+	}
+
+	if (parentContour == nullptr)
+	{
+		if (y < 0 || y >= m_Height || x < 0 || x >= m_Width)
+			return nullptr;
+		else
+			return new Point(x, y);
+	}
+	else
+	{
+		if (!parentContour->ContainPoint(x,y) && GetPixel(x, y) == shapeColor)
+			return new Point(x, y);
+		else
+			return nullptr;
+	}
+}
+
+Contour* Level::FindContour(Contour* parentContour, byte shapeColor)
+{
+	Point* firstPoint = FindFirstContourPoint(parentContour, shapeColor);
+	
+	if (firstPoint == nullptr)
+		return nullptr;
+
+	Contour* contour = new Contour();
+	contour->AddPoint(firstPoint);
+
+	Point* currentPoint = firstPoint;
+
+	Direction searchDirection = Direction::E;
+	while (1)
+	{
+		searchDirection = StartDirection(searchDirection);
+
+		int l;
+		for (l = 0; l < 8; l++)
+		{
+			Point* nextPoint = FindNextContourPoint(parentContour, currentPoint, searchDirection, shapeColor);
+			if (nextPoint)
+			{
+				if (GetPixel(nextPoint) == shapeColor)
+				{
+					if ((nextPoint->X == firstPoint->X) && (nextPoint->Y == firstPoint->Y))
+						return contour;
+					else
+					{
+						currentPoint = nextPoint;
+						contour->AddPoint(currentPoint);
+						break;
+					}
+				}
+			}
+			searchDirection = NextDirection(searchDirection);
+		}
+		if (l == 8)  // сделали полный круг и не нашли продолжения контура
+			break; // контур состоит из одного пикселя
+	}
+	return contour;
+}
+
+
 
 void Level::FindAllContours()
 {
@@ -153,6 +265,7 @@ Point* Level::FindFirstExternalContourPoint(Contour* parentContour)
 	for (int y = 0; y < m_Height; y++)
 		for (int x = 0; x < m_Width; x++)
 		{
+			byte c = m_pBuffer[y * m_Width + x];
 			if (m_pBuffer[y * m_Width + x] == m_Color)
 				return new Point(x,y);
 		}
@@ -397,7 +510,7 @@ void Level::RemoveShape(Contour* contour)
 	Point* p2 = nullptr;
 	Point* p3 = nullptr;
 	
-	for (unsigned int i = 0; i < contour->Size() - 1; i++)
+	for (int i = 0; i < contour->Size() - 1; i++)
 	{
 		// выбираем две последовательные точки контура и определяем направление
 		// отрисовки контура по оси Y
@@ -423,7 +536,7 @@ void Level::RemoveShape(Contour* contour)
 		}
 	}
 	// Закрашиваем сам контур 
-	for (unsigned int i = 0; i < contour->Size(); i++)
+	for (int i = 0; i < contour->Size(); i++)
 		SetPixel(contour->GetPoint(i), baseColor);
 	std::clock_t end = std::clock();
 
