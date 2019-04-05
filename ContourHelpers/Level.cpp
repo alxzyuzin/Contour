@@ -127,7 +127,7 @@ void Level::FindInternalContours(Contour* parentContour, byte shapeColor)
 	} 
 }
 
-Point* Level::FindFirstContourPoint(Contour* parentContour, byte shapeColor)
+bool Level::FindFirstContourPoint(Contour* parentContour, Point& point, byte shapeColor)
 {
 	if (parentContour == nullptr)
 	{
@@ -137,8 +137,14 @@ Point* Level::FindFirstContourPoint(Contour* parentContour, byte shapeColor)
 			{
 				byte c = m_pBuffer[y * m_Width + x]; //
 				if (m_pBuffer[y * m_Width + x] == shapeColor)
-					return new Point(x, y);
+				{
+					point.X = x;
+					point.Y = y;
+					return true;
+				}
+				//	return new Point(x, y);
 			}
+		return false;
 	}
 	else
 		// Ищем контур внутри контура parentCountour
@@ -151,11 +157,16 @@ Point* Level::FindFirstContourPoint(Contour* parentContour, byte shapeColor)
 			{
 				byte c = m_pBuffer[StartPoint->Y * m_Width + x];
 				if (m_pBuffer[StartPoint->Y * m_Width + x] == shapeColor)
-					return new Point(x, StartPoint->Y);
+				{
+					point.X = x;
+					point.Y = StartPoint->Y;
+					return true;
+				}
+				//	return new Point(x, StartPoint->Y);
 			}
 		}
 	}
-	return nullptr;
+	return false;
 }
 
 /*
@@ -163,10 +174,10 @@ Point* Level::FindFirstContourPoint(Contour* parentContour, byte shapeColor)
 Если такая точка найдена то создаёт новый объект Point и возвращает указатель на него
 Если точка не найдена то возвращает nullptr
 */
-Point* Level::FindNextContourPoint(Contour* parentContour, Point* currentPoint, Direction direction, byte shapeColor)
+bool Level::FindNextContourPoint(Contour* parentContour, Point& currentPoint, Direction direction, byte shapeColor)
 {
-	int x = currentPoint->X;
-	int y = currentPoint->Y;
+	int x = currentPoint.X;
+	int y = currentPoint.Y;
 
 	switch (direction)
 	{
@@ -180,58 +191,69 @@ Point* Level::FindNextContourPoint(Contour* parentContour, Point* currentPoint, 
 		case NW: --x; --y;	break;
 	}
 
-	Point newPoint = Point(x, y);
+	
 	if (parentContour == nullptr)
 	{
 		// Проверяем не выходит ли точка за границы изображения
-		if (y >= 0 && y < m_Height && x >= 0 && x < m_Width)
-			return new Point(x, y);
+		if (y >= 0 && y < m_Height && x >= 0 && x < m_Width && (GetPixel(x, y) == shapeColor))
+		{
+
+			currentPoint.X = x;
+			currentPoint.Y = y;
+			return true;
+		}
+		else
+			return false;
 	}
 	else
 	{
 		if (parentContour->ContainPoint(x,y))
-			return nullptr;
+			return false;
 //		if (!parentContour->EnclosePoint(x,y))
 //			return nullptr;
 		if (GetPixel(x, y) != shapeColor)
-			return nullptr;
+			return false;
 
-		return new Point(x, y);
+		currentPoint.X = x;
+		currentPoint.Y = y;
+		return true;
+
 	}
-	return nullptr;
+	return false;
 }
 
 Contour* Level::FindContour(Contour* parentContour, byte shapeColor)
 {
-	Point* firstPoint = FindFirstContourPoint(parentContour, shapeColor);
+	Point firstPoint(0,0);
+	bool firstPointFound = FindFirstContourPoint(parentContour, firstPoint, shapeColor);
 	
-	if (firstPoint == nullptr)
+	if (!firstPointFound)
 		return nullptr;
 
 	Contour* contour = new Contour();
-	contour->AddPoint(*firstPoint);
+	contour->AddPoint(firstPoint);
 
-	Point* currentPoint = firstPoint;
+	Point nextPoint = firstPoint;
 
 	Direction searchDirection = Direction::E;
-	while (1)
+	while (true)
 	{
 		searchDirection = StartDirection(searchDirection);
 
 		int l;
 		for (l = 0; l < 8; l++)
 		{
-			Point* nextPoint = FindNextContourPoint(parentContour, currentPoint, searchDirection, shapeColor);
-			if (nextPoint)
+			bool nextPointFound = FindNextContourPoint(parentContour, nextPoint, searchDirection, shapeColor);
+			if (nextPointFound)
 			{
-				if (GetPixel(nextPoint) == shapeColor)
+				if (GetPixel(nextPoint.X, nextPoint.Y) == shapeColor)
 				{
-					if ((nextPoint->X == firstPoint->X) && (nextPoint->Y == firstPoint->Y))
+					if ((nextPoint.X == firstPoint.X) && (nextPoint.Y == firstPoint.Y))
 						return contour;
 					else
 					{
-						currentPoint = nextPoint;
-						contour->AddPoint(*currentPoint);
+						//currentPoint = nextPoint;
+						contour->AddPoint(nextPoint);
 						break;
 					}
 				}

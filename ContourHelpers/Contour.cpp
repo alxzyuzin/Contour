@@ -47,7 +47,7 @@ namespace ContourHelpers
 ----------------------------------------------------------------------------*/
 	Point* Contour::FindLeftNearestPoint(int pointnumber)
 	{
-		// Найдём ближайжую слева точку контура лежащую в той же строке что и p2
+		// Найдём ближайжую слева точку контура лежащую в той же строке что и точка контура с номером pointnumber
 		int lastDistance = MININT;
 		Point *p = nullptr;
 		for (unsigned int l = 0; l < m_Points.size(); l++)

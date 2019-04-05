@@ -33,8 +33,8 @@ namespace ContourHelpers
 
 		void FindInternalContours(Contour* parentContour, byte shapeColor);
 		Contour* FindContour(Contour* parentContour, byte shapeColor);
-		Point* FindFirstContourPoint(Contour* parentContour, byte shapeColor);
-		Point* FindNextContourPoint(Contour* parentContour, Point* point, Direction direction, byte shapeColor);
+		bool FindFirstContourPoint(Contour* parentContour, Point& point, byte shapeColor);
+		bool FindNextContourPoint(Contour* parentContour, Point& point, Direction direction, byte shapeColor);
 
 
 	private:
