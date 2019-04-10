@@ -3,16 +3,29 @@
 
 using namespace std;
 
+
 namespace ContourHelpers
 {
+
+	/*bool Point::operator==(const Point& p1, const Point& p2)
+	{
+		return p1.X == p2.X && p1.Y == p2.Y;
+	}*/
+
+//	bool Point::operator ==(const Point& point) {
+//		if (this->X == point.X && this->Y == point.Y)
+//			return true;
+//		return false;
+//	}
+
 	Contour::Contour()
 	{
 		
 	}
 
-	Contour::Contour(ContourType type)
+	Contour::Contour(unsigned char color)
 	{
-		Type = type;
+		m_Color = color;
 	}
 
 	Contour::~Contour()
@@ -20,11 +33,10 @@ namespace ContourHelpers
 		
 	}
 
-	Point& Contour::operator[](int i) {
+	Point& Contour::operator[](unsigned int i) {
 		if (i >  m_Points.size()) {
 			return m_Points[0];
 		}
-
 		return m_Points[i];
 	}
 
@@ -37,6 +49,12 @@ namespace ContourHelpers
 	{
       return &m_Points[i];
 	}
+
+	unsigned char Contour::GetColor()
+	{
+		return m_Color;
+	}
+
 
 	int Contour::Size()
 	{

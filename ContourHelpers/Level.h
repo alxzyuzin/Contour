@@ -1,24 +1,38 @@
+// The following ifdef block is the standard way of creating macros which make exporting
+// from a DLL simpler. All files within this DLL are compiled with the ROOTERLIB_EXPORTS
+// symbol defined on the command line. This symbol should not be defined on any project
+// that uses this DLL. This way any other project whose source files include this file see
+// ROOTERLIB_API functions as being imported from a DLL, whereas this DLL sees symbols
+// defined with this macro as being exported.
+
+
+
 #pragma once
 #include <ctime>
 #include "Contour.h"
 
+
 using namespace std;
+
+//#ifdef ROOTERLIB_EXPORTS
+//#define ROOTERLIB_API  __declspec(dllexport)
+//#else
+//#define ROOTERLIB_API __declspec(dllimport)
+//#endif //ROOTERLIB_EXPORTS
 
 namespace ContourHelpers
 {
-	
-
-	private enum Direction { N, NE, E, SE, S, SW, W, NW };
+	enum Direction { N, NE, E, SE, S, SW, W, NW };
 
 	class Level sealed
 	{
 
 	public:
-		byte m_Color;
+		unsigned char m_Color;
 		vector<Contour*> m_Contours;
 
 	public:
-		Level(int width, int height, byte color, byte* pixeldata );
+		Level(int width, int height, unsigned char color, unsigned char* pixeldata );
 		~Level();
 
 	public:
@@ -26,23 +40,21 @@ namespace ContourHelpers
 		void Outline();
 		void FindAllContours();
 		void Rectify(int size);
-		byte GetPixel(int x, int y);
-		byte GetPixel(int position);
-		void SetPixel(int pos, byte color);
-		void GetLevelShapes(byte* pPixelBuffer);
+		unsigned char GetPixel(int x, int y);
+		unsigned char GetPixel(int position);
+		void SetPixel(int pos, unsigned char color);
+		void GetLevelShapes(unsigned char* pPixelBuffer);
 
-		void FindInternalContours(Contour* parentContour, byte shapeColor);
-		Contour* FindContour(Contour* parentContour, byte shapeColor);
-		bool FindFirstContourPoint(Contour* parentContour, Point& point, byte shapeColor);
-		bool FindNextContourPoint(Contour* parentContour, Point& point, Direction direction, byte shapeColor);
+		void FindInternalContours(Contour* parentContour, unsigned char shapeColor);
+		Contour* FindContour(Contour* parentContour, unsigned char shapeColor);
+		bool FindFirstContourPoint(Contour* parentContour, Point& point, unsigned char shapeColor);
+		bool FindNextContourPoint(Contour* parentContour, Point& point, Direction direction, unsigned char shapeColor);
 
 
 	private:
-		void SetPixel(Point* point, byte color);
-		[Windows::Foundation::Metadata::DefaultOverloadAttribute]
-		void SetPixel(int x, int y, byte color);
-		byte GetPixel(Point* point);
-		[Windows::Foundation::Metadata::DefaultOverloadAttribute]
+		void SetPixel(Point* point, unsigned char color);
+		void SetPixel(int x, int y, unsigned char color);
+		unsigned char GetPixel(Point* point);
 		Contour* FindExternalContour(Contour* parentContour);
 		Point* FindFirstExternalContourPoint(Contour* parentContour);
 		Point* FindNextExternalContourPoint(Point* point, Direction startDirection);
@@ -53,7 +65,7 @@ namespace ContourHelpers
 //		void SortContourPointsByX(std::vector<Point^> points, int firstindex, int lastindex);
 //		int SortPass(std::vector<Point^> points, int firstindex, int lastindex);
 
-		inline void DrawHorizontalLine(int x1, int x2, int y, byte color);
+		inline void DrawHorizontalLine(int x1, int x2, int y, unsigned char color);
 
 		Direction StartDirection(Direction direction);
 		Direction NextDirection(Direction direction);
@@ -64,12 +76,11 @@ namespace ContourHelpers
 	private:	 // Members
 		int m_Width;
 		int m_Height;
-		byte* m_pBuffer;
-		byte* m_pShapesBuffer;
+		unsigned char* m_pBuffer;
+		unsigned char* m_pShapesBuffer;
 		int m_BufferLength;
-
-
 	};
 
+	
 }
 

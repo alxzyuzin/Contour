@@ -3,14 +3,14 @@
 
 using namespace ContourHelpers;
 
-Level::Level(int width, int height, byte levelColor, byte* pPixelBuffer)
+Level::Level(int width, int height, unsigned char levelColor, unsigned char* pPixelBuffer)
 {
 	m_Width = width;
 	m_Height = height;
 	m_Color = levelColor;
 	m_BufferLength = width * height;
-	m_pBuffer = new byte[m_BufferLength];
-	m_pShapesBuffer = new byte[m_BufferLength];
+	m_pBuffer = new unsigned char[m_BufferLength];
+	m_pShapesBuffer = new unsigned char[m_BufferLength];
 	// Закрасим слой белым цветом
 	// При преобразовании исходного изображения к оттенкам серого
 	// в полученном изображении не будет точек белого цвета
@@ -22,7 +22,7 @@ Level::Level(int width, int height, byte levelColor, byte* pPixelBuffer)
 	{
 		for (int x = 0, k = 0; x < (m_Width * 4); x += 4, k++)
 		{
-			byte bitmapPixelColor = pPixelBuffer[y * (m_Width * 4) + x];
+			unsigned char bitmapPixelColor = pPixelBuffer[y * (m_Width * 4) + x];
 			int levelOffset = y * m_Width + k;
 			m_pBuffer[y * m_Width + k] = (bitmapPixelColor == levelColor) ? levelColor : 0xFF;
 		}
@@ -36,9 +36,7 @@ Level::Level(int width, int height, byte levelColor, byte* pPixelBuffer)
 Level::~Level()
 {
 	for (auto contour : m_Contours)
-	{
 		delete contour;
-	}
 
 	delete[] m_pShapesBuffer;
 	delete[] m_pBuffer;
@@ -56,45 +54,44 @@ void Level::Clear()
 	m_Color =0;
 }
 
-void Level::SetPixel(int position, byte color)
+void Level::SetPixel(int position, unsigned char color)
 {
 	m_pBuffer[position] = color;
 }
 
-byte Level::GetPixel(int position)
+unsigned char Level::GetPixel(int position)
 {
 	return m_pBuffer[position];
 }
 
-void Level::SetPixel(Point* point, byte color)
+void Level::SetPixel(Point* point, unsigned char color)
 {
 	m_pBuffer[point->Y * m_Width + point->X] = color;
 }
 
-byte Level::GetPixel(Point* point)
+unsigned char Level::GetPixel(Point* point)
 {
 	return m_pBuffer[point->Y * m_Width + point->X];
 }
 
-void Level::SetPixel(int x, int y, byte color)
+void Level::SetPixel(int x, int y, unsigned char color)
 {
 	m_pBuffer[y * m_Width + x] = color;
 }
 
-byte Level::GetPixel(int x, int y)
+unsigned char Level::GetPixel(int x, int y)
 {
 	return m_pBuffer[y * m_Width + x];
 }
 
-
-void Level::GetLevelShapes(byte* pPixelBuffer)
+void Level::GetLevelShapes(unsigned char* pPixelBuffer)
 {
 	for (int y = 0; y < m_Height; y++)
 	{
 		for (int x = 0; x < m_Width; x++)
 		{
 			int PixelBufferOffset = (y * m_Width + x) * 4;
-			byte pixelColor = m_pShapesBuffer[y * m_Width + x];
+			unsigned char pixelColor = m_pShapesBuffer[y * m_Width + x];
 			if (pixelColor == m_Color)
 			{
 				pPixelBuffer[PixelBufferOffset] = m_Color;
@@ -111,7 +108,7 @@ void Level::Outline()
 	FindInternalContours(nullptr, m_Color);
 }
 
-void Level::FindInternalContours(Contour* parentContour, byte shapeColor)
+void Level::FindInternalContours(Contour* parentContour, unsigned char shapeColor)
 {
 	while (true)
 	{
@@ -119,15 +116,27 @@ void Level::FindInternalContours(Contour* parentContour, byte shapeColor)
 		if (contour == nullptr)
 			break;
 		// Найдём внутренние контуры нового контура
-		byte newShapeColor = (shapeColor == m_Color) ? 0xFF : shapeColor;
-		//FindInternalContours(contour, newShapeColor);
-
+		unsigned char newShapeColor = (shapeColor == m_Color) ? 0xFF : shapeColor;
+		FindInternalContours(contour, newShapeColor);
 		RemoveShape(contour);
 		m_Contours.push_back(contour);
 	} 
 }
 
-bool Level::FindFirstContourPoint(Contour* parentContour, Point& point, byte shapeColor)
+/*
+Ищет первую точку контура (первую попавшуюся точку области закрашенной цветом shapeColor.
+IN parameters 
+	parentContour - function looking for first point of new contour inside parentContour.
+					If parentContour = nullptr it means that we start search most top level contours.
+	shapeColor	  - color of shape being contoured
+OUT parameters
+	point - found point. Variable point contains found point coords.
+
+RETURN value 
+	true  - if point found
+	false - if point NOT found
+*/
+bool Level::FindFirstContourPoint(Contour* parentContour, Point& point, unsigned char shapeColor)
 {
 	if (parentContour == nullptr)
 	{
@@ -135,14 +144,13 @@ bool Level::FindFirstContourPoint(Contour* parentContour, Point& point, byte sha
 		for (int y = 0; y < m_Height; y++)
 			for (int x = 0; x < m_Width; x++)
 			{
-				byte c = m_pBuffer[y * m_Width + x]; //
+				unsigned char c = m_pBuffer[y * m_Width + x]; //
 				if (m_pBuffer[y * m_Width + x] == shapeColor)
 				{
 					point.X = x;
 					point.Y = y;
 					return true;
 				}
-				//	return new Point(x, y);
 			}
 		return false;
 	}
@@ -153,17 +161,20 @@ bool Level::FindFirstContourPoint(Contour* parentContour, Point& point, byte sha
 		{
 			Point* StartPoint = parentContour->GetPoint(i);
 			Point* EndPoint =	parentContour->FindRightNearestPoint(i);
-			for (int x = StartPoint->X + 1; x < EndPoint->X; x++)
+			if (EndPoint)
 			{
-				byte c = m_pBuffer[StartPoint->Y * m_Width + x];
-				if (m_pBuffer[StartPoint->Y * m_Width + x] == shapeColor)
+				for (int x = StartPoint->X + 1; x < EndPoint->X; x++)
 				{
-					point.X = x;
-					point.Y = StartPoint->Y;
-					return true;
+					unsigned char c = m_pBuffer[StartPoint->Y * m_Width + x];
+					if (m_pBuffer[StartPoint->Y * m_Width + x] == shapeColor)
+					{
+						point.X = x;
+						point.Y = StartPoint->Y;
+						return true;
+					}
 				}
-				//	return new Point(x, StartPoint->Y);
 			}
+
 		}
 	}
 	return false;
@@ -174,7 +185,7 @@ bool Level::FindFirstContourPoint(Contour* parentContour, Point& point, byte sha
 Если такая точка найдена то создаёт новый объект Point и возвращает указатель на него
 Если точка не найдена то возвращает nullptr
 */
-bool Level::FindNextContourPoint(Contour* parentContour, Point& currentPoint, Direction direction, byte shapeColor)
+bool Level::FindNextContourPoint(Contour* parentContour, Point& currentPoint, Direction direction, unsigned char shapeColor)
 {
 	int x = currentPoint.X;
 	int y = currentPoint.Y;
@@ -197,7 +208,6 @@ bool Level::FindNextContourPoint(Contour* parentContour, Point& currentPoint, Di
 		// Проверяем не выходит ли точка за границы изображения
 		if (y >= 0 && y < m_Height && x >= 0 && x < m_Width && (GetPixel(x, y) == shapeColor))
 		{
-
 			currentPoint.X = x;
 			currentPoint.Y = y;
 			return true;
@@ -222,7 +232,7 @@ bool Level::FindNextContourPoint(Contour* parentContour, Point& currentPoint, Di
 	return false;
 }
 
-Contour* Level::FindContour(Contour* parentContour, byte shapeColor)
+Contour* Level::FindContour(Contour* parentContour, unsigned char shapeColor)
 {
 	Point firstPoint(0,0);
 	bool firstPointFound = FindFirstContourPoint(parentContour, firstPoint, shapeColor);
@@ -252,7 +262,6 @@ Contour* Level::FindContour(Contour* parentContour, byte shapeColor)
 						return contour;
 					else
 					{
-						//currentPoint = nextPoint;
 						contour->AddPoint(nextPoint);
 						break;
 					}
@@ -263,10 +272,12 @@ Contour* Level::FindContour(Contour* parentContour, byte shapeColor)
 		if (l == 8)  // сделали полный круг и не нашли продолжения контура
 			break; // контур состоит из одного пикселя
 	}
+	// Если контур состоит из одного пикселя с цветом 0xFF, то  не считаем его контуром и возвращаем nullptr
+	// Область занимаемую этим пикселем стирать не нужно это и так пустое место
+	//if (contour->Size() == 1 && GetPixel(firstPoint.X, firstPoint.Y) == 0xFF)
+	//	return nullptr;
 	return contour;
 }
-
-
 
 void Level::FindAllContours()
 {
@@ -282,7 +293,6 @@ void Level::FindAllContours()
 	} while (contour->Size() > 0);
 }
 
-
 //----------------------------------------------------------------------------
 // Находит граничную точку первой областе для оконтуривания
 //----------------------------------------------------------------------------
@@ -292,7 +302,7 @@ Point* Level::FindFirstExternalContourPoint(Contour* parentContour)
 	for (int y = 0; y < m_Height; y++)
 		for (int x = 0; x < m_Width; x++)
 		{
-			byte c = m_pBuffer[y * m_Width + x];
+			unsigned char c = m_pBuffer[y * m_Width + x];
 			if (m_pBuffer[y * m_Width + x] == m_Color)
 				return new Point(x,y);
 		}
@@ -488,7 +498,9 @@ int Level::comparePoints(const void * a, const void * b)
 //----------------------------------------------------------------------------
 void Level::RemoveShape(Contour* contour)
 {
-	byte baseColor = 0xFF;
+	//byte baseColor = 0xFF;
+	unsigned char baseColor = contour->GetColor();
+
 	std::clock_t    start;
 	start = std::clock();
 	/*
@@ -571,7 +583,7 @@ double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 s
 }
 
 
-inline void Level::DrawHorizontalLine(int x1, int x2, int y, byte color)
+inline void Level::DrawHorizontalLine(int x1, int x2, int y, unsigned char color)
 {
 //	if (x1 > x2)
 //	{ 	int x = x1; x1 = x2; x2 = x; }
@@ -590,7 +602,7 @@ void Level::Rectify(int size)
 		{
 			if (BorderHasOnlyOneColor(x, y, size)) // В окружении на расстоянии +-size нет цветных точек
 			{
-				byte centralColor = GetPixel(x, y);
+				unsigned char centralColor = GetPixel(x, y);
 				if (centralColor != 0xFF)
 				{
 					// Закрасим внутренность белым цветом
@@ -616,31 +628,31 @@ bool Level::BorderHasOnlyOneColor(int x, int y, int size)
 	int top_y = y - size;
 	int bottom_y = y + size;
 
-	byte baseColor = 0xFF;// m_Color;
+	unsigned char baseColor = 0xFF;// m_Color;
 	// Проверим верхнюю границу
 	for (int x = left_x; x <= right_x; x++)
 	{
-		byte color = GetPixel(x, top_y);
+		unsigned char color = GetPixel(x, top_y);
 		if (color != baseColor) return false;
 	}
 	
 	// Проверим нижнюю границу
 	for (int x = left_x; x <= right_x; x++)
 	{
-		byte color = GetPixel(x, bottom_y);
+		unsigned char color = GetPixel(x, bottom_y);
 		if (color != baseColor) return false;
 	}
 	
 	// Проверим левую границу
 	for (int y = top_y + 1; y < bottom_y; y++)
 	{
-		byte color = GetPixel(left_x, y);
+		unsigned char color = GetPixel(left_x, y);
 		if (color != baseColor) return false;
 	}
 	// Проверим правую границу
 	for (int y = top_y + 1; y < bottom_y; y++)
 	{
-		byte color = GetPixel(right_x, y);
+		unsigned char color = GetPixel(right_x, y);
 		if (color != baseColor) return false;
 	}
 	return true;

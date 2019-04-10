@@ -1,10 +1,11 @@
 #pragma once
+#include <vector>
 
 using namespace std;
 
 namespace ContourHelpers
 {
-	enum ContourType { External, Internal };
+	//enum ContourType { External, Internal };
 
 	struct Point
 	{
@@ -16,39 +17,44 @@ namespace ContourHelpers
 			X = x;
 			Y = y;
 		}
+
+		//bool operator ==(const Point& point);
+
+		friend bool operator==(const Point& l, const Point& r)
+		{
+			return l.X == r.X && l.Y == r.Y;
+		}
+
 	};
+
+	
 
 	class Contour sealed
 	{
-	public:
-		ContourType Type;
+	private:
+		
+		vector<Point> m_Points;
+		unsigned char m_Color;
 
 	public:
 		Contour();
-		Contour::Contour(ContourType type);
+		Contour(unsigned char contourColor);
 		~Contour();
 
 		void AddPoint(Point point);
 		int Size();
 		Point* GetPoint(int i);
-
-		//Point* Contour::FindLeftNearestPoint(Contour* contour, int pointnumber);
-		//Point* Contour::FindRightNearestPoint(Contour* contour, int pointnumber);
+		unsigned char   GetColor();
 
 		Point* FindLeftNearestPoint(int pointnumber);
 		Point* FindRightNearestPoint(int pointnumber);
+		Point* FindRightNearestPoint(Point* point);
 
-		Point* Contour::FindRightNearestPoint(Point* point);
-
-		Point& operator[](int i);
+		Point& operator[](unsigned int i);
 		bool Contains(Point* point);
 		bool ContainPoint(int x, int y);
 		bool ContainPoint(Point* point);
-//		bool EnclosePoint(int x, int y);
 		bool EnclosePoint(Point* point);
-
-	private:
-		vector<Point> m_Points;
 
 	};
 
