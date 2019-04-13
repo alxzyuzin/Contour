@@ -18,9 +18,9 @@ using namespace Platform;
 WriteableBitmap^ Bitmap::ImageData::get() { return m_ImageData; }
 void ContourHelpers::Bitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m_ImageData = imageDataValue; }
 
-Array<byte>^ Bitmap::GrayScaleColorMap::get()
+Array<unsigned char>^ Bitmap::GrayScaleColorMap::get()
 {
-	Array<byte>^ grayScaleColorMap = ref new Array<byte>(m_Levels.size());
+	Array<unsigned char>^ grayScaleColorMap = ref new Array<unsigned char>(m_Levels.size());
 
 	for (unsigned int i = 0; i < m_Levels.size(); i++)
 		grayScaleColorMap->set(i, m_Levels[i]->m_Color);
@@ -41,8 +41,6 @@ Bitmap::Bitmap()
 	m_Width = 0;
 	m_Height = 0;
 	m_PixelBufferLength = 0;
-
-	
 }
 
 Bitmap::Bitmap(Page^ page, int width, int height)
@@ -52,7 +50,7 @@ Bitmap::Bitmap(Page^ page, int width, int height)
 	m_PixelBufferLength = 4 * width * height;
 	m_ImageData = ref new WriteableBitmap(width, height);
 	m_pMainPage = page;
-	m_pOriginalImageData = new byte[m_PixelBufferLength];
+	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];
 }
 
 void Bitmap::SetSource(IRandomAccessStream^ stream)
@@ -73,7 +71,7 @@ void Bitmap::SetSource(IRandomAccessStream^ stream)
 
 }
 
-void Bitmap::ConvertToGrayscale(byte levels)
+void Bitmap::ConvertToGrayscale(unsigned char levels)
 {
 	// Убедимся что входной параметр нажодится в допустимом диапазоне
 	if (levels < 0 || levels > 255) throw ref new InvalidArgumentException();
@@ -85,7 +83,7 @@ void Bitmap::ConvertToGrayscale(byte levels)
 		for (int i = 0; i < (m_Width * 4); i += 4)
 		{
 			int pos = j * (m_Width * 4) + (i);
-			byte pixelColor = (((m_pPixelBuffer[pos] + m_pPixelBuffer[pos + 1] + m_pPixelBuffer[pos + 2]) / 3) / range)*range;
+			unsigned char pixelColor = (((m_pPixelBuffer[pos] + m_pPixelBuffer[pos + 1] + m_pPixelBuffer[pos + 2]) / 3) / range)*range;
 			// Зарезервируем цвет 0xFF для пикселей фона
 			pixelColor = pixelColor == 0xFF ? 0xFE : pixelColor;
 			m_pPixelBuffer[pos] = pixelColor;
@@ -101,7 +99,7 @@ void Bitmap::ConvertToGrayscale(byte levels)
 ///
 void Bitmap::ExtractLevels()
 {
-	vector<byte> colormap;
+	vector<unsigned char> colormap;
 	// Сформируем список оттенков серого присутствующих в изображении
 	for (int j = 0; j < m_Height; j++)
 	{
@@ -131,7 +129,7 @@ void Bitmap::ExtractLevels()
 	// Затем разнести пиксели по буферам за один просмотр
 
 	// Вынесем каждый оттенок в отдельный буфер
-	for (byte levelColor : colormap)
+	for (unsigned char levelColor : colormap)
 		m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer));
 	return;
 }
@@ -239,7 +237,7 @@ void Bitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 ///
 /// Переносит данные одного слоя в буфер для отображения на экране
 ///
-void Bitmap::DisplayLevelShapes(byte color)
+void Bitmap::DisplayLevelShapes(unsigned char color)
 {
 	Level* selectedLevel = SelectLevel(color);
 	if (!selectedLevel) return;
@@ -254,7 +252,7 @@ void Bitmap::OutlineImage()
 }
 
 
-void Bitmap::DisplayLevelContours(byte color)
+void Bitmap::DisplayLevelContours(unsigned char color)
 {
 	Level* selectedLevel = SelectLevel(color);
 	Point* point;
@@ -267,7 +265,7 @@ void Bitmap::DisplayLevelContours(byte color)
 		}
 }
 
-void Bitmap::RectifyLevel(byte color, int size)
+void Bitmap::RectifyLevel(unsigned char color, int size)
 {
 	Level* selectedLevel = SelectLevel(color);
 
@@ -278,7 +276,7 @@ void Bitmap::RectifyLevel(byte color, int size)
 //
 */
 
-Level* Bitmap::SelectLevel(byte color)
+Level* Bitmap::SelectLevel(unsigned char color)
 {
 	for (Level* level : m_Levels)
 	{
@@ -292,7 +290,7 @@ Level* Bitmap::SelectLevel(byte color)
 
 }
 
-void Bitmap::SortColorMap(std::vector<byte>* colormap)
+void Bitmap::SortColorMap(std::vector<unsigned char>* colormap)
 {
 /*
 	bool sorted = false;
@@ -312,7 +310,7 @@ void Bitmap::SortColorMap(std::vector<byte>* colormap)
 */
 }
 
-inline void Bitmap::SetPixel(int x, int y, byte b, byte g, byte r, byte a)
+inline void Bitmap::SetPixel(int x, int y, unsigned char b, unsigned char g, unsigned char r, unsigned char a)
 {
 	int pos = y * (m_Width * 4) + x  * 4;
 	
@@ -324,7 +322,7 @@ inline void Bitmap::SetPixel(int x, int y, byte b, byte g, byte r, byte a)
 
 
 byte DisplayParams::Color::get() { return m_Color; }
-void DisplayParams::Color::set(byte color) { m_Color = color; }
+void DisplayParams::Color::set(unsigned char color) { m_Color = color; }
 
 bool DisplayParams::DisplayShapes::get() { return m_DisplayShapes; }
 void DisplayParams::DisplayShapes::set(bool displayShapes) { m_DisplayShapes = displayShapes; }

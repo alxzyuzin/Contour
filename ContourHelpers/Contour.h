@@ -50,7 +50,7 @@ namespace ContourHelpers
 		Point* FindRightNearestPoint(int pointnumber);
 		Point* FindRightNearestPoint(Point* point);
 
-		Point& operator[](unsigned int i);
+		Point* operator[](unsigned int i);
 		bool Contains(Point* point);
 		bool ContainPoint(int x, int y);
 		bool ContainPoint(Point* point);

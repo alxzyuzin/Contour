@@ -28,14 +28,18 @@ namespace ContourHelpers
 	{
 
 	public:
-		unsigned char m_Color;
+		unsigned char	 m_Color;
 		vector<Contour*> m_Contours;
 
 	public:
-		Level(int width, int height, unsigned char color, unsigned char* pixeldata );
+		Level();
+		Level(int width, int height, unsigned char color, unsigned char pixeldata[] );
 		~Level();
 
 	public:
+		
+		static void ExpandLevelData(int width, int height, unsigned char color, unsigned char* inBuffer, unsigned char* outBuffer);
+		
 		void Clear();
 		void Outline();
 		void FindAllContours();
@@ -46,7 +50,12 @@ namespace ContourHelpers
 		void GetLevelShapes(unsigned char* pPixelBuffer);
 
 		void FindInternalContours(Contour* parentContour, unsigned char shapeColor);
+		
 		Contour* FindContour(Contour* parentContour, unsigned char shapeColor);
+		
+		bool	 FindFirstInternalContourPoint(Contour* parentContour, Point& point);
+		Contour* FindInternalContour(Contour* parentContour);
+
 		bool FindFirstContourPoint(Contour* parentContour, Point& point, unsigned char shapeColor);
 		bool FindNextContourPoint(Contour* parentContour, Point& point, Direction direction, unsigned char shapeColor);
 
@@ -79,6 +88,9 @@ namespace ContourHelpers
 		unsigned char* m_pBuffer;
 		unsigned char* m_pShapesBuffer;
 		int m_BufferLength;
+
+
+		const unsigned char EMPTY_COLOR = 0xFF;
 	};
 
 	

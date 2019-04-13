@@ -33,11 +33,12 @@ namespace ContourHelpers
 		
 	}
 
-	Point& Contour::operator[](unsigned int i) {
+	Point* Contour::operator[](unsigned int i) 
+	{
 		if (i >  m_Points.size()) {
-			return m_Points[0];
+			return &m_Points[0];
 		}
-		return m_Points[i];
+		return &m_Points[i];
 	}
 
 	void Contour::AddPoint(Point point)

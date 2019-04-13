@@ -34,7 +34,7 @@ namespace ContourHelpers
 		}
 
 	private:
-		byte m_Color = 0;
+		unsigned char m_Color = 0;
 		bool m_DisplayShapes = false;
 		bool m_DisplayContours = false;
 	};
@@ -73,22 +73,22 @@ namespace ContourHelpers
 
 		void ExtractLevels();
 		void OutlineImage();
-		void RectifyLevel(byte color, int size);
+		void RectifyLevel(unsigned char color, int size);
 
 	private:	//Methods
-		void	DisplayLevelShapes(byte color);
-		void	DisplayLevelContours(byte color);
-		Level*	SelectLevel(byte color);
-		void	SortColorMap(std::vector<byte>* colormap);
-		void	SetPixel(int x, int y, byte r, byte g, byte b, byte a);
+		void	DisplayLevelShapes(unsigned char color);
+		void	DisplayLevelContours(unsigned char color);
+		Level*	SelectLevel(unsigned char color);
+		void	SortColorMap(std::vector<unsigned char>* colormap);
+		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 		void	ClearPixelBuffer();
 
 	private:	//Members
 		int m_Width;				// Ширина изображения в рикселях
 		int m_Height;				// Высота изображения в рикселях
 		int m_PixelBufferLength;	// Длина буфера изображения в байтах
-		byte* m_pPixelBuffer;		// Указатель на буфер WriteableBitmap. Содержимое этого буфера является источником данных для объекта Image
-		byte* m_pOriginalImageData; // Буфер хранит оригинальное изображение загруженное из файла
+		unsigned char* m_pPixelBuffer;		// Указатель на буфер WriteableBitmap. Содержимое этого буфера является источником данных для объекта Image
+		unsigned char* m_pOriginalImageData; // Буфер хранит оригинальное изображение загруженное из файла
 		WriteableBitmap^ m_ImageData = nullptr;
 		Page^ m_pMainPage;
 		bool m_Initialized = false;

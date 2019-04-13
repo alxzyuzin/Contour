@@ -3,8 +3,18 @@
 
 using namespace ContourHelpers;
 
-Level::Level(int width, int height, unsigned char levelColor, unsigned char* pPixelBuffer)
+Level::Level() {};
+Level::Level(int width, int height, unsigned char levelColor, unsigned char pPixelBuffer[])
 {
+	if (width <= 0)
+		throw std::invalid_argument("parameter width <= 0");
+	if (height <= 0)
+		throw std::invalid_argument("parameter width <= 0");
+	if (levelColor == 0xFF)
+		throw std::invalid_argument("Received levelColor value 0xFF");
+	if (!pPixelBuffer)
+		throw std::invalid_argument("Pointer to pPixelBuffer is null");
+
 	m_Width = width;
 	m_Height = height;
 	m_Color = levelColor;
@@ -15,8 +25,8 @@ Level::Level(int width, int height, unsigned char levelColor, unsigned char* pPi
 	// При преобразовании исходного изображения к оттенкам серого
 	// в полученном изображении не будет точек белого цвета
 	// (определяется алгоритмом преобразования) 
-	//for (int i = 0; i < m_BufferLength; i++)
-	//	m_pBuffer[i] = 0xFF;
+	for (int i = 0; i < m_BufferLength; i++)
+		m_pBuffer[i] = 0xFF;
 
 	for (int y = 0; y < m_Height; y++)
 	{
@@ -27,7 +37,8 @@ Level::Level(int width, int height, unsigned char levelColor, unsigned char* pPi
 			m_pBuffer[y * m_Width + k] = (bitmapPixelColor == levelColor) ? levelColor : 0xFF;
 		}
 	}
-
+	// Сделаем копию сформированных данных в m_pShapesBuffer.
+	// Данные из этого буфера будем использовать для рисования слоя на экране
 	for (int i=0; i< m_BufferLength; i++)
 		m_pShapesBuffer[i] = m_pBuffer[i];
 	
@@ -81,7 +92,34 @@ void Level::SetPixel(int x, int y, unsigned char color)
 
 unsigned char Level::GetPixel(int x, int y)
 {
+	int pos = y * m_Width + x;
+	unsigned char c = m_pBuffer[y * m_Width + x];
 	return m_pBuffer[y * m_Width + x];
+}
+
+
+void Level::ExpandLevelData(int width, int height, unsigned char color, unsigned char* inBuffer, unsigned char* outBuffer)
+{
+	for (int i = 0; i < width * height * 4; i++)
+		outBuffer[i] = 0xFF;
+
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			int inBufferOffset = y * width + x;
+			unsigned char bufferPixelColor = inBuffer[inBufferOffset];
+			if (bufferPixelColor == color)
+			{
+				int PixelBufferOffset = inBufferOffset * 4;
+				outBuffer[PixelBufferOffset] = color;
+				outBuffer[PixelBufferOffset + 1] = color;
+				outBuffer[PixelBufferOffset + 2] = color;
+				outBuffer[PixelBufferOffset + 3] = 0xFF;
+			}
+		}
+	}
+
 }
 
 void Level::GetLevelShapes(unsigned char* pPixelBuffer)
@@ -231,7 +269,27 @@ bool Level::FindNextContourPoint(Contour* parentContour, Point& currentPoint, Di
 	}
 	return false;
 }
+/*
+Функция выполняет поиск внешнего контура первой попавшейся закрашенной области 
+закрашенной цветом shapeColor внутри области определяемой контуром parentContour
+Входные параметры
+	parentContour -  контур внутри которого выполняется поиск закрашенной области
+					для оконтуривания
+	shapeColor -  цвет которым закрашена оконтуриваемая область
 
+Возвращаемое значение
+
+	Если контур найден - указатель на объект класса Contour, содержащий список
+	точек контура иначе nullptr
+
+Доработки
+	Убрать параметр shapeColor - он всегда равен значению переменной m_Color
+
+	Попробовать прекращать поиск точек контура как только новая точка
+	совпадёт с одной из найденных точек контура
+	В этом случае контура без внутренних точек будут короче и возможно поиск
+	точек контура будет заканчиваться быстрее.
+*/
 Contour* Level::FindContour(Contour* parentContour, unsigned char shapeColor)
 {
 	Point firstPoint(0,0);
@@ -276,6 +334,41 @@ Contour* Level::FindContour(Contour* parentContour, unsigned char shapeColor)
 	// Область занимаемую этим пикселем стирать не нужно это и так пустое место
 	//if (contour->Size() == 1 && GetPixel(firstPoint.X, firstPoint.Y) == 0xFF)
 	//	return nullptr;
+	return contour;
+}
+
+bool Level::FindFirstInternalContourPoint(Contour* parentContour, Point& point)
+{
+	if (parentContour == nullptr)
+		return false;
+	// Ищем первую точку не закращенной области внутри контура parentCountour
+	// обходим контур против часовой стрелки
+	for (int i = 0; i < parentContour->Size(); i++)
+	{
+		Point* StartPoint = parentContour->GetPoint(i);
+		Point* EndPoint = parentContour->FindLeftNearestPoint(i);
+		if (EndPoint)
+		{
+			for (int x = EndPoint->X + 1; x < StartPoint->X;  x++)
+			{
+				unsigned char c = m_pBuffer[StartPoint->Y * m_Width + x];
+				if (m_pBuffer[StartPoint->Y * m_Width + x] == EMPTY_COLOR)
+				{
+					point.X = x;
+					point.Y = StartPoint->Y;
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+Contour* Level::FindInternalContour(Contour* parentContour)
+{
+	Contour* contour = new Contour();
+	Point point = Point(MAXINT, MAXINT);
+//	bool p = FindFirstInternalContourPoint(parentContour, point);
 	return contour;
 }
 
