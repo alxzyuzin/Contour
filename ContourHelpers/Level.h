@@ -9,10 +9,12 @@
 
 #pragma once
 #include <ctime>
+#include <map>
 #include "Contour.h"
 
 
 using namespace std;
+
 
 //#ifdef ROOTERLIB_EXPORTS
 //#define ROOTERLIB_API  __declspec(dllexport)
@@ -22,12 +24,17 @@ using namespace std;
 
 namespace ContourHelpers
 {
+	
+	
 	enum Direction { N, NE, E, SE, S, SW, W, NW };
+	
+
 
 	class Level sealed
 	{
 
 	public:
+		
 		unsigned char	 m_Color;
 		vector<Contour*> m_Contours;
 
@@ -54,6 +61,8 @@ namespace ContourHelpers
 		Contour* FindContour(Contour* parentContour, unsigned char shapeColor);
 		
 		bool	 FindFirstInternalContourPoint(Contour* parentContour, Point& point);
+		bool	 CheckNextInternalContourPoint(Contour* parentContour, Point& point, Direction direction);
+		bool	 FindNextInternalContourPoint(Contour* parentContour, Point& point, Direction& direction);
 		Contour* FindInternalContour(Contour* parentContour);
 
 		bool FindFirstContourPoint(Contour* parentContour, Point& point, unsigned char shapeColor);
@@ -88,8 +97,36 @@ namespace ContourHelpers
 		unsigned char* m_pBuffer;
 		unsigned char* m_pShapesBuffer;
 		int m_BufferLength;
-
-
+		
+		map<Direction, array<Direction, 8>*> m_ClockwiseDirectionMap = 
+		{
+			{N ,new array<Direction, 8> {SW, W,  NW, N,  NE, E,  SE, S }},
+			{NE,new array<Direction, 8> {W,  NW, N,  NE, E,  SE, S,  SW}},
+			{E ,new array<Direction, 8> {NW, N,  NE, E,  SE, S,  SW, W }},
+			{SE,new array<Direction, 8> {N,  NE, E,  SE, S,  SW, W,  NW}},
+			{S ,new array<Direction, 8> {NE, E,  SE, S,  SW, W,  NW, N }},
+			{SW,new array<Direction, 8> {E,  SE, S,  SW, W,  NW, N,  NE}},
+			{W ,new array<Direction, 8> {SE, S,  SW, W,  NW, N,  NE, E }},
+			{NW,new array<Direction, 8> {S,  SW, W,  NW, N,  NE, E,  SE}}
+		};
+		
+	 	map<Direction, array<Direction,8>*> m_CounterClockwiseDirectionMap =
+		{
+			{N , new array<Direction,8>{NE, N,  NW, W,  SW, S,  SE, E }},
+			{NE, new array<Direction,8>{E,  NE, N,  NW, W,  SW, S,  SE}},
+			{E , new array<Direction,8>{SE, E,  NE, N,  NW, W,  SW, S }},
+			{SE, new array<Direction,8>{S,  SE, E,  NE, N,  NW, W,  SW}},
+			{S , new array<Direction,8>{SW, S,  SE, E,  NE, N,  NW, W }},
+			{SW, new array<Direction,8>{W,  SW, S,  SE, E,  NE, N,  NW}},
+			{W , new array<Direction,8>{NW, W,  SW, S,  SE, E,  NE, N }},
+			{NW, new array<Direction,8>{N,  NW, W,  SW, S,  SE, E,  NE}}
+		};
+		
+		map<Direction, array<Direction,8>*> testmap =
+		{
+			{N, new array<Direction,8> {N,W,S,E,E,S,W,N}},
+			{W, new array<Direction,8>{E,S,W,N,N,W,S,E}}
+		};
 		const unsigned char EMPTY_COLOR = 0xFF;
 	};
 

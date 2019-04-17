@@ -142,14 +142,38 @@ namespace ContourHelpers
 		}
 		return false;
 	}
-	bool Contour::ContainPoint(int x, int y)
+	
+	/*
+		Проверяет лежит ли заданная точка внутри контура
+		Входные параметры 
+			x, y - координаты проверяемой точки
+		Возвращаемое значение
+			true - если точка лежит внутри контура
+			false -  если точка является точкой контура или лежит вне контура
+			
+	*/
+	bool Contour::ContainsPoint(int x, int y)
 	{
+		// Проверим принадлежность точки контуру
 		for (Point point : m_Points)
 		{
 			if (point.X == x && point.Y == y)
-				return true;
+				return false;
 		}
-		return false;
+
+		// Проверим лежит ли точка внутри контура путём подсчета количесва пересечений
+		// горизонатальной линии проведённой из заданной точки вправо до границы изображения
+		int i = 0;
+		Point* rightNearestPoint = new Point(x, y); 
+		while (rightNearestPoint)
+		{
+			++i;
+			rightNearestPoint = FindRightNearestPoint(rightNearestPoint);
+		}
+		// Если количество пересечений контура ( точек контура справа от заданной) точки нечётное,
+		//  то точка лежит вне контура. Иначе внутри контура (сама точка включается в подсчёт точек)
+		return i % 2 == 0 ? true : false;
+		
 	}
 	
 	/*
@@ -158,14 +182,23 @@ namespace ContourHelpers
 			true -  если точка является точкой контура
 			false - если точка не является точкой контура
 	*/
-	bool Contour::ContainPoint(Point* point)
+	bool Contour::ContainsPoint(Point* point)
 	{
 		for (Point contourPoint : m_Points)
 		{
-			if (contourPoint.X == point->X && contourPoint.Y == point->Y)
-				return true;
+			if (contourPoint == *point)
+				return false;
 		}
-		return false;
+		int i = 0;
+		Point* rightNearestPoint = FindRightNearestPoint(point);
+		while (rightNearestPoint)
+		{
+			++i;
+			rightNearestPoint = FindRightNearestPoint(rightNearestPoint);
+		}
+		// Если количество точек контура справа от заданной точки чётное,
+		// то точка лежит вне контура. Иначе внутри контура
+		return i % 2 == 0 ? false : true;
 	}
 	/*
 		Проверяет лежит ли заданная точка внутри контура

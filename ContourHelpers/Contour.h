@@ -52,8 +52,8 @@ namespace ContourHelpers
 
 		Point* operator[](unsigned int i);
 		bool Contains(Point* point);
-		bool ContainPoint(int x, int y);
-		bool ContainPoint(Point* point);
+		bool ContainsPoint(int x, int y);
+		bool ContainsPoint(Point* point);
 		bool EnclosePoint(Point* point);
 
 	};

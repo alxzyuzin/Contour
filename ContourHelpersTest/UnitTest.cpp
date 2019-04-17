@@ -12,6 +12,56 @@ namespace ContourHelpersTest
 	const unsigned char B = 0x00;
 	const unsigned char W = 0xFE;
 
+	// 5x5 Square with black border and black point inside
+	unsigned char DataSet_1[25] =
+	{ 
+		B, B, B, B, B,
+		B, E, E, E, B,
+		B, E, B, E, B,
+		B, E, E, E, B,
+		B, B, B, B, B,
+	};
+
+	// 5x5 Square with black border inside (inverted DataSet_1)
+	unsigned char DataSet_2[25] =
+	{
+		E, E, E, E, E,
+		E, B, B, B, E,
+		E, B, E, B, E,
+		E, B, B, B, E,
+		E, E, E, E, E,
+	};
+
+
+	// 5x5 Square border
+	Point SquareBorderContourPoints_5x5[16] =
+	{ 
+		Point(0,0),Point(1,0),Point(2,0),Point(3,0),Point(4,0),
+		Point(4,1),Point(4,2),Point(4,3),Point(4,4),
+		Point(3,4), Point(2,4),Point(1,4),Point(0,4),
+		Point(0,3),Point(0,2), Point(0,1) 
+	};
+
+	// 3x3 Square border
+	Point SquareBorderContourPoints_3x3[8] =
+	{
+		Point(1,1),Point(2,1),Point(3,1),Point(3,2),Point(3,3),
+		Point(3,3),Point(1,3),Point(1,2) 
+	};
+
+	Direction AllDirections[8] = 
+	{ 
+		Direction::N,
+		Direction::NE,
+		Direction::E,
+		Direction::SE,
+		Direction::S,
+		Direction::SW,
+		Direction::W,
+		Direction::NW
+	};
+
+
 	TEST_CLASS(LevelTest_ServiceFunctions)
 	{
 		unsigned char EmptySquare[25] =
@@ -125,14 +175,13 @@ namespace ContourHelpersTest
 				}, L"Parametr pixelBuffer is null and exception not thrown.");
 		}
 
-
 	};
 
     TEST_CLASS(LevelTest_ExternalContour)
     {
 	private:
+		wchar_t Message[100];
 
-		
 		/*
 		5x5 area of the same color pixels (pixel color 0xFE) 
 		Each pixel presented by 4 bytes
@@ -157,8 +206,6 @@ namespace ContourHelpersTest
 			};
 
     public:
-
-
 		/*
 		Analize 5x5 square area filled by white color (0xFE) 
 		Look for first shape pixel with color 0xFE
@@ -188,7 +235,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(5, 5, 0xFE, WhiteSquareExpanded);
 			Point firstContourPoint = Point(5, 5);
 			Point ExpectedPoint = Point(0, 0);
-			level->FindFirstContourPoint(nullptr, firstContourPoint, 0xFE);
+			level->FindFirstContourPoint(nullptr, firstContourPoint, W);
 			Assert::IsTrue(firstContourPoint == ExpectedPoint);
 		}
 
@@ -239,33 +286,54 @@ namespace ContourHelpersTest
 		*/
 		TEST_METHOD(FindExternalContour_Test_1)
 		{
-			wchar_t Message[100];
 			unsigned char WhiteSquareExpanded[100];
 			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
 			
 			// use this expression to find array size
 			//int size = *(&arr + 1) - arr;
 			int expectedContourLength = 16;
-			Point ExpectedContourPoints[16] =
-					{	Point(0,0),Point(1,0),Point(2,0),Point(3,0),Point(4,0),
-						Point(4,1),Point(4,2),Point(4,3),Point(4,4),
-						Point(3,4), Point(2,4),Point(1,4),Point(0,4),
-						Point(0,3),Point(0,2), Point(0,1) };
-			
-			Level* level = new Level(5, 5, 0xFE, WhiteSquareExpanded);
-			Contour* contour = level->FindContour(nullptr, 0xFE);
+						
+			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
+			Contour* contour = level->FindContour(nullptr, W);
 			swprintf(Message, 100, L"Contour length %i should be %i", contour->Size(), 16);
 			Assert::IsTrue(contour->Size() == expectedContourLength, Message);
 
 			for (int i = 0; i < expectedContourLength; i++)
 			{
 				Point p = *contour->GetPoint(i);
-				swprintf(Message, 100, L"Point %i isn't equal to reference. Point coords X=%i,Y=%i. Should be X=%i,Y=%i", i, p.X, p.Y, ExpectedContourPoints[i].X, ExpectedContourPoints[i].Y);
-				Assert::IsTrue(ExpectedContourPoints[i] == p, L"Contour points does not match.");
+				swprintf(Message, 100, L"Point %i isn't equal to reference. Point coords X=%i,Y=%i. Should be X=%i,Y=%i",
+					i, p.X, p.Y, SquareBorderContourPoints_5x5[i].X, SquareBorderContourPoints_5x5[i].Y);
+				Assert::IsTrue(SquareBorderContourPoints_5x5[i] == p, Message);
 			}
 		}
 
-		
+		/*
+		Find contour of square area having black border and black point in center
+		Check contour length
+		*/
+		TEST_METHOD(FindExternalContour_Test_2)
+		{
+			wchar_t Message[100];
+			unsigned char DataSet_1_Expanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSet_1_Expanded);
+
+			// use this expression to find array size
+			//int size = *(&arr + 1) - arr;
+			int expectedContourLength = 16;
+
+			Level* level = new Level(5, 5, B, DataSet_1_Expanded);
+			Contour* contour = level->FindContour(nullptr, B);
+			swprintf(Message, 100, L"Contour length %i should be %i", contour->Size(), 16);
+			Assert::IsTrue(contour->Size() == expectedContourLength, Message);
+
+			for (int i = 0; i < expectedContourLength; i++)
+			{
+				Point p = *contour->GetPoint(i);
+				swprintf(Message, 100, L"Point %i isn't equal to reference. Point coords X=%i,Y=%i. Should be X=%i,Y=%i",
+					i, p.X, p.Y, SquareBorderContourPoints_5x5[i].X, SquareBorderContourPoints_5x5[i].Y);
+				Assert::IsTrue(SquareBorderContourPoints_5x5[i] == p, L"Contour points does not match.");
+			}
+		}
 
 	
 	}; // class LevelTest_ExternalContour
@@ -273,61 +341,210 @@ namespace ContourHelpersTest
 	TEST_CLASS(LevelTest_InternalContour)
 	{
 	private:
-		// 5x5 Square with black border and black point inside
-	unsigned char BlackBorderAndBlackPointInside[100] =
-		{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-		};
-
-		/*
-		Check if function FindInternalContour return a value
-		Check contour length
-		*/
+		wchar_t Message[100];
 	public:
 		// Try to find first internal contour point
-		TEST_METHOD(TestMethod_1_1)
+		TEST_METHOD(FindFirstInternalContourPoint_Test_1)
 		{
+			unsigned char DataSet_1_Expanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSet_1_Expanded);
+
 			Point point = Point(MAXINT, MAXINT);
-		
 			//Create level filled with test data
-			Level* level = new Level(5, 5, 0x00, BlackBorderAndBlackPointInside);
+			Level* level = new Level(5, 5, B, DataSet_1_Expanded);
 			// Find external contour
-			Contour* contour = level->FindContour(nullptr, 0x00);
+			Contour* contour = level->FindContour(nullptr, B);
 			Assert::IsNotNull(contour, L"Contour not found.");
+			// Find first internal contour point
 			bool result  = level->FindFirstInternalContourPoint(contour, point);
 			Assert::IsTrue(result);
 		}
 
 		// Check if first internal contour point has expected coords
-		TEST_METHOD(TestMethod_1_2)
+		TEST_METHOD(FindFirstInternalContourPoint_Test_2)
 		{
+			unsigned char DataSet_1_Expanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSet_1_Expanded);
+
 			Point point = Point(MAXINT, MAXINT);
 			Point expectedPoint = Point(1, 1);
 			//Create level filled with test data
-			Level* level = new Level(5, 5, 0x00, BlackBorderAndBlackPointInside);
+			Level* level = new Level(5, 5, B, DataSet_1_Expanded);
 			// Find external contour
-			Contour* contour = level->FindContour(nullptr, 0x00);
+			Contour* contour = level->FindContour(nullptr, B);
 
 			bool result = level->FindFirstInternalContourPoint(contour, point);
 			Assert::IsTrue(result, L"First point not found.");
 			
 			Assert::IsTrue(point == expectedPoint,L"Points does not match.");
-
 		}
 
+		// Check if next internal contour point i defined directions 
+		// can not be part of contour
+		TEST_METHOD(CheckNextInternalContourPoint_Test_1)
+		{
+			unsigned char DataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_2, DataSetExpanded);
+			//Create level filled with test data
+			Level* level = new Level(5, 5, B, DataSetExpanded);
+			// Find external contour
+			Contour* contour = level->FindContour(nullptr, B);
+			for (int i = 0; i < 8; i++)
+			{
+				Point currentPoint = Point(2, 2);
+				bool result = level->CheckNextInternalContourPoint(contour, currentPoint, AllDirections[i]);
+				swprintf(Message, 100, L"Neibor point in direction %i can be internal contour point", i);
+				Assert::IsFalse(result, Message);
+			}
+		}
 
-	//	TEST_METHOD(TestMethod1)
-	//	{
-	//		Level* level = new Level(5, 5, 0x00, BlackBorderAndBlackPointInside);
-	//		// Find external contour
-	//		Contour* externalContour = level->FindContour(nullptr, 0x00);
-	//		Contour* internalContour = level->FindInternalContour(nullptr);
-	//		Assert::IsNotNull(internalContour);
+		// Check if neibor point in all defined direction can be next internal contour point
+		TEST_METHOD(CheckNextInternalContourPoint_Test_2)
+		{
+			unsigned char DataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);
+			//Create level filled with test data
+			Level* level = new Level(5, 5, B, DataSetExpanded);
+			// Find external contour
+			Contour* contour = level->FindContour(nullptr, B);
 
-	//	}
+			for (int i = 0; i < 8; i++)
+			{
+				Point currentPoint = Point(2, 2);
+				bool result = level->CheckNextInternalContourPoint(contour, currentPoint, AllDirections[i]);
+				swprintf(Message, 100, L"Neibor point in direction %i cannot be internal contour point", i);
+				Assert::IsTrue(result, Message);
+			}
+		}
+
+		Point ContourPoints[8] =
+		{
+			Point(1,1), Point(2,1), Point(3,1), Point(3,2),
+			Point(3,3), Point(2,3), Point(1,3),	Point(1,2)
+		};
+
+		// Point resides inside contour
+		TEST_METHOD(FindRightNearestPoint_Test_0)
+		{
+			Contour* contour = new Contour(B);
+			for (int i = 0; i < 8; i++)
+				contour->AddPoint(ContourPoints[i]);
+			Point* startPoint = new Point(2, 2);
+			Point* foundPoint = contour->FindRightNearestPoint(startPoint);
+			Point ExpectedPoint = Point(3, 2);
+			swprintf(Message, 100, L"Found point X=%i,Y=%i. Expected point X=%i,Y=%i", 
+					 foundPoint->X, foundPoint->Y,
+					 ExpectedPoint.X, ExpectedPoint.Y);
+			Assert::IsTrue(*foundPoint == ExpectedPoint, Message);
+		}
+		// Point resides on left outside contour
+		TEST_METHOD(FindRightNearestPoint_Test_1)
+		{
+			Contour* contour = new Contour(B);
+			for (int i = 0; i < 8; i++)
+				contour->AddPoint(ContourPoints[i]);
+			Point* startPoint = new Point(0, 2);
+			Point  ExpectedPoint = Point(1, 2);
+			Point* foundPoint = contour->FindRightNearestPoint(startPoint);
+			
+			swprintf(Message, 100, L"Found point X=%i,Y=%i. Expected point X=%i,Y=%i",
+				foundPoint->X, foundPoint->Y,
+				ExpectedPoint.X, ExpectedPoint.Y);
+			Assert::IsTrue(*foundPoint == ExpectedPoint, Message);
+		}
+
+		// Point resides on right outside contour
+		TEST_METHOD(FindRightNearestPoint_Test_2)
+		{
+			Contour* contour = new Contour(B);
+			for (int i = 0; i < 8; i++)
+				contour->AddPoint(ContourPoints[i]);
+			Point* startPoint = new Point(4, 2);
+			Point* foundPoint = contour->FindRightNearestPoint(startPoint);
+			
+			Assert::IsNull(foundPoint,L"Point not expected");
+		}
+
+		// Check function ContainsPoint return true if point resides inside contour
+		// Expected result true
+		TEST_METHOD(ContourContainsPoint_Test_0)
+		{
+			Contour* contour = new Contour(B);
+			for (int i = 0; i < 8; i++)
+				contour->AddPoint(ContourPoints[i]);
+			Assert::IsTrue(contour->ContainsPoint(2, 2));
+		}
+
+		// Check function ContainsPoint return false if point resides on contour
+		TEST_METHOD(ContourContainsPoint_Test_1)
+		{
+			Contour* contour = new Contour(B);
+			for (int i = 0; i < 8; i++)
+				contour->AddPoint(ContourPoints[i]);
+			Assert::IsFalse(contour->ContainsPoint(1, 2));
+		}
+
+		// Check function ContainsPoint return false if point resides on contour
+		// Expected result true
+		TEST_METHOD(ContourContainsPoint_Test_2)
+		{
+			Contour* contour = new Contour(B);
+			for (int i = 0; i < 8; i++)
+				contour->AddPoint(ContourPoints[i]);
+			Assert::IsFalse(contour->ContainsPoint(0, 2));
+		}
+
+		// Check function parameter value control
+		TEST_METHOD(FindInternalContour_Test_0)
+		{
+			Assert::ExpectException< std::invalid_argument, Contour*>([]()
+				{
+					unsigned char DataSetExpanded[100];
+					Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);
+					Level* level = new Level(5, 5, B, DataSetExpanded);
+					return level->FindInternalContour(nullptr);
+					unsigned char pixelBuffer[100];
+				}, L"Parametr parentContour is null and exception not thrown.");
+		}
+
+		// Find internal contour
+		TEST_METHOD(FindInternalContour_Test_1)
+		{
+			unsigned char DataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);
+			//Create level filled with test data
+			Level* level = new Level(5, 5, B, DataSetExpanded);
+			// Find external contour
+			Contour* externalCountour = level->FindContour(nullptr, B);
+
+			Contour* internalContour = level->FindInternalContour(externalCountour);
+			Assert::AreEqual(8, internalContour->Size(), L"Contour size does not match expected");
+
+			for (int i = 0; i < 8; i++)
+			{
+				Point* point = internalContour->GetPoint(i);
+				swprintf(Message, 100, L"Point %i isn't equal to reference. Point coords X=%i,Y=%i. Should be X=%i,Y=%i",
+					i, point->X, point->Y, ContourPoints[i].X, ContourPoints[i].Y);
+				Assert::IsTrue(*point == ContourPoints[i]);
+			}
+		
+		}
+
+		TEST_METHOD(FindNextInternalContourPoint_Test_0)
+		{
+			unsigned char DataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);
+			//Create level filled with test data
+			Level* level = new Level(5, 5, B, DataSetExpanded);
+			// Find external contour
+			Contour* contour = level->FindContour(nullptr, B);
+
+			Point firstPoint = Point(1, 1);
+			Point NextPoint = Point(2, 1);
+			Direction initialDirection = Direction::E;
+			bool res = level->FindNextInternalContourPoint(contour, firstPoint, initialDirection);
+			Assert::IsTrue(res);
+		}
 
 	///*
 	//	Find contour of square area filled with white color (0xFE)

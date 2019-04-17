@@ -255,10 +255,9 @@ bool Level::FindNextContourPoint(Contour* parentContour, Point& currentPoint, Di
 	}
 	else
 	{
-		if (parentContour->ContainPoint(x,y))
+		if (!parentContour->ContainsPoint(x,y))
 			return false;
-//		if (!parentContour->EnclosePoint(x,y))
-//			return nullptr;
+
 		if (GetPixel(x, y) != shapeColor)
 			return false;
 
@@ -302,10 +301,13 @@ Contour* Level::FindContour(Contour* parentContour, unsigned char shapeColor)
 	contour->AddPoint(firstPoint);
 
 	Point nextPoint = firstPoint;
-
+	// Hаправлениe, в котором была найдена последняя точка контура, всегда E.
+	// Это следует из алгоритма поиска первой точки контура.
 	Direction searchDirection = Direction::E;
 	while (true)
 	{
+		// Выбираем новое начальное направление поска очередной точки
+		// контура исходя из направления, в котором была найдена последняя точка контура
 		searchDirection = StartDirection(searchDirection);
 
 		int l;
@@ -339,8 +341,9 @@ Contour* Level::FindContour(Contour* parentContour, unsigned char shapeColor)
 
 bool Level::FindFirstInternalContourPoint(Contour* parentContour, Point& point)
 {
-	if (parentContour == nullptr)
-		return false;
+	if (!parentContour)
+		throw std::invalid_argument("Pointer to parentContour is null");
+
 	// Ищем первую точку не закращенной области внутри контура parentCountour
 	// обходим контур против часовой стрелки
 	for (int i = 0; i < parentContour->Size(); i++)
@@ -364,11 +367,75 @@ bool Level::FindFirstInternalContourPoint(Contour* parentContour, Point& point)
 	return false;
 }
 
+bool Level::CheckNextInternalContourPoint(Contour* parentContour, Point& point, Direction direction)
+{
+	if (!parentContour)
+		throw std::invalid_argument("Pointer to parentContour is null");
+
+	int x = point.X;
+	int y = point.Y;
+
+	switch (direction)
+	{
+		case N:  --y;		break;
+		case NE: ++x; --y;	break;
+		case E:  ++x;		break;
+		case SE: ++x; ++y; 	break;
+		case S:  ++y; 		break;
+		case SW: --x; ++y;	break;
+		case W:  --x; 		break;
+		case NW: --x; --y;	break;
+	}
+//#ifdef DEBUG
+//	byte b = GetPixel(x, y);
+//	bool cp = parentContour->ContainsPoint(x, y);
+//	bool cond = GetPixel(x, y) == 0xFF && parentContour->ContainsPoint(x, y);
+//#endif
+	if (GetPixel(x, y) == 0xFF && parentContour->ContainsPoint(x, y))
+	{
+		point.X = x;
+		point.Y = y;
+		return true;
+	}
+
+	return false;
+}
+
+bool Level::FindNextInternalContourPoint(Contour* parentContour, Point& point, Direction& direction)
+{
+	for (Direction d : *m_ClockwiseDirectionMap[direction])
+	{
+		Point p = point;
+		bool pointFound = CheckNextInternalContourPoint(parentContour, p, d);
+		if (pointFound)
+		{
+			point = p;
+			direction = d;
+			return true;
+		}
+	}
+	return false;
+}
+
 Contour* Level::FindInternalContour(Contour* parentContour)
 {
-	Contour* contour = new Contour();
+	if (!parentContour)
+		throw std::invalid_argument("Pointer to parentContour is null");
+
+	Contour* contour = nullptr;
 	Point point = Point(MAXINT, MAXINT);
-//	bool p = FindFirstInternalContourPoint(parentContour, point);
+	Direction direction = E;
+	bool pointFound = FindFirstInternalContourPoint(parentContour, point);
+	if (pointFound)
+		contour = new Contour();
+
+	while (pointFound)
+	{
+		contour->AddPoint(point);
+		pointFound = FindNextInternalContourPoint(parentContour, point, direction);
+		if (point == *contour->GetPoint(0))
+			break;
+	}
 	return contour;
 }
 
