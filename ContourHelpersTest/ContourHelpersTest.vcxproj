@@ -203,6 +203,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="TestUtils.h" />
     <ClInclude Include="UnitTestApp.xaml.h">
       <DependentUpon>UnitTestApp.xaml</DependentUpon>
     </ClInclude>
@@ -230,6 +231,7 @@
   <ItemGroup>
     <ClCompile Include="..\ContourHelpers\Contour.cpp" />
     <ClCompile Include="..\ContourHelpers\Level.cpp" />
+    <ClCompile Include="TestUtils.cpp" />
     <ClCompile Include="UnitTestApp.xaml.cpp">
       <DependentUpon>UnitTestApp.xaml</DependentUpon>
     </ClCompile>

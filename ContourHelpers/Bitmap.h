@@ -93,6 +93,7 @@ namespace ContourHelpers
 		Page^ m_pMainPage;
 		bool m_Initialized = false;
 		vector<Level*> m_Levels;
+		
 	};
 
 }

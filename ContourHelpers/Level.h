@@ -60,12 +60,16 @@ namespace ContourHelpers
 		
 		Contour* FindContour(Contour* parentContour, unsigned char shapeColor);
 		
+		//bool FindFirstExternalContourPoint(Contour* parentContour, Point& point);
+		
+		
+		
 		bool	 FindFirstInternalContourPoint(Contour* parentContour, Point& point);
 		bool	 CheckNextInternalContourPoint(Contour* parentContour, Point& point, Direction direction);
 		bool	 FindNextInternalContourPoint(Contour* parentContour, Point& point, Direction& direction);
 		Contour* FindInternalContour(Contour* parentContour);
 
-		bool FindFirstContourPoint(Contour* parentContour, Point& point, unsigned char shapeColor);
+		bool FindFirstContourPoint(Contour* parentContour, Point& point);
 		bool FindNextContourPoint(Contour* parentContour, Point& point, Direction direction, unsigned char shapeColor);
 
 
@@ -73,11 +77,13 @@ namespace ContourHelpers
 		void SetPixel(Point* point, unsigned char color);
 		void SetPixel(int x, int y, unsigned char color);
 		unsigned char GetPixel(Point* point);
-		Contour* FindExternalContour(Contour* parentContour);
-		Point* FindFirstExternalContourPoint(Contour* parentContour);
-		Point* FindNextExternalContourPoint(Point* point, Direction startDirection);
+//		Contour* FindExternalContour(Contour* parentContour);
+		
+//		Point* FindNextExternalContourPoint(Point* point, Direction startDirection);
 		bool Level::BorderHasOnlyOneColor(int x, int y, int size);
 		void RemoveShape(Contour* contour);
+
+		void EraseShape(Contour* externalContour, Contour*  internalContour);
 
 //		void SortContourPointsByY(std::vector<Point^> points, int firstindex, int lastindex);
 //		void SortContourPointsByX(std::vector<Point^> points, int firstindex, int lastindex);
@@ -98,35 +104,57 @@ namespace ContourHelpers
 		unsigned char* m_pShapesBuffer;
 		int m_BufferLength;
 		
-		map<Direction, array<Direction, 8>*> m_ClockwiseDirectionMap = 
+		map<Direction, vector<Direction>*> m_ClockwiseDirectionMap = 
 		{
-			{N ,new array<Direction, 8> {SW, W,  NW, N,  NE, E,  SE, S }},
+			{N , new vector<Direction> {SW, W,  NW, N,  NE, E,  SE, S }},
+			{NE, new vector<Direction> {W,  NW, N,  NE, E,  SE, S,  SW}},
+			{E , new vector<Direction> {NW, N,  NE, E,  SE, S,  SW, W }},
+			{SE, new vector<Direction> {N,  NE, E,  SE, S,  SW, W,  NW}},
+			{S , new vector<Direction> {NE, E,  SE, S,  SW, W,  NW, N }},
+			{SW, new vector<Direction> {E,  SE, S,  SW, W,  NW, N,  NE}},
+			{W , new vector<Direction> {SE, S,  SW, W,  NW, N,  NE, E }},
+			{NW, new vector<Direction> {S,  SW, W,  NW, N,  NE, E,  SE}}
+		};
+
+
+		//map<Direction, array<Direction,8>*> m_ClockwiseDirectionMap = 
+		//{
+			/*
+			{N , new array<Direction,8> {{SW, W,  NW, N,  NE, E,  SE, S }}},
 			{NE,new array<Direction, 8> {W,  NW, N,  NE, E,  SE, S,  SW}},
 			{E ,new array<Direction, 8> {NW, N,  NE, E,  SE, S,  SW, W }},
 			{SE,new array<Direction, 8> {N,  NE, E,  SE, S,  SW, W,  NW}},
 			{S ,new array<Direction, 8> {NE, E,  SE, S,  SW, W,  NW, N }},
 			{SW,new array<Direction, 8> {E,  SE, S,  SW, W,  NW, N,  NE}},
 			{W ,new array<Direction, 8> {SE, S,  SW, W,  NW, N,  NE, E }},
-			{NW,new array<Direction, 8> {S,  SW, W,  NW, N,  NE, E,  SE}}
-		};
+			{NW,new array<Direction, 8> {S,  SW, W,  NW, N,  NE, E,  SE}}*/
+		//};
 		
-	 	map<Direction, array<Direction,8>*> m_CounterClockwiseDirectionMap =
+
+
+	 //	map<Direction, array<Direction,8>*> m_CounterClockwiseDirectionMap =
+		//{
+		//	{N , new array<Direction,8>{NE, N,  NW, W,  SW, S,  SE, E }},
+		//	{NE, new array<Direction,8>{E,  NE, N,  NW, W,  SW, S,  SE}},
+		//	{E , new array<Direction,8>{SE, E,  NE, N,  NW, W,  SW, S }},
+		//	{SE, new array<Direction,8>{S,  SE, E,  NE, N,  NW, W,  SW}},
+		//	{S , new array<Direction,8>{SW, S,  SE, E,  NE, N,  NW, W }},
+		//	{SW, new array<Direction,8>{W,  SW, S,  SE, E,  NE, N,  NW}},
+		//	{W , new array<Direction,8>{NW, W,  SW, S,  SE, E,  NE, N }},
+		//	{NW, new array<Direction,8>{N,  NW, W,  SW, S,  SE, E,  NE}}
+		//};
+		
+		map<Direction, vector<Direction>*> testmap =
 		{
-			{N , new array<Direction,8>{NE, N,  NW, W,  SW, S,  SE, E }},
-			{NE, new array<Direction,8>{E,  NE, N,  NW, W,  SW, S,  SE}},
-			{E , new array<Direction,8>{SE, E,  NE, N,  NW, W,  SW, S }},
-			{SE, new array<Direction,8>{S,  SE, E,  NE, N,  NW, W,  SW}},
-			{S , new array<Direction,8>{SW, S,  SE, E,  NE, N,  NW, W }},
-			{SW, new array<Direction,8>{W,  SW, S,  SE, E,  NE, N,  NW}},
-			{W , new array<Direction,8>{NW, W,  SW, S,  SE, E,  NE, N }},
-			{NW, new array<Direction,8>{N,  NW, W,  SW, S,  SE, E,  NE}}
+			{N, new vector<Direction> {W}},
+			{W, new vector<Direction> {E}}
 		};
-		
-		map<Direction, array<Direction,8>*> testmap =
+
+		/*map<Direction, array<Direction,8>*> testmap =
 		{
 			{N, new array<Direction,8> {N,W,S,E,E,S,W,N}},
 			{W, new array<Direction,8>{E,S,W,N,N,W,S,E}}
-		};
+		};*/
 		const unsigned char EMPTY_COLOR = 0xFF;
 	};
 

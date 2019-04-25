@@ -18,10 +18,12 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="..\ContourHelpers\Level.cpp" />
     <ClCompile Include="..\ContourHelpers\Contour.cpp" />
+    <ClCompile Include="TestUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="UnitTestApp.xaml.h" />
+    <ClInclude Include="TestUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="UnitTestApp.rd.xml" />

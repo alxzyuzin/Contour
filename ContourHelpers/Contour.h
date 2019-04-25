@@ -39,6 +39,7 @@ namespace ContourHelpers
 	public:
 		Contour();
 		Contour(unsigned char contourColor);
+		Contour(Point* contourPoints, int pointsNumber);
 		~Contour();
 
 		void AddPoint(Point point);
@@ -46,9 +47,21 @@ namespace ContourHelpers
 		Point* GetPoint(int i);
 		unsigned char   GetColor();
 
+		int GetMinY();
+		int GetMaxY();
+		Point* Contour::GetMostLeftContourPoint(int y);
+
+
 		Point* FindLeftNearestPoint(int pointnumber);
 		Point* FindRightNearestPoint(int pointnumber);
-		Point* FindRightNearestPoint(Point* point);
+		Point* FindRightNearestContourPoint(Point* point);
+		Point* GetPrevContourPoint(Point* point);
+		Point* GetNextContourPoint(Point* point);
+
+		int GetRightNearestPointIndex(int x, int y);
+		int GetNextContourPointIndex(int i);
+		int GetPrevContourPointIndex(int i);
+		bool PointBelongToContour(int x, int y);
 
 		Point* operator[](unsigned int i);
 		bool Contains(Point* point);
@@ -56,6 +69,8 @@ namespace ContourHelpers
 		bool ContainsPoint(Point* point);
 		bool EnclosePoint(Point* point);
 
+	public:
+		int Length = 0;
 	};
 
 }
