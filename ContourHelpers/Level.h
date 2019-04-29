@@ -27,7 +27,7 @@ namespace ContourHelpers
 	
 	
 	enum Direction { N, NE, E, SE, S, SW, W, NW };
-	
+	enum DeltaYSign {Positive, Negative};
 
 
 	class Level sealed
@@ -72,6 +72,10 @@ namespace ContourHelpers
 		bool FindFirstContourPoint(Contour* parentContour, Point& point);
 		bool FindNextContourPoint(Contour* parentContour, Point& point, Direction direction, unsigned char shapeColor);
 
+		void EraseShape(Contour* externalContour, Contour*  internalContour);
+
+
+		
 
 	private:
 		void SetPixel(Point* point, unsigned char color);
@@ -83,7 +87,7 @@ namespace ContourHelpers
 		bool Level::BorderHasOnlyOneColor(int x, int y, int size);
 		void RemoveShape(Contour* contour);
 
-		void EraseShape(Contour* externalContour, Contour*  internalContour);
+		
 
 //		void SortContourPointsByY(std::vector<Point^> points, int firstindex, int lastindex);
 //		void SortContourPointsByX(std::vector<Point^> points, int firstindex, int lastindex);
@@ -95,7 +99,19 @@ namespace ContourHelpers
 		Direction NextDirection(Direction direction);
 		Direction PrevDirection(Direction direction);
 
+		Point* Level::GetCorrespondingContourPoint(Contour* externalContour, Contour* internalContour, Point* startPoint, Contour::SearchNearestPointDirection searchDirection);
+
 		static 	int comparePoints(const void * a, const void * b);
+
+		/*----------------------------------*/
+		/* Debug functions section start    */
+	public:
+		bool CompareLevelDataWithReferenceData(unsigned char* pReferenceData, wchar_t* message, int messageLength);
+		unsigned char* Level::GetLevelPixelData();
+
+		/* Debug functions section end      */
+		/*----------------------------------*/
+
 
 	private:	 // Members
 		int m_Width;

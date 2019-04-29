@@ -10,7 +10,7 @@ namespace ContourHelpersTest
 	{
 	public:
 		static bool CompareContours(Contour* contour, Point* points, int expectedPointsNumber, wchar_t *message, int messageLength);
-		static bool CompareLevelData(unsigned char levelData[], unsigned char referenceData[]);
+		static bool CompareLevelData(unsigned char levelData[], unsigned char referenceData[], int dataLength, wchar_t *message, int messageLength);
 
 
 

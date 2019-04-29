@@ -54,7 +54,14 @@ namespace ContourHelpers
 
 		Point* FindLeftNearestPoint(int pointnumber);
 		Point* FindRightNearestPoint(int pointnumber);
-		Point* FindRightNearestContourPoint(Point* point);
+		Point* GetRightNearestContourPoint(Point* point);
+		Point* GetLeftNearestContourPoint(Point* point);
+		
+		enum SearchNearestPointDirection {Left, Right};
+		Point* GetNearestContourPoint(Point* point, SearchNearestPointDirection direction);
+		Point* GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction);
+		Point* GetNearestInternalContourPoint(Point* externalContourPoint, SearchNearestPointDirection diirection);
+
 		Point* GetPrevContourPoint(Point* point);
 		Point* GetNextContourPoint(Point* point);
 

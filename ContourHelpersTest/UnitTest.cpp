@@ -599,7 +599,7 @@ namespace ContourHelpersTest
 				Point(7,1), Point(7,2), Point(7,3), Point(7,4), Point(7,5),	Point(7,6),
 				Point(7,7), Point(7,6), Point(7,5),	Point(6,4), Point(5,4),	Point(4,4),
 				Point(3,4), Point(2,4), Point(1,5),	Point(1,6), Point(1,7),	Point(1,6),
-				Point(1,5), Point(1,4), Point(1,3),	Point(1,1)
+				Point(1,5), Point(1,4), Point(2,3),	Point(2,2)
 			};
 
 			Point Contour_3_External[1] =
@@ -621,37 +621,34 @@ namespace ContourHelpersTest
 			
 			
 			
-			// Try to find first internal contour point
+			// Try to find first internal contour
 			TEST_METHOD(FindInternalContour_Test_0)
 			{
-			//	unsigned char DataSetExpanded[324];
-			//	Level::ExpandLevelData(9, 9, B, DataSet_3, DataSetExpanded);
+				unsigned char DataSetExpanded[324];
+				Level::ExpandLevelData(9, 9, B, DataSet_3, DataSetExpanded);
 
-			//	Point point = Point(MAXINT, MAXINT);
-			//	//Create level filled with test data
-			//	Level* level = new Level(9, 9, B, DataSetExpanded);
-			//	// Find external contour
-			//	Contour* externalContour = level->FindContour(nullptr, B);
-			//	Assert::IsNotNull(externalContour, L"External contour not found.");
-			//	// Check external contour points
-			//	int expectedContourLength = sizeof(Contour_1_External) / sizeof(Contour_1_External[0]);
-			//	bool r =  TestUtils::CompareContours(externalContour, Contour_1_External, expectedContourLength, Message, 100);
-			//	Assert::IsTrue(r, Message);
+				Point point = Point(MAXINT, MAXINT);
+			//Create level filled with test data
+				Level* level = new Level(9, 9, B, DataSetExpanded);
+			// Find external contour
+				Contour* externalContour = level->FindContour(nullptr, B);
+				Assert::IsNotNull(externalContour, L"External contour not found.");
+			// Check external contour points
+				int expectedContourLength = sizeof(Contour_1_External) / sizeof(Contour_1_External[0]);
+				bool r =  TestUtils::CompareContours(externalContour, Contour_1_External, expectedContourLength, Message, 100);
+				Assert::IsTrue(r, Message);
 			//	
-			//	// Find internal contour
-			//	Contour* internalContour = level->FindInternalContour(externalContour);
-			//	Assert::IsNotNull(internalContour, L"Internal contour not found.");
-			//	// Find external contour point
-			//	expectedContourLength = sizeof(Contour_2_Internal) / sizeof(Contour_2_Internal[0]);
-			//	r = TestUtils::CompareContours(internalContour, Contour_2_Internal, expectedContourLength, Message, 100);
-			//	Assert::IsTrue(r, Message);
+			// Find internal contour
+				Contour* internalContour = level->FindInternalContour(externalContour);
+				Assert::IsNotNull(internalContour, L"Internal contour not found.");
+			
+				expectedContourLength = sizeof(Contour_2_Internal) / sizeof(Contour_2_Internal[0]);
+				r = TestUtils::CompareContours(internalContour, Contour_2_Internal, expectedContourLength, Message, 100);
+				Assert::IsTrue(r, Message);
 			//	//level->EraseShape(externalContour, internalContour);
-				Assert::IsTrue(false);
+			//	Assert::IsTrue(false);
 			}
 			
-			
-
-		
 
 	};
 
@@ -741,7 +738,7 @@ namespace ContourHelpersTest
 		{
 			Contour* contour = new Contour(Contour_1, 8);
 			Point* startPoint = new Point(2, 2);
-			Point* foundPoint = contour->FindRightNearestContourPoint(startPoint);
+			Point* foundPoint = contour->GetRightNearestContourPoint(startPoint);
 			Point ExpectedPoint = Point(3, 2);
 			swprintf(Message, 100, L"Found point X=%i,Y=%i. Expected point X=%i,Y=%i",
 				foundPoint->X, foundPoint->Y,
@@ -755,7 +752,7 @@ namespace ContourHelpersTest
 			Contour* contour = new Contour(Contour_1, 8);
 			Point* startPoint = new Point(0, 2);
 			Point  ExpectedPoint = Point(1, 2);
-			Point* foundPoint = contour->FindRightNearestContourPoint(startPoint);
+			Point* foundPoint = contour->GetRightNearestContourPoint(startPoint);
 			swprintf(Message, 100, L"Found point X=%i,Y=%i. Expected point X=%i,Y=%i",
 				foundPoint->X, foundPoint->Y,
 				ExpectedPoint.X, ExpectedPoint.Y);
@@ -767,8 +764,328 @@ namespace ContourHelpersTest
 		{
 			Contour* contour = new Contour(Contour_1, 8);
 			Point* startPoint = new Point(4, 2);
-			Point* foundPoint = contour->FindRightNearestContourPoint(startPoint);
+			Point* foundPoint = contour->GetRightNearestContourPoint(startPoint);
 			Assert::IsNull(foundPoint, L"Point not expected");
+		}
+
+
+	};
+
+	TEST_CLASS(LevelTest_EraseContour)
+	{
+	private:
+		wchar_t Message[100];
+		array<wchar_t, 100> Msg;
+
+		unsigned char DataSet_0_Initial[25] =
+		{
+			B, B, B, B, B,
+			B, B, B, B, B,
+			B, B, B, B, B,
+			B, B, B, B, B,
+			B, B, B, B, B,
+		};
+
+		unsigned char DataSet_0_Final[25] =
+		{
+			E, E, E, E, E,
+			E, E, E, E, E,
+			E, E, E, E, E,
+			E, E, E, E, E,
+			E, E, E, E, E,
+		};
+
+		Point SquareBorderContourPoints_5x5[16] =
+		{
+			Point(0, 0), Point(1, 0), Point(2, 0), Point(3, 0),
+			Point(4, 0), Point(4, 1), Point(4, 2), Point(4, 3),
+			Point(4, 4), Point(3, 4), Point(2, 4), Point(1, 4),
+			Point(0, 4), Point(0, 3), Point(0, 2), Point(0, 1)
+		};
+
+
+
+	public:
+		TEST_METHOD(EraseShape_Test_0)
+		{
+			unsigned char InitialDataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_0_Initial, InitialDataSetExpanded);
+			////Create level filled with test data
+			Level* level = new Level(5, 5, B, InitialDataSetExpanded);
+			Contour* externalContour = new Contour(SquareBorderContourPoints_5x5, 16);
+			level->EraseShape(externalContour, nullptr);
+			bool r = level->CompareLevelDataWithReferenceData(DataSet_0_Final, Message, 100);
+			Assert::IsTrue(r, Message);
+		}
+
+
+		unsigned char DataSet_1_Initial[25] =
+		{
+			B, B, B, B, B,
+			B, E, E, E, B,
+			B, E, B, E, B,
+			B, E, E, E, B,
+			B, B, B, B, B,
+		};
+
+		unsigned char DataSet_1_Final[25] =
+		{
+			E, E, E, E, E,
+			E, E, E, E, E,
+			E, E, B, E, E,
+			E, E, E, E, E,
+			E, E, E, E, E,
+		};
+
+		Point ExternalContour_1[16] =
+		{
+			Point(0, 0), Point(1, 0), Point(2, 0), Point(3, 0),
+			Point(4, 0), Point(4, 1), Point(4, 2), Point(4, 3),
+			Point(4, 4), Point(3, 4), Point(2, 4), Point(1, 4),
+			Point(0, 4), Point(0, 3), Point(0, 2), Point(0, 1)
+		};
+
+		Point InternalContour_1[8] =
+		{
+			Point(1, 1), Point(2, 1), Point(3, 1), Point(3, 2),
+			Point(3, 3), Point(2, 3), Point(1, 3), Point(1, 2)
+		};
+
+		TEST_METHOD(EraseShape_Test_1)
+		{
+			unsigned char InitialDataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_1_Initial, InitialDataSetExpanded);
+			////Create level filled with test data
+			Level* level = new Level(5, 5, B, InitialDataSetExpanded);
+			Contour* externalContour = new Contour(ExternalContour_1, 16);
+			Contour* internalContour = new Contour(InternalContour_1, 8);
+			level->EraseShape(externalContour, internalContour);
+			bool r = level->CompareLevelDataWithReferenceData(DataSet_1_Final, Message, 100);
+			Assert::IsTrue(r, Message);
+		}
+
+
+		unsigned char DataSet_2_Initial[25] =
+		{
+			B, B, B, B, B,
+			B, E, E, E, B,
+			B, E, B, B, B,
+			B, E, B, E, E,
+			B, B, B, E, E,
+		};
+
+		unsigned char DataSet_2_Final[25] =
+		{
+			E, E, E, E, E,
+			E, E, E, E, E,
+			E, E, E, E, E,
+			E, E, E, E, E,
+			E, E, E, E, E,
+		};
+
+		Point ExternalContour_2[16] =
+		{
+			Point(0, 0), Point(1, 0), Point(2, 0), Point(3, 0),
+			Point(4, 0), Point(4, 1), Point(4, 2), Point(3, 2),
+			Point(2, 2), Point(2, 3), Point(2, 4), Point(1, 4),
+			Point(0, 4), Point(0, 3), Point(0, 2), Point(0, 1)
+		};
+
+		Point InternalContour_2[8] =
+		{
+			Point(1, 1), Point(2, 1), Point(3, 1), Point(2, 1),
+			Point(1, 1), Point(1, 2), Point(1, 3), Point(1, 2)
+		};
+
+
+		TEST_METHOD(EraseShape_Test_2)
+		{
+			unsigned char InitialDataSetExpanded[324];
+			Level::ExpandLevelData(5, 5, B, DataSet_2_Initial, InitialDataSetExpanded);
+			////Create level filled with test data
+			Level* level = new Level(5, 5, B, InitialDataSetExpanded);
+			Contour* externalContour = new Contour(ExternalContour_2, 16);
+			Contour* internalContour = new Contour(InternalContour_2, 8);
+			level->EraseShape(externalContour, internalContour);
+			bool r = level->CompareLevelDataWithReferenceData(DataSet_2_Final, Message, 100);
+			Assert::IsTrue(r, Message);
+		}
+
+
+
+
+		unsigned char DataSet_3_Initial[81] =
+		{
+			B, B, B, B, B, B, B, B, B,
+			B, E, E, E, E, E, E, E, B,
+			B, B, E, B, E, B, B, E, B,
+			B, B, E, E, E, E, B, E, B,
+			B, E, E, E, E, E, E, E, B,
+			B, E, B, B, B, B, B, E, B,
+			B, E, B, E, E, E, B, E, B,
+			B, E, B, E, B, E, B, E, B,
+			B, B, B, E, B, E, B, B, B,
+		};
+
+		unsigned char DataSet_3_Final[81] =
+		{
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, B, E, B, B, E, E,
+			E, E, E, E, E, E, B, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, B, E, E, E, E,
+			E, E, E, E, B, E, E, E, E,
+		};
+
+		Point ExternalContour_3[36] =
+		{
+			Point(0,0), Point(1,0), Point(2,0), Point(3,0), Point(4,0),	Point(5,0),
+			Point(6,0), Point(7,0), Point(8,0), Point(8,1), Point(8,2), Point(8,3),
+			Point(8,4), Point(8,5), Point(8,6), Point(8,7), Point(8,8), Point(7,8),
+			Point(6,8), Point(6,7), Point(6,6), Point(5,5), Point(4,5), Point(3,5),
+			Point(2,6),	Point(2,7), Point(2,8), Point(1,8), Point(0,8), Point(0,7),
+			Point(0,6),	Point(0,5), Point(0,4),	Point(0,3), Point(0,2),	Point(0,1)
+		};
+
+		Point InternalContour_3[28] =
+		{
+			Point(1,1), Point(2,1), Point(3,1), Point(4,1), Point(5,1),	Point(6,1),
+			Point(7,1), Point(7,2), Point(7,3), Point(7,4), Point(7,5),	Point(7,6),
+			Point(7,7), Point(7,6), Point(7,5),	Point(6,4), Point(5,4),	Point(4,4),
+			Point(3,4), Point(2,4), Point(1,5),	Point(1,6), Point(1,7),	Point(1,6),
+			Point(1,5), Point(1,4), Point(2,3),	Point(2,2)
+		};
+
+		TEST_METHOD(EraseShape_Test_3)
+		{
+			unsigned char InitialDataSetExpanded[324];
+			Level::ExpandLevelData(9, 9, B, DataSet_3_Initial, InitialDataSetExpanded);
+			////Create level filled with test data
+			Level* level = new Level(9, 9, B, InitialDataSetExpanded);
+			Contour* externalContour = new Contour(ExternalContour_3, 36);
+			Contour* internalContour = new Contour(InternalContour_3, 28);
+			level->EraseShape(externalContour, internalContour);
+			bool r = level->CompareLevelDataWithReferenceData(DataSet_3_Final, Message, 100);
+			Assert::IsTrue(r, Message);
+		}
+
+unsigned char DataSet_3_Initial[81] =
+		{
+			B, B, B, B, B, B, B, B, B,
+			B, E, E, E, E, E, E, E, B,
+			B, B, E, B, E, B, B, E, B,
+			B, B, E, E, E, E, B, E, B,
+			B, E, E, E, E, E, E, E, B,
+			B, E, B, B, B, B, B, E, B,
+			B, E, B, E, E, E, B, E, B,
+			B, E, B, E, B, E, B, E, B,
+			B, B, B, E, B, E, B, B, B,
+		};
+
+		unsigned char DataSet_3_Final[81] =
+		{
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, B, E, B, B, E, E,
+			E, E, E, E, E, E, B, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, B, E, E, E, E,
+			E, E, E, E, B, E, E, E, E,
+		};
+
+		Point ExternalContour_3[36] =
+		{
+			Point(0,0), Point(1,0), Point(2,0), Point(3,0), Point(4,0),	Point(5,0),
+			Point(6,0), Point(7,0), Point(8,0), Point(8,1), Point(8,2), Point(8,3),
+			Point(8,4), Point(8,5), Point(8,6), Point(8,7), Point(8,8), Point(7,8),
+			Point(6,8), Point(6,7), Point(6,6), Point(5,5), Point(4,5), Point(3,5),
+			Point(2,6),	Point(2,7), Point(2,8), Point(1,8), Point(0,8), Point(0,7),
+			Point(0,6),	Point(0,5), Point(0,4),	Point(0,3), Point(0,2),	Point(0,1)
+		};
+
+		Point InternalContour_3[28] =
+		{
+			Point(1,1), Point(2,1), Point(3,1), Point(4,1), Point(5,1),	Point(6,1),
+			Point(7,1), Point(7,2), Point(7,3), Point(7,4), Point(7,5),	Point(7,6),
+			Point(7,7), Point(7,6), Point(7,5),	Point(6,4), Point(5,4),	Point(4,4),
+			Point(3,4), Point(2,4), Point(1,5),	Point(1,6), Point(1,7),	Point(1,6),
+			Point(1,5), Point(1,4), Point(2,3),	Point(2,2)
+		};
+
+		TEST_METHOD(EraseShape_Test_3)
+		{
+			unsigned char InitialDataSetExpanded[324];
+			Level::ExpandLevelData(9, 9, B, DataSet_3_Initial, InitialDataSetExpanded);
+			////Create level filled with test data
+			Level* level = new Level(9, 9, B, InitialDataSetExpanded);
+			Contour* externalContour = new Contour(ExternalContour_3, 36);
+			Contour* internalContour = new Contour(InternalContour_3, 28);
+			level->EraseShape(externalContour, internalContour);
+			bool r = level->CompareLevelDataWithReferenceData(DataSet_3_Final, Message, 100);
+			Assert::IsTrue(r, Message);
+		}
+
+		unsigned char DataSet_4_Initial[81] =
+		{
+			B, B, B, B, E, B, B, B, B,
+			B, E, E, B, E, B, E, E, B,
+			B, B, E, B, B, B, E, E, B,
+			B, B, E, E, E, E, E, E, B,
+			B, B, B, E, E, E, B, B, B,
+			B, B, E, E, E, E, E, E, B,
+			B, B, E, B, B, B, E, E, B,
+			B, E, E, B, E, B, E, E, B,
+			B, B, B, B, E, B, B, B, B,
+		};
+
+		unsigned char DataSet_4_Final[81] =
+		{
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E,
+		};
+
+		Point ExternalContour_4[36] =
+		{
+			Point(0,0), Point(1,0), Point(2,0), Point(3,0), Point(4,0),	Point(5,0),
+			Point(6,0), Point(7,0), Point(8,0), Point(8,1), Point(8,2), Point(8,3),
+			Point(8,4), Point(8,5), Point(8,6), Point(8,7), Point(8,8), Point(7,8),
+			Point(6,8), Point(6,7), Point(6,6), Point(5,5), Point(4,5), Point(3,5),
+			Point(2,6),	Point(2,7), Point(2,8), Point(1,8), Point(0,8), Point(0,7),
+			Point(0,6),	Point(0,5), Point(0,4),	Point(0,3), Point(0,2),	Point(0,1)
+		};
+
+		Point InternalContour_4[28] =
+		{
+			Point(1,1), Point(2,1), Point(3,1), Point(4,1), Point(5,1),	Point(6,1),
+			Point(7,1), Point(7,2), Point(7,3), Point(7,4), Point(7,5),	Point(7,6),
+			Point(7,7), Point(7,6), Point(7,5),	Point(6,4), Point(5,4),	Point(4,4),
+			Point(3,4), Point(2,4), Point(1,5),	Point(1,6), Point(1,7),	Point(1,6),
+			Point(1,5), Point(1,4), Point(2,3),	Point(2,2)
+		};
+
+		TEST_METHOD(EraseShape_Test_4)
+		{
+			unsigned char InitialDataSetExpanded[324];
+			Level::ExpandLevelData(9, 9, B, DataSet_3_Initial, InitialDataSetExpanded);
+			////Create level filled with test data
+			Level* level = new Level(9, 9, B, InitialDataSetExpanded);
+			Contour* externalContour = new Contour(ExternalContour_3, 36);
+			Contour* internalContour = new Contour(InternalContour_3, 28);
+			level->EraseShape(externalContour, internalContour);
+			bool r = level->CompareLevelDataWithReferenceData(DataSet_3_Final, Message, 100);
+			Assert::IsTrue(r, Message);
 		}
 
 

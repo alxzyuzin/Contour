@@ -98,30 +98,6 @@ unsigned char Level::GetPixel(int x, int y)
 }
 
 
-void Level::ExpandLevelData(int width, int height, unsigned char color, unsigned char* inBuffer, unsigned char* outBuffer)
-{
-	for (int i = 0; i < width * height * 4; i++)
-		outBuffer[i] = 0xFF;
-
-	for (int y = 0; y < height; y++)
-	{
-		for (int x = 0; x < width; x++)
-		{
-			int inBufferOffset = y * width + x;
-			unsigned char bufferPixelColor = inBuffer[inBufferOffset];
-			if (bufferPixelColor == color)
-			{
-				int PixelBufferOffset = inBufferOffset * 4;
-				outBuffer[PixelBufferOffset] = color;
-				outBuffer[PixelBufferOffset + 1] = color;
-				outBuffer[PixelBufferOffset + 2] = color;
-				outBuffer[PixelBufferOffset + 3] = 0xFF;
-			}
-		}
-	}
-
-}
-
 void Level::GetLevelShapes(unsigned char* pPixelBuffer)
 {
 	for (int y = 0; y < m_Height; y++)
@@ -202,7 +178,7 @@ bool Level::FindFirstContourPoint(Contour* parentContour, Point& point)
 		for (int y = MinY; y <= MaxY; y++)
 		{
 			Point* StartPoint = parentContour->GetMostLeftContourPoint(y);
-			Point* EndPoint   = parentContour->FindRightNearestContourPoint(StartPoint);
+			Point* EndPoint   = parentContour->GetRightNearestContourPoint(StartPoint);
 			for (int x = StartPoint->X + 1; x < EndPoint->X; x++)
 			{
 				unsigned char c = m_pBuffer[y * m_Width + x];
@@ -630,9 +606,98 @@ double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 s
 
 void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 {
+	std::clock_t    start;
+	start = std::clock();
+	DeltaYSign deltaYSign = Positive;
+	bool horizontalSegment = false;
+	bool horizontalSegmentIsOver = false;
+	Contour::SearchNearestPointDirection searchDirection = Contour::SearchNearestPointDirection::Left;
+	for (int i = 1; i < externalContour->Size(); i++)
+	{
+		// выбираем две последовательные точки контура и определяем направление
+		// отрисовки контура по оси Y
+		Point* p1 = externalContour->GetPoint(i-1);
+		Point* p2 = externalContour->GetPoint(i);
+		Point* p3 = nullptr;
+		DeltaYSign newDeltaYSign = Positive;
+		int startX = 0;
+		int endX = 0;
+		// Если координата Y не изменилась закрасим точку контура
+		if (p2->Y == p1->Y)
+		{
+			horizontalSegment = true;
+			SetPixel(p1, 0xFF);
+			continue;
+		}
+		// Если координата Y увеличивается ищем точку на противоположной стороне
+		// контура слева
+		if (p2->Y >= p1->Y)
+		{
+			if (horizontalSegment)
+				horizontalSegmentIsOver = true;
+			searchDirection = Contour::SearchNearestPointDirection::Left;
+			newDeltaYSign = Positive;
+		}
+		// Если координата Y уменьшается ищем точку на противоположной стороне
+		// контура справа
+		if (p2->Y <= p1->Y)
+		{
+			if (horizontalSegment)
+				horizontalSegmentIsOver = true;
+			searchDirection = Contour::SearchNearestPointDirection::Right;
+			newDeltaYSign = Negative;
+		}
 
+		if (horizontalSegmentIsOver)
+		{
+			// Если существует внутренний контур ищем точку на границе внутреннего контура
+			if (internalContour)
+				p3 = internalContour->GetNearestInternalContourPoint(p1, searchDirection);
+			// Если точку на границе внутреннего контура не найдена ищем точку на 
+			// противоположной стороне внешнего контура
+			if (!p3)
+				p3 = externalContour->GetNearestContourPoint(i - 1, searchDirection);
+			if (p1->X < p3->X)
+			{
+				startX = p1->X;
+				endX = p3->X;
+			}
+			else
+			{
+				startX = p3->X;
+				endX = p1->X;
+			}
+			for (int x = startX; x <= endX; x++)
+				SetPixel(x, p1->Y, 0xFF);
+			deltaYSign = newDeltaYSign;
+			horizontalSegment = false;
+			horizontalSegmentIsOver =false;
+			p3 = nullptr;
+		}
 
+		// Если существует внутренний контур ищем точку на границе внутреннего контура
+		if (internalContour)
+			p3 = internalContour->GetNearestInternalContourPoint(p2, searchDirection);
+		// Если точку на границе внутреннего контура не найдена ищем точку на 
+		// противоположной стороне внешнего контура
+		if (!p3)
+			p3 = externalContour->GetNearestContourPoint(i, searchDirection);
+		if (!p3)
+			continue;
+		// Закрашиваем линию от внешней границы контура до внутренней границы или
+		// до противоположной границы контура
+		for (int x = p2->X; x <= p3->X; x++)
+			SetPixel(x, p2->Y, 0xFF);
+		// Закрашиваем сам контур 
+		SetPixel(p1, 0xFF);
+	}
+	std::clock_t end = std::clock();
+	double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 sec//153072ms
+}
 
+Point* Level::GetCorrespondingContourPoint(Contour* externalContour, Contour* internalContour, Point* startPoint, Contour::SearchNearestPointDirection searchDirection)
+{
+	return nullptr;
 }
 
 inline void Level::DrawHorizontalLine(int x1, int x2, int y, unsigned char color)
@@ -667,12 +732,12 @@ void Level::Rectify(int size)
 	}
 }
 
-// Проверяет пиксели лежащие на границе отстоящей от центрального пикселя
-// заданного координатами x,y на расстояние size. 
-// Возвращает 
-//		true - если все пиксели границы одного цвета
-//		false - если пиксели границы отличаются по цвету
-
+/* Проверяет пиксели лежащие на границе отстоящей от центрального пикселя
+ заданного координатами x,y на расстояние size. 
+ Возвращает 
+		true - если все пиксели границы одного цвета
+		false - если пиксели границы отличаются по цвету
+*/
 bool Level::BorderHasOnlyOneColor(int x, int y, int size)
 {
 	int left_x = x - size;
@@ -709,3 +774,46 @@ bool Level::BorderHasOnlyOneColor(int x, int y, int size)
 	}
 	return true;
 }
+
+/*----------------------------------*/
+/* Debug functions section start    */
+void Level::ExpandLevelData(int width, int height, unsigned char color, unsigned char* inBuffer, unsigned char* outBuffer)
+{
+	for (int i = 0; i < width * height * 4; i++)
+		outBuffer[i] = 0xFF;
+
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			int inBufferOffset = y * width + x;
+			unsigned char bufferPixelColor = inBuffer[inBufferOffset];
+			if (bufferPixelColor == color)
+			{
+				int PixelBufferOffset = inBufferOffset * 4;
+				outBuffer[PixelBufferOffset] = color;
+				outBuffer[PixelBufferOffset + 1] = color;
+				outBuffer[PixelBufferOffset + 2] = color;
+				outBuffer[PixelBufferOffset + 3] = 0xFF;
+			}
+		}
+	}
+
+	unsigned char bbb;
+	for (int i = 0; i < width * height * 4; i++)
+		bbb = outBuffer[i];
+}
+bool Level::CompareLevelDataWithReferenceData(unsigned char* pReferenceData, wchar_t* message, int messageLength)
+{
+	for (int i = 0; i < m_BufferLength; i++)
+		if (m_pBuffer[i] != pReferenceData[i])
+		{
+			swprintf(message, messageLength, L"Data at offset %i isn't equal to reference. Data value is %i. Should be %i",
+				i, m_pBuffer[i], pReferenceData[i]);
+			return false;
+		}
+	return true;
+
+}
+/* Debug functions section end      */
+/*----------------------------------*/

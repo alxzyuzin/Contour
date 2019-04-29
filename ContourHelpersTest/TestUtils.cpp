@@ -31,9 +31,16 @@ namespace ContourHelpersTest
 		return true;
 	}
 
-	bool TestUtils::CompareLevelData(unsigned char levelData[], unsigned char referenceData[])
+	bool TestUtils::CompareLevelData(unsigned char levelData[], unsigned char referenceData[], int dataLength, wchar_t *message, int messageLength)
 	{
-		return false;
+		for (int i = 0; i < dataLength; i++)
+			if (levelData[i] != referenceData[i])
+			{
+				swprintf(message, messageLength, L"Dat at offset %i isn't equal to reference. Data value is %i. Should be %i",
+					i, levelData[i], referenceData[i]);
+				return false;
+			}
+		return true;
 	}
 
 
