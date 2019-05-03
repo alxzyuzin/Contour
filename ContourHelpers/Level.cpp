@@ -417,16 +417,17 @@ Contour* Level::FindInternalContour(Contour* parentContour)
 
 void Level::FindAllContours()
 {
-	//Contour* contour;
-	//do
-	//{
-	//	contour = FindExternalContour(nullptr);
-	//	if (contour->Size() > 0)
-	//	{
-	//		RemoveShape(contour);
-	//		m_Contours.push_back(contour);
-	//	}
-	//} while (contour->Size() > 0);
+	do
+	{
+		Contour* externalContour = FindContour(nullptr, m_Color);
+		if (!externalContour)
+			break;
+		Contour* internalContour = FindInternalContour(externalContour);
+
+		EraseShape(externalContour, internalContour);
+		m_Contours.push_back(externalContour);
+		
+	} while (true);
 }
 
 
@@ -608,10 +609,12 @@ void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 {
 	std::clock_t    start;
 	start = std::clock();
-	DeltaYSign deltaYSign = Positive;
+
 	bool horizontalSegment = false;
 	bool horizontalSegmentIsOver = false;
 	Contour::SearchNearestPointDirection searchDirection = Contour::SearchNearestPointDirection::Left;
+
+	SetPixel(externalContour->GetPoint(0), 0xFF);
 	for (int i = 1; i < externalContour->Size(); i++)
 	{
 		// выбираем две последовательные точки контура и определяем направление
@@ -619,14 +622,12 @@ void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 		Point* p1 = externalContour->GetPoint(i-1);
 		Point* p2 = externalContour->GetPoint(i);
 		Point* p3 = nullptr;
-		DeltaYSign newDeltaYSign = Positive;
-		int startX = 0;
-		int endX = 0;
+
 		// Если координата Y не изменилась закрасим точку контура
 		if (p2->Y == p1->Y)
 		{
 			horizontalSegment = true;
-			SetPixel(p1, 0xFF);
+			SetPixel(p2, 0xFF);
 			continue;
 		}
 		// Если координата Y увеличивается ищем точку на противоположной стороне
@@ -636,7 +637,6 @@ void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 			if (horizontalSegment)
 				horizontalSegmentIsOver = true;
 			searchDirection = Contour::SearchNearestPointDirection::Left;
-			newDeltaYSign = Positive;
 		}
 		// Если координата Y уменьшается ищем точку на противоположной стороне
 		// контура справа
@@ -645,7 +645,6 @@ void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 			if (horizontalSegment)
 				horizontalSegmentIsOver = true;
 			searchDirection = Contour::SearchNearestPointDirection::Right;
-			newDeltaYSign = Negative;
 		}
 
 		if (horizontalSegmentIsOver)
@@ -656,20 +655,25 @@ void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 			// Если точку на границе внутреннего контура не найдена ищем точку на 
 			// противоположной стороне внешнего контура
 			if (!p3)
-				p3 = externalContour->GetNearestContourPoint(i - 1, searchDirection);
-			if (p1->X < p3->X)
+				p3 = externalContour->GetNearestContourPoint(i, searchDirection);
+			if (p3)
 			{
-				startX = p1->X;
-				endX = p3->X;
+				int startX = 0;
+				int endX = 0;
+
+				if (p1->X < p3->X)
+				{
+					startX = p1->X;
+					endX = p3->X;
+				}
+				else
+				{
+					startX = p3->X;
+					endX = p1->X;
+				}
+				for (int x = startX; x <= endX; x++)
+					SetPixel(x, p1->Y, 0xFF);
 			}
-			else
-			{
-				startX = p3->X;
-				endX = p1->X;
-			}
-			for (int x = startX; x <= endX; x++)
-				SetPixel(x, p1->Y, 0xFF);
-			deltaYSign = newDeltaYSign;
 			horizontalSegment = false;
 			horizontalSegmentIsOver =false;
 			p3 = nullptr;
@@ -682,14 +686,14 @@ void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 		// противоположной стороне внешнего контура
 		if (!p3)
 			p3 = externalContour->GetNearestContourPoint(i, searchDirection);
-		if (!p3)
-			continue;
+		if (p3)
+//			continue;
 		// Закрашиваем линию от внешней границы контура до внутренней границы или
 		// до противоположной границы контура
 		for (int x = p2->X; x <= p3->X; x++)
 			SetPixel(x, p2->Y, 0xFF);
 		// Закрашиваем сам контур 
-		SetPixel(p1, 0xFF);
+		SetPixel(p2, 0xFF);
 	}
 	std::clock_t end = std::clock();
 	double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 sec//153072ms
