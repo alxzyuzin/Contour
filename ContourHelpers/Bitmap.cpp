@@ -229,8 +229,19 @@ void Bitmap::OutlineImage()
 {
 	for (Level* level : m_Levels)
 		level->FindAllContours();
-	// level->Outline();
-	// level->FindAllContours();
+/*
+	do
+	{
+		Contour* externalContour = level->FindExternalContour(nullptr, m_Color);
+		if (!externalContour)
+			break;
+		Contour* internalContour = level->FindInternalContour(externalContour);
+
+		level->EraseShape(externalContour, internalContour);
+		level->m_Contours.push_back(externalContour);
+
+	} while (true);
+*/
 }
 
 void Bitmap::RectifyLevel(unsigned char color, int size)

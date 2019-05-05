@@ -221,7 +221,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
 			Point firstContourPoint = Point(5, 5);
 			Point ExpectedPoint = Point(0, 0);
-			bool r = level->FindFirstExternalContourPoint(nullptr, firstContourPoint);
+			bool r = level->FindFirstExternalContourPoint(firstContourPoint);
 			Assert::IsTrue(r);
         }
 
@@ -238,61 +238,61 @@ namespace ContourHelpersTest
 			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
 			Point firstContourPoint = Point(5, 5);
 			Point ExpectedPoint = Point(0, 0);
-			level->FindFirstExternalContourPoint(nullptr, firstContourPoint);
+			level->FindFirstExternalContourPoint(firstContourPoint);
 			Assert::IsTrue(firstContourPoint == ExpectedPoint);
 		}
 
-		/*
-		Find first external contour point if parent contour is NOT null
-		Analize 5x5 square (sample DataSet_2) area filled by white color (0xFE)
-		Look for first point of external contour of shape with color 0x00 (B)
-		inside contour  formed by points defined in SquareBorderContourPoints_5x5.
-		OK - if pixel found (function FindFirstContourPoint return true)
-		*/
-		TEST_METHOD(FindFirstExternaLContourPoint_Test_1_3)
-		{
-			unsigned char DataSet[100];
-			// Create level
-			Level::ExpandLevelData(5, 5, B, DataSet_2, DataSet );
-			Level* level = new Level(5, 5, B, DataSet);
+		///*
+		//Find first external contour point if parent contour is NOT null
+		//Analize 5x5 square (sample DataSet_2) area filled by white color (0xFE)
+		//Look for first point of external contour of shape with color 0x00 (B)
+		//inside contour  formed by points defined in SquareBorderContourPoints_5x5.
+		//OK - if pixel found (function FindFirstContourPoint return true)
+		//*/
+		//TEST_METHOD(FindFirstExternaLContourPoint_Test_1_3)
+		//{
+		//	unsigned char DataSet[100];
+		//	// Create level
+		//	Level::ExpandLevelData(5, 5, B, DataSet_2, DataSet );
+		//	Level* level = new Level(5, 5, B, DataSet);
 
-			// Create internal contour
-			Contour* contour = new Contour();
-			for (int i = 0; i < 16; i++)
-				contour->AddPoint(SquareBorderContourPoints_5x5[i]);
-			level->m_Contours.push_back(contour);
-			// Execute test			
-			Point firstPoint = Point(MAXINT, MAXINT);
-			Point ExpectedPoint = Point(1, 1);
-			swprintf(Message, 100, L"Found point coords X=%i, Y=%i, expected X=%i, Y=%i",
-				firstPoint.X, firstPoint.Y, ExpectedPoint.X, ExpectedPoint.Y);
-			Assert::IsTrue(level->FindFirstExternalContourPoint(contour, firstPoint), Message);
-		}
+		//	// Create internal contour
+		//	Contour* contour = new Contour();
+		//	for (int i = 0; i < 16; i++)
+		//		contour->AddPoint(SquareBorderContourPoints_5x5[i]);
+		//	level->m_Contours.push_back(contour);
+		//	// Execute test			
+		//	Point firstPoint = Point(MAXINT, MAXINT);
+		//	Point ExpectedPoint = Point(1, 1);
+		//	swprintf(Message, 100, L"Found point coords X=%i, Y=%i, expected X=%i, Y=%i",
+		//		firstPoint.X, firstPoint.Y, ExpectedPoint.X, ExpectedPoint.Y);
+		//	Assert::IsTrue(level->FindFirstExternalContourPoint(contour, firstPoint), Message);
+		//}
 
-		/*
-		Find first external contour point if parent contour is NOT null
-		Same as previouse test, and check found point coords.
-		*/
-		TEST_METHOD(FindFirstExternaLContourPoint_Test_1_4)
-		{
-			unsigned char DataSet[100];
-			// Create level
-			Level::ExpandLevelData(5, 5, B, DataSet_2, DataSet);
-			Level* level = new Level(5, 5, B, DataSet);
+		///*
+		//Find first external contour point if parent contour is NOT null
+		//Same as previouse test, and check found point coords.
+		//*/
+		//TEST_METHOD(FindFirstExternaLContourPoint_Test_1_4)
+		//{
+		//	unsigned char DataSet[100];
+		//	// Create level
+		//	Level::ExpandLevelData(5, 5, B, DataSet_2, DataSet);
+		//	Level* level = new Level(5, 5, B, DataSet);
 
-			// Create internal contour
-			Contour* contour = new Contour();
-			for (int i = 0; i < 16; i++)
-				contour->AddPoint(SquareBorderContourPoints_5x5[i]);
-			level->m_Contours.push_back(contour);
-			// Execute test			
-			Point firstPoint = Point(MAXINT, MAXINT);
-			Point ExpectedPoint = Point(1, 1);
-			swprintf(Message, 100, L"Found point coords X=%i, Y=%i, expected X=%i, Y=%i",
-				firstPoint.X, firstPoint.Y, ExpectedPoint.X, ExpectedPoint.Y);
-			level->FindFirstExternalContourPoint(contour, firstPoint);
-			Assert::IsTrue(firstPoint == ExpectedPoint, Message);
-		}
+		//	// Create internal contour
+		//	Contour* contour = new Contour();
+		//	for (int i = 0; i < 16; i++)
+		//		contour->AddPoint(SquareBorderContourPoints_5x5[i]);
+		//	level->m_Contours.push_back(contour);
+		//	// Execute test			
+		//	Point firstPoint = Point(MAXINT, MAXINT);
+		//	Point ExpectedPoint = Point(1, 1);
+		//	swprintf(Message, 100, L"Found point coords X=%i, Y=%i, expected X=%i, Y=%i",
+		//		firstPoint.X, firstPoint.Y, ExpectedPoint.X, ExpectedPoint.Y);
+		//	level->FindFirstExternalContourPoint(contour, firstPoint);
+		//	Assert::IsTrue(firstPoint == ExpectedPoint, Message);
+		//}
 
 		/*
 		Find next pixel if current pixel lays in upper right corner of OneColor area 0xFE

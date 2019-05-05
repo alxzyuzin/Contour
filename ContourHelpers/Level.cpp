@@ -150,22 +150,6 @@ unsigned char Level::GetPixel(int x, int y)
 	return m_pBuffer[y * m_Width + x];
 }
 
-
-//void Level::FindInternalContours(Contour* parentContour, unsigned char shapeColor)
-//{
-//	while (true)
-//	{
-//		Contour* contour = FindContour(parentContour, shapeColor);
-//		if (contour == nullptr)
-//			break;
-//		// Найдём внутренние контуры нового контура
-//		unsigned char newShapeColor = (shapeColor == m_Color) ? 0xFF : shapeColor;
-//		FindInternalContours(contour, newShapeColor);
-//		RemoveShape(contour);
-//		m_Contours.push_back(contour);
-//	} 
-//}
-
 /*
 Ищет первую точку контура (первую попавшуюся точку области закрашенной цветом shapeColor.
 IN parameters 
@@ -179,10 +163,10 @@ RETURN value
 	true  - if point found
 	false - if point NOT found
 */
-bool Level::FindFirstExternalContourPoint(Contour* parentContour, Point& point)
+bool Level::FindFirstExternalContourPoint(Point& point)
 {
-	if (parentContour == nullptr)
-	{
+//	if (parentContour == nullptr)
+//	{
 		// parentCountour - рамка изображения
 		for (int y = 0; y < m_Height; y++)
 			for (int x = 0; x < m_Width; x++)
@@ -195,32 +179,32 @@ bool Level::FindFirstExternalContourPoint(Contour* parentContour, Point& point)
 					return true;
 				}
 			}
-	}
-	else
+//	}
+//	else
 		// Ищем контур внутри контура parentCountour
-	{
+//	{
 		// Просматриваем parentContour по строкам начиная сверху, 
 		// для этого находим минимальное
 		// значение координаты Y контура
-		int MinY = parentContour->GetMinY();
-		int MaxY = parentContour->GetMaxY();
+//		int MinY = parentContour->GetMinY();
+//		int MaxY = parentContour->GetMaxY();
 
-		for (int y = MinY; y <= MaxY; y++)
-		{
-			Point* StartPoint = parentContour->GetMostLeftContourPoint(y);
-			Point* EndPoint   = parentContour->GetRightNearestContourPoint(StartPoint);
-			for (int x = StartPoint->X + 1; x < EndPoint->X; x++)
-			{
-				unsigned char c = m_pBuffer[y * m_Width + x];
-				if (m_pBuffer[y * m_Width + x] == m_Color)
-				{
-					point.X = x;
-					point.Y = y;
-					return true;
-				}
-			}
-		}
-	}
+//		for (int y = MinY; y <= MaxY; y++)
+//		{
+//			Point* StartPoint = parentContour->GetMostLeftContourPoint(y);
+//			Point* EndPoint   = parentContour->GetRightNearestContourPoint(StartPoint);
+//			for (int x = StartPoint->X + 1; x < EndPoint->X; x++)
+//			{
+//				unsigned char c = m_pBuffer[y * m_Width + x];
+//				if (m_pBuffer[y * m_Width + x] == m_Color)
+//				{
+//					point.X = x;
+//					point.Y = y;
+//					return true;
+//				}
+//			}
+//		}
+//	}
 	return false;
 }
 
@@ -298,7 +282,7 @@ bool Level::FindNextExternalContourPoint(Contour* parentContour, Point& currentP
 Contour* Level::FindExternalContour(Contour* parentContour, unsigned char shapeColor)
 {
 	Point firstPoint(0,0);
-	bool firstPointFound = FindFirstExternalContourPoint(parentContour, firstPoint);
+	bool firstPointFound = FindFirstExternalContourPoint(firstPoint);
 	
 	if (!firstPointFound)
 		return nullptr;

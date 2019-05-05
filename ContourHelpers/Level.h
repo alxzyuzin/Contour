@@ -27,13 +27,12 @@ namespace ContourHelpers
 		void FindAllContours();
 		void GetLevelShapes(unsigned char* pPixelBuffer);
 
-//		void FindInternalContours(Contour* parentContour, unsigned char shapeColor);
 		Contour* FindExternalContour(Contour* parentContour, unsigned char shapeColor);
 		Contour* FindInternalContour(Contour* parentContour);
 		void EraseShape(Contour* externalContour, Contour*  internalContour);
 
 
-		bool FindFirstExternalContourPoint(Contour* parentContour, Point& point);
+		bool FindFirstExternalContourPoint(Point& point);
 		bool FindNextExternalContourPoint(Contour* parentContour, Point& point, Direction direction, unsigned char shapeColor);
 		
 		bool	 FindFirstInternalContourPoint(Contour* parentContour, Point& point);
