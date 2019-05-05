@@ -562,6 +562,33 @@ namespace ContourHelpersTest
 			Assert::IsTrue(CurrentPoint == ExpectedPoint, Message);
 		}
 
+		
+		unsigned char DataSet_9[25] =
+		{
+			E, E, E, E, E,
+			E, B, E, E, E,
+			E, E, E, E, E,
+			E, E, E, E, E,
+			E, E, E, E, E
+
+			
+		};
+		Point Contour_9_External[1] = {	Point(1,1) };
+
+		// Find internal contour in external contour if external contour length is 1
+		TEST_METHOD(InternalContour_Test_9)
+		{
+			unsigned char DataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_9, DataSetExpanded);
+			//Create level filled with test data
+			Level* level = new Level(5, 5, B, DataSetExpanded);
+			// Find external contour
+			Contour* externalCountour = new Contour(Contour_9_External, 1);
+
+			Contour* internalContour = level->FindInternalContour(externalCountour);
+			Assert::IsNull(internalContour, L" Internal contour iz not null");
+
+		}
 
 	}; // class LevelTest_InternalContour
 

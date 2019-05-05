@@ -107,7 +107,7 @@ namespace ContourHelpers
 		/* Debug functions section start    */
 	public:
 		bool CompareLevelDataWithReferenceData(unsigned char* pReferenceData, wchar_t* message, int messageLength);
-		unsigned char* Level::GetLevelPixelData();
+		//unsigned char* Level::GetLevelPixelData();
 
 		/* Debug functions section end      */
 		/*----------------------------------*/

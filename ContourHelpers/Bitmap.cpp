@@ -2,7 +2,6 @@
 #include "Bitmap.h"
 #include <ppltasks.h>
 
-
 using namespace ContourHelpers;
 using namespace Windows::Foundation;
 using namespace Windows::Storage::Streams;
@@ -11,30 +10,25 @@ using namespace concurrency;
 using namespace Platform;
 
 
-
 //=============================================================================
 // Свойства
 //=============================================================================
 WriteableBitmap^ Bitmap::ImageData::get() { return m_ImageData; }
 void ContourHelpers::Bitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m_ImageData = imageDataValue; }
 
+// Массив оттенков серого содержащихся в изображении
 Array<unsigned char>^ Bitmap::GrayScaleColorMap::get()
 {
 	Array<unsigned char>^ grayScaleColorMap = ref new Array<unsigned char>(m_Levels.size());
-
 	for (unsigned int i = 0; i < m_Levels.size(); i++)
 		grayScaleColorMap->set(i, m_Levels[i]->m_Color);
-
 	return grayScaleColorMap;
 }
 
 
-bool Bitmap::Initialized::get() { return m_Initialized; }
-//void Bitmap::Initialized::set(bool initializedValue) { m_Initialized = initializedValue; }
 //-----------------------------------------------------------------------------
 // public members
 //-----------------------------------------------------------------------------
-
 
 Bitmap::Bitmap()
 {
@@ -42,15 +36,20 @@ Bitmap::Bitmap()
 	m_Height = 0;
 	m_PixelBufferLength = 0;
 }
-
+/*
+  Input parameters
+  page   - pointer to main application page
+  width  - image width
+  height - image height
+*/
 Bitmap::Bitmap(Page^ page, int width, int height)
 {
-	m_Width = width;
+	m_Width = width;   // 
 	m_Height = height;
 	m_PixelBufferLength = 4 * width * height;
 	m_ImageData = ref new WriteableBitmap(width, height);
 	m_pMainPage = page;
-	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];
+	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Copy of original image data
 }
 
 void Bitmap::SetSource(IRandomAccessStream^ stream)
@@ -67,10 +66,15 @@ void Bitmap::SetSource(IRandomAccessStream^ stream)
 	// Get pointer to pixel bytes
 	pBufferByteAccess->Buffer(&m_pPixelBuffer);
 	memcpy(m_pOriginalImageData, m_pPixelBuffer, m_PixelBufferLength);
-	m_Initialized = true;
+//	m_Initialized = true;
 
 }
 
+/*
+	Convert original color image into grayscale with defined number of gray tints
+	Input parameters
+		levels - number of desirable gray tints
+*/
 void Bitmap::ConvertToGrayscale(unsigned char levels)
 {
 	// Убедимся что входной параметр нажодится в допустимом диапазоне
@@ -94,9 +98,14 @@ void Bitmap::ConvertToGrayscale(unsigned char levels)
 	}
 }
 
-///
-///Формирует список отттенков серого присутствующих в изображении
-///
+/*
+	Разбивает изображение на слои. Каждый слой содержит пиксели одного из оттенков
+	серого присутствующих в изображении.
+	Для каждого оттенка серого в исходном изображении создаётся отдельный слой (Level)
+	Размер слоя соответствует размеру исходного изображения.
+	В слой переносятся пиксели оттенка серого для котороко создан слой, 
+	остальные пиксели в слое закрашиваются цветом 0xFF (сооьветствует пустому цвету)
+*/
 void Bitmap::ExtractLevels()
 {
 	vector<unsigned char> colormap;
@@ -134,7 +143,12 @@ void Bitmap::ExtractLevels()
 	return;
 }
 
-
+/*
+Извлекает адрес битовых данных обрабатываемого изображения из буфера потока,
+ заносит этот адрес в переменную m_pPixelBuffer и копирует данные изображения
+ в буфер m_pOriginalImageData
+*/
+/*
 IAsyncAction^ Bitmap::SetSourceAsync(IRandomAccessStream^ stream)
 {
 	return create_async([this, stream]()
@@ -160,7 +174,7 @@ IAsyncAction^ Bitmap::SetSourceAsync(IRandomAccessStream^ stream)
 			});
 	});
 }
-
+*/
 
 void Bitmap::RestoreOriginalImage()
 {
@@ -189,21 +203,8 @@ void Bitmap::Clear()
 	
 }
 
-void Bitmap::ClearPixelBuffer()
-{
-	for (int j = 0; j < m_Height; j++)
-	{
-		for (int i = 0; i < (m_Width * 4); i += 4)
-		{
-			int pos = j * (m_Width * 4) + i;
-			m_pPixelBuffer[pos] = 0xFF;
-			m_pPixelBuffer[pos + 1] = 0xFF;
-			m_pPixelBuffer[pos + 2] = 0xFF;
-			m_pPixelBuffer[pos + 3] = 0xFF;
-		}
-	}
 
-}
+
 
 void Bitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 {
@@ -228,29 +229,34 @@ void Bitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 	
 }
 
+void Bitmap::OutlineImage()
+{
+	for (Level* level : m_Levels)
+		level->Outline();
+	//level->FindAllContours();
+}
+
+void Bitmap::RectifyLevel(unsigned char color, int size)
+{
+	Level* selectedLevel = SelectLevel(color);
+
+	selectedLevel->Rectify(size);
+}
 
 //-----------------------------------------------------------------------------
 // private members
 //-----------------------------------------------------------------------------
 
 
-///
-/// Переносит данные одного слоя в буфер для отображения на экране
-///
+/*
+	 Переносит данные одного слоя в буфер для отображения на экране
+*/
 void Bitmap::DisplayLevelShapes(unsigned char color)
 {
 	Level* selectedLevel = SelectLevel(color);
 	if (!selectedLevel) return;
 	selectedLevel->GetLevelShapes(m_pPixelBuffer);
 }
-
-void Bitmap::OutlineImage()
-{
-	for (Level* level : m_Levels)
-		level->Outline();
-		//level->FindAllContours();
-}
-
 
 void Bitmap::DisplayLevelContours(unsigned char color)
 {
@@ -264,17 +270,6 @@ void Bitmap::DisplayLevelContours(unsigned char color)
 			SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF);
 		}
 }
-
-void Bitmap::RectifyLevel(unsigned char color, int size)
-{
-	Level* selectedLevel = SelectLevel(color);
-
-	selectedLevel->Rectify(size);
-}
-/*
-// Utility functions
-//
-*/
 
 Level* Bitmap::SelectLevel(unsigned char color)
 {
@@ -310,6 +305,21 @@ void Bitmap::SortColorMap(std::vector<unsigned char>* colormap)
 */
 }
 
+void Bitmap::ClearPixelBuffer()
+{
+	for (int j = 0; j < m_Height; j++)
+	{
+		for (int i = 0; i < (m_Width * 4); i += 4)
+		{
+			int pos = j * (m_Width * 4) + i;
+			m_pPixelBuffer[pos] = 0xFF;
+			m_pPixelBuffer[pos + 1] = 0xFF;
+			m_pPixelBuffer[pos + 2] = 0xFF;
+			m_pPixelBuffer[pos + 3] = 0xFF;
+		}
+	}
+}
+
 inline void Bitmap::SetPixel(int x, int y, unsigned char b, unsigned char g, unsigned char r, unsigned char a)
 {
 	int pos = y * (m_Width * 4) + x  * 4;
@@ -320,6 +330,9 @@ inline void Bitmap::SetPixel(int x, int y, unsigned char b, unsigned char g, uns
 	m_pPixelBuffer[pos + 3] = a;
 }
 
+/*
+	Display params properties
+*/
 
 byte DisplayParams::Color::get() { return m_Color; }
 void DisplayParams::Color::set(unsigned char color) { m_Color = color; }

@@ -51,10 +51,7 @@ namespace ContourHelpers
 			WriteableBitmap^ get();
 			void set(WriteableBitmap^ imageDataValue);
 		}
-		property bool Initialized
-		{
-			bool get();
-		}
+
 		property Array<byte>^ GrayScaleColorMap
 		{
 			Array<byte>^ get();
@@ -65,23 +62,22 @@ namespace ContourHelpers
 		Bitmap(Page^ page, int width, int height);
 
 		void SetSource(IRandomAccessStream^ stream);
-		IAsyncAction^ SetSourceAsync(IRandomAccessStream^ stream);
+		/// IAsyncAction^ SetSourceAsync(IRandomAccessStream^ stream);
 		void ConvertToGrayscale(byte levels);
-		void RestoreOriginalImage();
-		void Clear();
-		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
-
 		void ExtractLevels();
 		void OutlineImage();
 		void RectifyLevel(unsigned char color, int size);
+		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
+		void RestoreOriginalImage();
+		void Clear();
 
 	private:	//Methods
 		void	DisplayLevelShapes(unsigned char color);
 		void	DisplayLevelContours(unsigned char color);
 		Level*	SelectLevel(unsigned char color);
 		void	SortColorMap(std::vector<unsigned char>* colormap);
-		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 		void	ClearPixelBuffer();
+		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
 	private:	//Members
 		int m_Width;				// Ширина изображения в рикселях
@@ -93,7 +89,6 @@ namespace ContourHelpers
 		Page^ m_pMainPage;
 		bool m_Initialized = false;
 		vector<Level*> m_Levels;
-		
 	};
 
 }
