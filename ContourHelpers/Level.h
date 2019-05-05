@@ -33,7 +33,8 @@ namespace ContourHelpers
 
 
 		bool FindFirstExternalContourPoint(Point& point);
-		bool FindNextExternalContourPoint(Contour* parentContour, Point& point, Direction direction, unsigned char shapeColor);
+		//bool FindNextExternalContourPoint(Point& point, Direction direction, unsigned char shapeColor);
+		bool FindNextExternalContourPoint(Point& point, Direction direction);
 		
 		bool	 FindFirstInternalContourPoint(Contour* parentContour, Point& point);
 		bool	 CheckNextInternalContourPoint(Contour* parentContour, Point& point, Direction direction);

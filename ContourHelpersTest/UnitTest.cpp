@@ -307,7 +307,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(5, 5, 0xFE, WhiteSquareExpanded);
 			Point currentPoint = Point(4, 0);
 			Point nextExpectedPoint = Point(4, 1);
-			level->FindNextExternalContourPoint(nullptr, currentPoint, Direction::S, 0xFE);
+			level->FindNextExternalContourPoint(currentPoint, Direction::S);
 			Assert::IsTrue(currentPoint == nextExpectedPoint);
 		}
 

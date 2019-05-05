@@ -165,46 +165,17 @@ RETURN value
 */
 bool Level::FindFirstExternalContourPoint(Point& point)
 {
-//	if (parentContour == nullptr)
-//	{
-		// parentCountour - рамка изображения
-		for (int y = 0; y < m_Height; y++)
-			for (int x = 0; x < m_Width; x++)
+	for (int y = 0; y < m_Height; y++)
+		for (int x = 0; x < m_Width; x++)
+		{
+			unsigned char c = m_pBuffer[y * m_Width + x]; //
+			if (m_pBuffer[y * m_Width + x] == m_Color)
 			{
-				unsigned char c = m_pBuffer[y * m_Width + x]; //
-				if (m_pBuffer[y * m_Width + x] == m_Color)
-				{
-					point.X = x;
-					point.Y = y;
-					return true;
-				}
+				point.X = x;
+				point.Y = y;
+				return true;
 			}
-//	}
-//	else
-		// Ищем контур внутри контура parentCountour
-//	{
-		// Просматриваем parentContour по строкам начиная сверху, 
-		// для этого находим минимальное
-		// значение координаты Y контура
-//		int MinY = parentContour->GetMinY();
-//		int MaxY = parentContour->GetMaxY();
-
-//		for (int y = MinY; y <= MaxY; y++)
-//		{
-//			Point* StartPoint = parentContour->GetMostLeftContourPoint(y);
-//			Point* EndPoint   = parentContour->GetRightNearestContourPoint(StartPoint);
-//			for (int x = StartPoint->X + 1; x < EndPoint->X; x++)
-//			{
-//				unsigned char c = m_pBuffer[y * m_Width + x];
-//				if (m_pBuffer[y * m_Width + x] == m_Color)
-//				{
-//					point.X = x;
-//					point.Y = y;
-//					return true;
-//				}
-//			}
-//		}
-//	}
+		}
 	return false;
 }
 
@@ -213,7 +184,7 @@ bool Level::FindFirstExternalContourPoint(Point& point)
 Если такая точка найдена то создаёт новый объект Point и возвращает указатель на него
 Если точка не найдена то возвращает nullptr
 */
-bool Level::FindNextExternalContourPoint(Contour* parentContour, Point& currentPoint, Direction direction, unsigned char shapeColor)
+bool Level::FindNextExternalContourPoint(Point& currentPoint, Direction direction)
 {
 	int x = currentPoint.X;
 	int y = currentPoint.Y;
@@ -229,35 +200,16 @@ bool Level::FindNextExternalContourPoint(Contour* parentContour, Point& currentP
 		case W:  --x; 		break;
 		case NW: --x; --y;	break;
 	}
-
-	
-	if (parentContour == nullptr)
+	// Проверяем не выходит ли точка за границы изображения
+	if (y >= 0 && y < m_Height && x >= 0 && x < m_Width && (GetPixel(x, y) == m_Color))
 	{
-		// Проверяем не выходит ли точка за границы изображения
-		if (y >= 0 && y < m_Height && x >= 0 && x < m_Width && (GetPixel(x, y) == shapeColor))
-		{
-			currentPoint.X = x;
-			currentPoint.Y = y;
-			return true;
-		}
-		else
-			return false;
-	}
-	else
-	{
-		if (!parentContour->ContainsPoint(x,y))
-			return false;
-
-		if (GetPixel(x, y) != shapeColor)
-			return false;
-
 		currentPoint.X = x;
 		currentPoint.Y = y;
 		return true;
-
 	}
 	return false;
 }
+
 /*
 Функция выполняет поиск внешнего контура первой попавшейся закрашенной области 
 закрашенной цветом shapeColor внутри области определяемой контуром parentContour
@@ -303,7 +255,7 @@ Contour* Level::FindExternalContour(Contour* parentContour, unsigned char shapeC
 		int l;
 		for (l = 0; l < 8; l++)
 		{
-			bool nextPointFound = FindNextExternalContourPoint(parentContour, nextPoint, searchDirection, shapeColor);
+			bool nextPointFound = FindNextExternalContourPoint(nextPoint, searchDirection);
 			if (nextPointFound)
 			{
 				if (GetPixel(nextPoint.X, nextPoint.Y) == shapeColor)

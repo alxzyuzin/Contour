@@ -20,7 +20,7 @@ void ContourHelpers::Bitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m
 Array<unsigned char>^ Bitmap::GrayScaleColorMap::get()
 {
 	Array<unsigned char>^ grayScaleColorMap = ref new Array<unsigned char>(m_Levels.size());
-	for (unsigned int i = 0; i < m_Levels.size(); i++)
+	for (unsigned int i = 0; i < (int)m_Levels.size(); i++)
 		grayScaleColorMap->set(i, m_Levels[i]->m_Color);
 	return grayScaleColorMap;
 }
