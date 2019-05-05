@@ -68,7 +68,7 @@ void Level::Clear()
 
 void Level::Outline()
 {
-	FindInternalContours(nullptr, m_Color);
+//	FindInternalContours(nullptr, m_Color);
 }
 
 void Level::Rectify(int size)
@@ -151,20 +151,20 @@ unsigned char Level::GetPixel(int x, int y)
 }
 
 
-void Level::FindInternalContours(Contour* parentContour, unsigned char shapeColor)
-{
-	while (true)
-	{
-		Contour* contour = FindContour(parentContour, shapeColor);
-		if (contour == nullptr)
-			break;
-		// Найдём внутренние контуры нового контура
-		unsigned char newShapeColor = (shapeColor == m_Color) ? 0xFF : shapeColor;
-		FindInternalContours(contour, newShapeColor);
-		RemoveShape(contour);
-		m_Contours.push_back(contour);
-	} 
-}
+//void Level::FindInternalContours(Contour* parentContour, unsigned char shapeColor)
+//{
+//	while (true)
+//	{
+//		Contour* contour = FindContour(parentContour, shapeColor);
+//		if (contour == nullptr)
+//			break;
+//		// Найдём внутренние контуры нового контура
+//		unsigned char newShapeColor = (shapeColor == m_Color) ? 0xFF : shapeColor;
+//		FindInternalContours(contour, newShapeColor);
+//		RemoveShape(contour);
+//		m_Contours.push_back(contour);
+//	} 
+//}
 
 /*
 Ищет первую точку контура (первую попавшуюся точку области закрашенной цветом shapeColor.
@@ -179,7 +179,7 @@ RETURN value
 	true  - if point found
 	false - if point NOT found
 */
-bool Level::FindFirstContourPoint(Contour* parentContour, Point& point)
+bool Level::FindFirstExternalContourPoint(Contour* parentContour, Point& point)
 {
 	if (parentContour == nullptr)
 	{
@@ -199,7 +199,8 @@ bool Level::FindFirstContourPoint(Contour* parentContour, Point& point)
 	else
 		// Ищем контур внутри контура parentCountour
 	{
-		// Просматриваем parentContour по строкам начиная сверху, для этого находим минимальное
+		// Просматриваем parentContour по строкам начиная сверху, 
+		// для этого находим минимальное
 		// значение координаты Y контура
 		int MinY = parentContour->GetMinY();
 		int MaxY = parentContour->GetMaxY();
@@ -228,7 +229,7 @@ bool Level::FindFirstContourPoint(Contour* parentContour, Point& point)
 Если такая точка найдена то создаёт новый объект Point и возвращает указатель на него
 Если точка не найдена то возвращает nullptr
 */
-bool Level::FindNextContourPoint(Contour* parentContour, Point& currentPoint, Direction direction, unsigned char shapeColor)
+bool Level::FindNextExternalContourPoint(Contour* parentContour, Point& currentPoint, Direction direction, unsigned char shapeColor)
 {
 	int x = currentPoint.X;
 	int y = currentPoint.Y;
@@ -294,10 +295,10 @@ bool Level::FindNextContourPoint(Contour* parentContour, Point& currentPoint, Di
 	В этом случае контура без внутренних точек будут короче и возможно поиск
 	точек контура будет заканчиваться быстрее.
 */
-Contour* Level::FindContour(Contour* parentContour, unsigned char shapeColor)
+Contour* Level::FindExternalContour(Contour* parentContour, unsigned char shapeColor)
 {
 	Point firstPoint(0,0);
-	bool firstPointFound = FindFirstContourPoint(parentContour, firstPoint);
+	bool firstPointFound = FindFirstExternalContourPoint(parentContour, firstPoint);
 	
 	if (!firstPointFound)
 		return nullptr;
@@ -318,7 +319,7 @@ Contour* Level::FindContour(Contour* parentContour, unsigned char shapeColor)
 		int l;
 		for (l = 0; l < 8; l++)
 		{
-			bool nextPointFound = FindNextContourPoint(parentContour, nextPoint, searchDirection, shapeColor);
+			bool nextPointFound = FindNextExternalContourPoint(parentContour, nextPoint, searchDirection, shapeColor);
 			if (nextPointFound)
 			{
 				if (GetPixel(nextPoint.X, nextPoint.Y) == shapeColor)
@@ -448,7 +449,7 @@ void Level::FindAllContours()
 {
 	do
 	{
-		Contour* externalContour = FindContour(nullptr, m_Color);
+		Contour* externalContour = FindExternalContour(nullptr, m_Color);
 		if (!externalContour)
 			break;
 		Contour* internalContour = FindInternalContour(externalContour);
@@ -516,18 +517,6 @@ Direction Level::NextDirection(Direction direction)
 	}
 }
 
-//----------------------------------------------------------------------------
-// Сравнивает точки по координате Y
-//----------------------------------------------------------------------------
-
-//int Level::comparePoints(const void * a, const void * b)
-//{
-//	
-//	if ( (*(Point*)a).Y <  (*(Point*)b).Y ) return -1;
-//	if ( (*(Point*)a).Y == (*(Point*)b).Y ) return  0;
-//	if ( (*(Point*)a).Y >  (*(Point*)b).Y ) return  1;
-//	return 0;
-//}
 
 // Удаляет фигуру внутри заданного контура (закрашивает белым цветом)
 // Закрашивание выполняем по строкам

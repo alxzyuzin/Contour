@@ -228,8 +228,9 @@ void Bitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 void Bitmap::OutlineImage()
 {
 	for (Level* level : m_Levels)
-		level->Outline();
-	//level->FindAllContours();
+		level->FindAllContours();
+	// level->Outline();
+	// level->FindAllContours();
 }
 
 void Bitmap::RectifyLevel(unsigned char color, int size)

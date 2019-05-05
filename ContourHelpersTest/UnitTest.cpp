@@ -221,7 +221,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
 			Point firstContourPoint = Point(5, 5);
 			Point ExpectedPoint = Point(0, 0);
-			bool r = level->FindFirstContourPoint(nullptr, firstContourPoint);
+			bool r = level->FindFirstExternalContourPoint(nullptr, firstContourPoint);
 			Assert::IsTrue(r);
         }
 
@@ -238,7 +238,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
 			Point firstContourPoint = Point(5, 5);
 			Point ExpectedPoint = Point(0, 0);
-			level->FindFirstContourPoint(nullptr, firstContourPoint);
+			level->FindFirstExternalContourPoint(nullptr, firstContourPoint);
 			Assert::IsTrue(firstContourPoint == ExpectedPoint);
 		}
 
@@ -266,7 +266,7 @@ namespace ContourHelpersTest
 			Point ExpectedPoint = Point(1, 1);
 			swprintf(Message, 100, L"Found point coords X=%i, Y=%i, expected X=%i, Y=%i",
 				firstPoint.X, firstPoint.Y, ExpectedPoint.X, ExpectedPoint.Y);
-			Assert::IsTrue(level->FindFirstContourPoint(contour, firstPoint), Message);
+			Assert::IsTrue(level->FindFirstExternalContourPoint(contour, firstPoint), Message);
 		}
 
 		/*
@@ -290,7 +290,7 @@ namespace ContourHelpersTest
 			Point ExpectedPoint = Point(1, 1);
 			swprintf(Message, 100, L"Found point coords X=%i, Y=%i, expected X=%i, Y=%i",
 				firstPoint.X, firstPoint.Y, ExpectedPoint.X, ExpectedPoint.Y);
-			level->FindFirstContourPoint(contour, firstPoint);
+			level->FindFirstExternalContourPoint(contour, firstPoint);
 			Assert::IsTrue(firstPoint == ExpectedPoint, Message);
 		}
 
@@ -307,7 +307,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(5, 5, 0xFE, WhiteSquareExpanded);
 			Point currentPoint = Point(4, 0);
 			Point nextExpectedPoint = Point(4, 1);
-			level->FindNextContourPoint(nullptr, currentPoint, Direction::S, 0xFE);
+			level->FindNextExternalContourPoint(nullptr, currentPoint, Direction::S, 0xFE);
 			Assert::IsTrue(currentPoint == nextExpectedPoint);
 		}
 
@@ -331,7 +331,7 @@ namespace ContourHelpersTest
 			Level::ExpandLevelData(5, 5, B, EmptySquare, EmptySquareExpanded);
 			
 			Level* level = new Level(5, 5, B, EmptySquareExpanded);
-			Contour* contour = level->FindContour(nullptr, B);
+			Contour* contour = level->FindExternalContour(nullptr, B);
 			Assert::IsNull(contour, L"contour is not null");
 		}
 
@@ -350,7 +350,7 @@ namespace ContourHelpersTest
 			int expectedContourLength = 16;
 						
 			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
-			Contour* contour = level->FindContour(nullptr, W);
+			Contour* contour = level->FindExternalContour(nullptr, W);
 			swprintf(Message, 100, L"Contour length %i should be %i", contour->Size(), 16);
 			Assert::IsTrue(contour->Size() == expectedContourLength, Message);
 
@@ -378,7 +378,7 @@ namespace ContourHelpersTest
 			int expectedContourLength = 16;
 
 			Level* level = new Level(5, 5, B, DataSet_1_Expanded);
-			Contour* contour = level->FindContour(nullptr, B);
+			Contour* contour = level->FindExternalContour(nullptr, B);
 			swprintf(Message, 100, L"Contour length %i should be %i", contour->Size(), 16);
 			Assert::IsTrue(contour->Size() == expectedContourLength, Message);
 
@@ -409,7 +409,7 @@ namespace ContourHelpersTest
 			//Create level filled with test data
 			Level* level = new Level(5, 5, B, DataSet_1_Expanded);
 			// Find external contour
-			Contour* contour = level->FindContour(nullptr, B);
+			Contour* contour = level->FindExternalContour(nullptr, B);
 			Assert::IsNotNull(contour, L"Contour not found.");
 			// Find first internal contour point
 			bool result  = level->FindFirstInternalContourPoint(contour, point);
@@ -427,7 +427,7 @@ namespace ContourHelpersTest
 			//Create level filled with test data
 			Level* level = new Level(5, 5, B, DataSet_1_Expanded);
 			// Find external contour
-			Contour* contour = level->FindContour(nullptr, B);
+			Contour* contour = level->FindExternalContour(nullptr, B);
 
 			bool result = level->FindFirstInternalContourPoint(contour, point);
 			Assert::IsTrue(result, L"First point not found.");
@@ -444,7 +444,7 @@ namespace ContourHelpersTest
 			//Create level filled with test data
 			Level* level = new Level(5, 5, B, DataSetExpanded);
 			// Find external contour
-			Contour* contour = level->FindContour(nullptr, B);
+			Contour* contour = level->FindExternalContour(nullptr, B);
 			for (int i = 0; i < 8; i++)
 			{
 				Point currentPoint = Point(2, 2);
@@ -462,7 +462,7 @@ namespace ContourHelpersTest
 			//Create level filled with test data
 			Level* level = new Level(5, 5, B, DataSetExpanded);
 			// Find external contour
-			Contour* contour = level->FindContour(nullptr, B);
+			Contour* contour = level->FindExternalContour(nullptr, B);
 
 			for (int i = 0; i < 8; i++)
 			{
@@ -499,7 +499,7 @@ namespace ContourHelpersTest
 			//Create level filled with test data
 			Level* level = new Level(5, 5, B, DataSetExpanded);
 			// Find external contour
-			Contour* externalCountour = level->FindContour(nullptr, B);
+			Contour* externalCountour = level->FindExternalContour(nullptr, B);
 
 			Contour* internalContour = level->FindInternalContour(externalCountour);
 			Assert::AreEqual(8, internalContour->Size(), L"Contour size does not match expected");
@@ -521,7 +521,7 @@ namespace ContourHelpersTest
 			//Create level filled with test data
 			Level* level = new Level(5, 5, B, DataSetExpanded);
 			// Find external contour
-			Contour* contour = level->FindContour(nullptr, B);
+			Contour* contour = level->FindExternalContour(nullptr, B);
 
 			Point firstPoint = Point(1, 1);
 			Point NextPoint = Point(2, 1);
@@ -551,7 +551,7 @@ namespace ContourHelpersTest
 			//Create level filled with test data
 			Level* level = new Level(9, 9, B, DataSetExpanded);
 			// Find external contour
-			Contour* contour = level->FindContour(nullptr, B);
+			Contour* contour = level->FindExternalContour(nullptr, B);
 
 			Point CurrentPoint = Point(1, 5);
 			Point ExpectedPoint = Point(1, 6);
