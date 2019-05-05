@@ -200,11 +200,7 @@ void Bitmap::Clear()
 	
 	m_Initialized = false;
 	
-	
 }
-
-
-
 
 void Bitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 {

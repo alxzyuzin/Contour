@@ -65,6 +65,59 @@ void Level::Clear()
 	m_Color =0;
 }
 
+
+void Level::Outline()
+{
+	FindInternalContours(nullptr, m_Color);
+}
+
+void Level::Rectify(int size)
+{
+	for (int y = size; y < m_Height - 2 * size; y++)
+	{
+		for (int x = size; x < m_Width - 2 * size; x++)
+		{
+			if (BorderHasOnlyOneColor(x, y, size)) // В окружении на расстоянии +-size нет цветных точек
+			{
+				unsigned char centralColor = GetPixel(x, y);
+				if (centralColor != 0xFF)
+				{
+					// Закрасим внутренность белым цветом
+					for (int j = y - size; j <= y + size; j++)
+						for (int i = x - size; i <= x + size; i++)
+							SetPixel(i, j, 0xFF);
+				}
+			}
+		}
+	}
+}
+
+/*
+Переносит все закрашенные области слоя в буфер изображения отображаемого на экране
+*/
+void Level::GetLevelShapes(unsigned char* pPixelBuffer)
+{
+	for (int y = 0; y < m_Height; y++)
+	{
+		for (int x = 0; x < m_Width; x++)
+		{
+			int PixelBufferOffset = (y * m_Width + x) * 4;
+			unsigned char pixelColor = m_pShapesBuffer[y * m_Width + x];
+			if (pixelColor == m_Color)
+			{
+				pPixelBuffer[PixelBufferOffset] = m_Color;
+				pPixelBuffer[PixelBufferOffset + 1] = m_Color;
+				pPixelBuffer[PixelBufferOffset + 2] = m_Color;
+				pPixelBuffer[PixelBufferOffset + 3] = 0xFF;
+			}
+		}
+	}
+}
+
+
+
+
+
 void Level::SetPixel(int position, unsigned char color)
 {
 	m_pBuffer[position] = color;
@@ -97,30 +150,6 @@ unsigned char Level::GetPixel(int x, int y)
 	return m_pBuffer[y * m_Width + x];
 }
 
-
-void Level::GetLevelShapes(unsigned char* pPixelBuffer)
-{
-	for (int y = 0; y < m_Height; y++)
-	{
-		for (int x = 0; x < m_Width; x++)
-		{
-			int PixelBufferOffset = (y * m_Width + x) * 4;
-			unsigned char pixelColor = m_pShapesBuffer[y * m_Width + x];
-			if (pixelColor == m_Color)
-			{
-				pPixelBuffer[PixelBufferOffset] = m_Color;
-				pPixelBuffer[PixelBufferOffset + 1] = m_Color;
-				pPixelBuffer[PixelBufferOffset + 2] = m_Color;
-				pPixelBuffer[PixelBufferOffset + 3] = 0xFF;
-			}
-		}
-	}
-}
-
-void Level::Outline()
-{
-	FindInternalContours(nullptr, m_Color);
-}
 
 void Level::FindInternalContours(Contour* parentContour, unsigned char shapeColor)
 {
@@ -491,14 +520,14 @@ Direction Level::NextDirection(Direction direction)
 // Сравнивает точки по координате Y
 //----------------------------------------------------------------------------
 
-int Level::comparePoints(const void * a, const void * b)
-{
-	
-	if ( (*(Point*)a).Y <  (*(Point*)b).Y ) return -1;
-	if ( (*(Point*)a).Y == (*(Point*)b).Y ) return  0;
-	if ( (*(Point*)a).Y >  (*(Point*)b).Y ) return  1;
-	return 0;
-}
+//int Level::comparePoints(const void * a, const void * b)
+//{
+//	
+//	if ( (*(Point*)a).Y <  (*(Point*)b).Y ) return -1;
+//	if ( (*(Point*)a).Y == (*(Point*)b).Y ) return  0;
+//	if ( (*(Point*)a).Y >  (*(Point*)b).Y ) return  1;
+//	return 0;
+//}
 
 // Удаляет фигуру внутри заданного контура (закрашивает белым цветом)
 // Закрашивание выполняем по строкам
@@ -715,26 +744,6 @@ inline void Level::DrawHorizontalLine(int x1, int x2, int y, unsigned char color
 }
 
 
-void Level::Rectify(int size)
-{
-	for (int y = size; y < m_Height - 2*size; y++)
-	{
-		for (int x = size; x < m_Width - 2*size; x++)
-		{
-			if (BorderHasOnlyOneColor(x, y, size)) // В окружении на расстоянии +-size нет цветных точек
-			{
-				unsigned char centralColor = GetPixel(x, y);
-				if (centralColor != 0xFF)
-				{
-					// Закрасим внутренность белым цветом
-					for (int j = y - size; j <= y + size; j++)
-						for (int i = x - size; i <= x + size; i++)
-							SetPixel(i, j, 0xFF);
-				}
-			}
-		}
-	}
-}
 
 /* Проверяет пиксели лежащие на границе отстоящей от центрального пикселя
  заданного координатами x,y на расстояние size. 
@@ -779,8 +788,8 @@ bool Level::BorderHasOnlyOneColor(int x, int y, int size)
 	return true;
 }
 
-/*----------------------------------*/
-/* Debug functions section start    */
+#pragma region Debug functions section 
+
 void Level::ExpandLevelData(int width, int height, unsigned char color, unsigned char* inBuffer, unsigned char* outBuffer)
 {
 	for (int i = 0; i < width * height * 4; i++)
@@ -819,5 +828,6 @@ bool Level::CompareLevelDataWithReferenceData(unsigned char* pReferenceData, wch
 	return true;
 
 }
-/* Debug functions section end      */
-/*----------------------------------*/
+
+#pragma endregion
+
