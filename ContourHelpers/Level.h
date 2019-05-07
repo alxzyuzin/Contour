@@ -31,9 +31,7 @@ namespace ContourHelpers
 		Contour* FindInternalContour(Contour* parentContour);
 		void EraseShape(Contour* externalContour, Contour*  internalContour);
 
-
 		bool FindFirstExternalContourPoint(Point& point);
-		//bool FindNextExternalContourPoint(Point& point, Direction direction, unsigned char shapeColor);
 		bool FindNextExternalContourPoint(Point& point, Direction direction);
 		
 		bool	 FindFirstInternalContourPoint(Contour* parentContour, Point& point);

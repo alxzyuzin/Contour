@@ -274,10 +274,6 @@ Contour* Level::FindExternalContour(Contour* parentContour, unsigned char shapeC
 		if (l == 8)  // сделали полный круг и не нашли продолжения контура
 			break; // контур состоит из одного пикселя
 	}
-	// Если контур состоит из одного пикселя с цветом 0xFF, то  не считаем его контуром и возвращаем nullptr
-	// Область занимаемую этим пикселем стирать не нужно это и так пустое место
-	//if (contour->Size() == 1 && GetPixel(firstPoint.X, firstPoint.Y) == 0xFF)
-	//	return nullptr;
 	return contour;
 }
 
@@ -328,18 +324,13 @@ bool Level::CheckNextInternalContourPoint(Contour* parentContour, Point& point, 
 		case W:  --x; 		break;
 		case NW: --x; --y;	break;
 	}
-//#ifdef DEBUG
-//	byte b = GetPixel(x, y);
-//	bool cp = parentContour->ContainsPoint(x, y);
-//	bool cond = GetPixel(x, y) == 0xFF && parentContour->ContainsPoint(x, y);
-//#endif
+
 	if (GetPixel(x, y) == 0xFF && parentContour->ContainsPoint(x, y))
 	{
 		point.X = x;
 		point.Y = y;
 		return true;
 	}
-
 	return false;
 }
 
@@ -383,17 +374,18 @@ Contour* Level::FindInternalContour(Contour* parentContour)
 
 void Level::FindAllContours()
 {
-	do
+	while (true)
 	{
 		Contour* externalContour = FindExternalContour(nullptr, m_Color);
 		if (!externalContour)
 			break;
+		m_Contours.push_back(externalContour);
 		Contour* internalContour = FindInternalContour(externalContour);
+		if (!externalContour)
+			m_Contours.push_back(internalContour);
 
 		EraseShape(externalContour, internalContour);
-		m_Contours.push_back(externalContour);
-		
-	} while (true);
+	} 
 }
 
 
@@ -558,81 +550,60 @@ double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 s
 // Линию от текущей точки до найденной ближайшей точки ( справа ли слева ) закрашиваем пустым цветом
 //
 //----------------------------------------------------------------------------
+enum HorizontalDirection {Left, Right};
 
 void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 {
 	std::clock_t    start;
 	start = std::clock();
+	// минимальная длина контура содержащего внутреннюю область равна 4
+	// таким образом дл яконтура с длиной меньше 4 достаточно стереть сам контур
+	if (externalContour->Length < 4)
+	{
+		for (int i = 0; i < externalContour->Length; i++)
+			SetPixel(externalContour->GetPoint(i), 0xFF);
+		return;
+	}
 
-	bool horizontalSegment = false;
-	bool horizontalSegmentIsOver = false;
 	Contour::SearchNearestPointDirection searchDirection = Contour::SearchNearestPointDirection::Left;
 
+	Point* p0 = externalContour->GetPoint(0);
+	Point* p1 = externalContour->GetPoint(1);
+	Point* p2 = externalContour->GetPoint(2);
+	Point* p3 = nullptr;
+
 	SetPixel(externalContour->GetPoint(0), 0xFF);
+	
+	
 	for (int i = 1; i < externalContour->Size(); i++)
 	{
 		// выбираем две последовательные точки контура и определяем направление
 		// отрисовки контура по оси Y
-		Point* p1 = externalContour->GetPoint(i-1);
-		Point* p2 = externalContour->GetPoint(i);
-		Point* p3 = nullptr;
+		p1 = externalContour->GetPoint(i-1);
+		p2 = externalContour->GetPoint(i);
+		p3 = nullptr;
 
-		// Если координата Y не изменилась закрасим точку контура
-		if (p2->Y == p1->Y)
+		// Закрашиваем сам контур 
+		SetPixel(p2, 0xFF);
+
+		// Если координата Y не изменилась определим направление отрисовки 
+		// горизонтального участка контура
+		if (p1->Y == p2->Y)
 		{
-			horizontalSegment = true;
-			SetPixel(p2, 0xFF);
 			continue;
 		}
-		// Если координата Y увеличивается ищем точку на противоположной стороне
-		// контура слева
-		if (p2->Y >= p1->Y)
+		// Если координата Y увеличивается, устанавливаем направление поиска точки на 
+		// противоположной стороне контура слева
+		if (p2->Y > p1->Y)
 		{
-			if (horizontalSegment)
-				horizontalSegmentIsOver = true;
 			searchDirection = Contour::SearchNearestPointDirection::Left;
 		}
-		// Если координата Y уменьшается ищем точку на противоположной стороне
-		// контура справа
-		if (p2->Y <= p1->Y)
+		// Если координата Y уменьшается, устанавливаем направление поиска точки на 
+		// противоположной стороне контура справа
+		if (p2->Y < p1->Y)
 		{
-			if (horizontalSegment)
-				horizontalSegmentIsOver = true;
 			searchDirection = Contour::SearchNearestPointDirection::Right;
 		}
-
-		if (horizontalSegmentIsOver)
-		{
-			// Если существует внутренний контур ищем точку на границе внутреннего контура
-			if (internalContour)
-				p3 = internalContour->GetNearestInternalContourPoint(p1, searchDirection);
-			// Если точку на границе внутреннего контура не найдена ищем точку на 
-			// противоположной стороне внешнего контура
-			if (!p3)
-				p3 = externalContour->GetNearestContourPoint(i, searchDirection);
-			if (p3)
-			{
-				int startX = 0;
-				int endX = 0;
-
-				if (p1->X < p3->X)
-				{
-					startX = p1->X;
-					endX = p3->X;
-				}
-				else
-				{
-					startX = p3->X;
-					endX = p1->X;
-				}
-				for (int x = startX; x <= endX; x++)
-					SetPixel(x, p1->Y, 0xFF);
-			}
-			horizontalSegment = false;
-			horizontalSegmentIsOver =false;
-			p3 = nullptr;
-		}
-
 		// Если существует внутренний контур ищем точку на границе внутреннего контура
 		if (internalContour)
 			p3 = internalContour->GetNearestInternalContourPoint(p2, searchDirection);
@@ -641,13 +612,18 @@ void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 		if (!p3)
 			p3 = externalContour->GetNearestContourPoint(i, searchDirection);
 		if (p3)
-//			continue;
-		// Закрашиваем линию от внешней границы контура до внутренней границы или
-		// до противоположной границы контура
-		for (int x = p2->X; x <= p3->X; x++)
-			SetPixel(x, p2->Y, 0xFF);
-		// Закрашиваем сам контур 
-		SetPixel(p2, 0xFF);
+		{
+			int startX	= p2->X;
+			int endX	= p3->X;
+
+			if (p2->X > p3->X)
+			{
+				startX = p3->X;
+				endX = p2->X;
+			}
+			for (int x = startX; x <= endX; x++)
+				SetPixel(x, p2->Y, 0xFF);
+		}
 	}
 	std::clock_t end = std::clock();
 	double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 sec//153072ms
