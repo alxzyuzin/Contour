@@ -34,11 +34,12 @@ namespace ContourHelpers
 		bool FindFirstExternalContourPoint(Point& point);
 		bool FindNextExternalContourPoint(Point& point, Direction direction);
 		
-		bool	 FindFirstInternalContourPoint(Contour* parentContour, Point& point);
-		bool	 CheckNextInternalContourPoint(Contour* parentContour, Point& point, Direction direction);
-		bool	 FindNextInternalContourPoint(Contour* parentContour, Point& point, Direction& direction);
+		bool FindFirstInternalContourPoint(Contour* parentContour, Point& point);
+		bool CheckNextInternalContourPoint(Contour* parentContour, Point& point, Direction direction);
+		bool FindNextInternalContourPoint(Contour* parentContour, Point& point, Direction& direction);
 
 	private:
+		void EraseLine(Contour* externalContour, Contour* internalContour, int startPointNumber, Contour::SearchNearestPointDirection direction);
 		unsigned char GetPixel(int x, int y);
 		void SetPixel(int x, int y, unsigned char color);
 		unsigned char GetPixel(int position);

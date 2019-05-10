@@ -31,13 +31,19 @@ namespace ContourHelpers
 
 	class Contour sealed
 	{
+	
 	private:
 		
 		vector<Point> m_Points;
 		unsigned char m_Color;
 
 	public:
+
+		enum ContourType { External, Internal };
+
 		Contour();
+		Contour(ContourType type);
+		
 		Contour(unsigned char contourColor);
 		Contour(Point* contourPoints, int pointsNumber);
 		~Contour();
@@ -78,6 +84,7 @@ namespace ContourHelpers
 
 	public:
 		int Length = 0;
+		ContourType Type = ContourType::External;
 	};
 
 }

@@ -23,6 +23,11 @@ namespace ContourHelpers
 
 	}
 
+	Contour::Contour(ContourType type)
+	{
+		Type = type;
+	}
+
 	Contour::Contour(unsigned char color)
 	{
 		m_Color = color;
