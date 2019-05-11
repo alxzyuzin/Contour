@@ -686,11 +686,9 @@ namespace ContourHelpersTest
 			{
 				unsigned char DataSetExpanded[324];
 				Level::ExpandLevelData(9, 9, B, DataSet_0, DataSetExpanded);
-			//Create level filled with test data
 				Level* level = new Level(9, 9, B, DataSetExpanded);
-
 				level->FindAllContours();
-				Assert::AreEqual((int)level->m_Contours.size(), 4);
+				Assert::AreEqual((int)level->m_Contours.size(), 5);
 			}
 			
 
@@ -1063,12 +1061,6 @@ namespace ContourHelpersTest
 			E, E, E, E, E,
 		};
 
-		Point ExternalContour_5[3] =
-		{
-			Point(1,1), Point(2,1), Point(1,2)
-		};
-
-		
 
 		TEST_METHOD(EraseShape_Test_5)
 		{
@@ -1076,7 +1068,7 @@ namespace ContourHelpersTest
 			Level::ExpandLevelData(5, 5, B, DataSet_5_Initial, InitialDataSetExpanded);
 			////Create level filled with test data
 			Level* level = new Level(5, 5, B, InitialDataSetExpanded);
-			Contour* externalContour = new Contour(ExternalContour_5, 3);
+			Contour* externalContour = level->FindExternalContour(nullptr, B);
 			level->EraseShape(externalContour, nullptr);
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_5_Final, Message, 100);
 			Assert::IsTrue(r, Message);
@@ -1121,6 +1113,61 @@ namespace ContourHelpersTest
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_6_Final, Message, 324);
 			Assert::IsTrue(r, Message);
 		}
+
+		unsigned char DataSet_7_Initial[272] =
+		{
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			B, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B,
+			B, E, E, E, E, E, B, E, E, E, E, B, B, B, B, B, B,
+			B, E, E, E, E, B, B, B, E, E, E, E, B, B, B, B, B,
+			B, E, E, E, E, B, B, B, B, E, E, E, E, B, B, B, B,
+			B, E, E, E, B, B, B, B, B, B, E, E, E, B, B, B, B,
+			B, E, E, E, B, B, B, B, B, B, E, E, E, B, B, B, B,
+			B, E, E, E, B, B, B, B, B, B, E, E, E, B, B, B, B,
+			B, E, E, E, B, B, B, B, B, B, B, E, B, B, B, B, B,
+			B, E, E, E, B, B, B, B, B, B, E, E, B, B, B, B, B,
+			B, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B,
+			B, E, E, E, E, B, E, B, B, B, B, B, B, B, B, B, B,
+			B, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B,
+			B, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B,
+			B, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+		};
+
+		unsigned char DataSet_7_Final[272] =
+		{
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
+
+		};
+
+		TEST_METHOD(EraseShape_Test_7)
+		{
+			unsigned char InitialDataSetExpanded[1088];
+			Level::ExpandLevelData(17, 16, B, DataSet_7_Initial, InitialDataSetExpanded);
+			////Create level filled with test data
+			Level* level = new Level(17, 16, B, InitialDataSetExpanded);
+			Contour* externalContour = level->FindExternalContour(nullptr, B);
+			Contour* internalContour = level->FindInternalContour(externalContour);
+			level->EraseShape(externalContour, internalContour);
+			bool r = level->CompareLevelDataWithReferenceData(DataSet_7_Final, Message, 324);
+			Assert::IsTrue(r, Message);
+		}
+
 
 	};
 

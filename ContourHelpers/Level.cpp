@@ -381,7 +381,7 @@ void Level::FindAllContours()
 			break;
 		m_Contours.push_back(externalContour);
 		Contour* internalContour = FindInternalContour(externalContour);
-		if (!externalContour)
+		if (internalContour)
 			m_Contours.push_back(internalContour);
 
 		EraseShape(externalContour, internalContour);

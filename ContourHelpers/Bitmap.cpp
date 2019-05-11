@@ -275,7 +275,10 @@ void Bitmap::DisplayLevelContours(unsigned char color)
 		for (int i = 0; i < contour->Size(); i++)
 		{
 			point = contour->GetPoint(i);
-			SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF);
+			if (contour->Type == Contour::ContourType::External)
+				SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF);
+			else
+				SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF);
 		}
 }
 
