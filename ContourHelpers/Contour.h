@@ -5,8 +5,6 @@ using namespace std;
 
 namespace ContourHelpers
 {
-	//enum ContourType { External, Internal };
-
 	struct Point
 	{
 		int X;
@@ -31,15 +29,16 @@ namespace ContourHelpers
 
 	class Contour sealed
 	{
-	
+	public:
+		enum ContourType { External, Internal };
+		int Length = 0;
+		ContourType Type = ContourType::External;
+
 	private:
-		
 		vector<Point> m_Points;
 		unsigned char m_Color;
-
+	
 	public:
-
-		enum ContourType { External, Internal };
 
 		Contour();
 		Contour(ContourType type);
@@ -74,7 +73,7 @@ namespace ContourHelpers
 		int GetRightNearestPointIndex(int x, int y);
 		int GetNextContourPointIndex(int i);
 		int GetPrevContourPointIndex(int i);
-		bool PointBelongToContour(int x, int y);
+		bool PointLaysOnContour(int x, int y);
 
 		Point* operator[](unsigned int i);
 		bool Contains(Point* point);
@@ -82,9 +81,7 @@ namespace ContourHelpers
 		bool ContainsPoint(Point* point);
 		bool EnclosePoint(Point* point);
 
-	public:
-		int Length = 0;
-		ContourType Type = ContourType::External;
+
 	};
 
 }

@@ -19,8 +19,8 @@ void ContourHelpers::Bitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m
 // Массив оттенков серого содержащихся в изображении
 Array<unsigned char>^ Bitmap::GrayScaleColorMap::get()
 {
-	Array<unsigned char>^ grayScaleColorMap = ref new Array<unsigned char>(m_Levels.size());
-	for (unsigned int i = 0; i < (int)m_Levels.size(); i++)
+	Array<unsigned char>^ grayScaleColorMap = ref new Array<unsigned char>((int)m_Levels.size());
+	for (int i = 0; i < (int)m_Levels.size(); i++)
 		grayScaleColorMap->set(i, m_Levels[i]->m_Color);
 	return grayScaleColorMap;
 }
@@ -227,21 +227,23 @@ void Bitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 
 void Bitmap::OutlineImage()
 {
+	std::clock_t start = std::clock();
+	
 	for (Level* level : m_Levels)
-		level->FindAllContours();
-/*
-	do
-	{
-		Contour* externalContour = level->FindExternalContour(nullptr, m_Color);
-		if (!externalContour)
-			break;
-		Contour* internalContour = level->FindInternalContour(externalContour);
-
-		level->EraseShape(externalContour, internalContour);
-		level->m_Contours.push_back(externalContour);
-
-	} while (true);
-*/
+		while (true)
+		{
+			Contour* externalContour = level->FindExternalContour();
+			if (!externalContour)
+				break;
+			level->m_Contours.push_back(externalContour);
+			Contour* internalContour = level->FindInternalContour(externalContour);
+			if (internalContour)
+				level->m_Contours.push_back(internalContour);
+			level->EraseShape(externalContour, internalContour);
+		}
+	// time содержит время выполнения функции в милисекундах 
+	double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); 
+	// Исходное время построения контуров  8509 ms
 }
 
 void Bitmap::RectifyLevel(unsigned char color, int size)

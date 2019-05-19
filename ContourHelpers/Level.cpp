@@ -28,6 +28,9 @@ Level::Level(int width, int height, unsigned char levelColor, unsigned char pPix
 	for (int i = 0; i < m_BufferLength; i++)
 		m_pBuffer[i] = 0xFF;
 
+	// Сожмём данные исходного изображения
+	// 4 байта исходного изображения в оттенках серого сохраняем в буфере слоя в одном байте
+	// поскольку байты RGB исходного изображения содержат одинаковые значения 
 	for (int y = 0; y < m_Height; y++)
 	{
 		for (int x = 0, k = 0; x < (m_Width * 4); x += 4, k++)
@@ -65,12 +68,6 @@ void Level::Clear()
 	m_Color =0;
 }
 
-
-void Level::Outline()
-{
-//	FindInternalContours(nullptr, m_Color);
-}
-
 void Level::Rectify(int size)
 {
 	for (int y = size; y < m_Height - 2 * size; y++)
@@ -85,7 +82,7 @@ void Level::Rectify(int size)
 					// Закрасим внутренность белым цветом
 					for (int j = y - size; j <= y + size; j++)
 						for (int i = x - size; i <= x + size; i++)
-							SetPixel(i, j, 0xFF);
+							SetPixel(i, j, EMPTY_COLOR);
 				}
 			}
 		}
@@ -108,7 +105,7 @@ void Level::GetLevelShapes(unsigned char* pPixelBuffer)
 				pPixelBuffer[PixelBufferOffset] = m_Color;
 				pPixelBuffer[PixelBufferOffset + 1] = m_Color;
 				pPixelBuffer[PixelBufferOffset + 2] = m_Color;
-				pPixelBuffer[PixelBufferOffset + 3] = 0xFF;
+				pPixelBuffer[PixelBufferOffset + 3] = EMPTY_COLOR;
 			}
 		}
 	}
@@ -231,7 +228,7 @@ bool Level::FindNextExternalContourPoint(Point& currentPoint, Direction directio
 	В этом случае контура без внутренних точек будут короче и возможно поиск
 	точек контура будет заканчиваться быстрее.
 */
-Contour* Level::FindExternalContour(Contour* parentContour, unsigned char shapeColor)
+Contour* Level::FindExternalContour()
 {
 	Point firstPoint(0,0);
 	bool firstPointFound = FindFirstExternalContourPoint(firstPoint);
@@ -258,7 +255,7 @@ Contour* Level::FindExternalContour(Contour* parentContour, unsigned char shapeC
 			bool nextPointFound = FindNextExternalContourPoint(nextPoint, searchDirection);
 			if (nextPointFound)
 			{
-				if (GetPixel(nextPoint.X, nextPoint.Y) == shapeColor)
+				if (GetPixel(nextPoint.X, nextPoint.Y) == m_Color)
 				{
 					if ((nextPoint.X == firstPoint.X) && (nextPoint.Y == firstPoint.Y))
 						return contour;
@@ -358,7 +355,9 @@ Contour* Level::FindInternalContour(Contour* parentContour)
 	Contour* contour = nullptr;
 	Point point = Point(MAXINT, MAXINT);
 	Direction direction = E;
+	
 	bool pointFound = FindFirstInternalContourPoint(parentContour, point);
+	Point firstContourPoint = point;
 	if (pointFound)
 		contour = new Contour(Contour::ContourType::Internal);
 
@@ -376,7 +375,7 @@ void Level::FindAllContours()
 {
 	while (true)
 	{
-		Contour* externalContour = FindExternalContour(nullptr, m_Color);
+		Contour* externalContour = FindExternalContour();
 		if (!externalContour)
 			break;
 		m_Contours.push_back(externalContour);
@@ -388,6 +387,111 @@ void Level::FindAllContours()
 	} 
 }
 
+/*
+Стирает все точки в рабочем буффере m_pBuffer
+*/
+void Level::EraseBuffer()
+{
+	for (int i = 0; i < m_BufferLength; i++)
+		m_pBuffer[i] = EMPTY_COLOR;
+}
+
+/*
+Стирает все точки внутри заданного контура
+*/
+void Level::EraseContourContent(Contour* contour)
+{
+	// Минимальная длина контура содержащего внутреннюю область равна 4
+	// таким образом для контура с длиной меньше 4 достаточно стереть сам контур
+	if (contour->Length < 4)
+	{
+		for (int i = 0; i < contour->Length; i++)
+			SetPixel(contour->GetPoint(i), EMPTY_COLOR);
+		return;
+	}
+
+	Contour::SearchNearestPointDirection searchDirection = Contour::SearchNearestPointDirection::Left;
+
+	Point nullPoint = Point(-1, -1);
+	Point* p0 = &nullPoint;
+	Point* p1 = &nullPoint;
+	Point* p2 = contour->GetPoint(0);
+
+	ErasePixel(contour->GetPoint(0));
+	for (int i = 1; i < contour->Length; i++)
+	{
+		p0 = p1;
+		p1 = p2;
+		p2 = contour->GetPoint(i);
+
+		// Закрашиваем сам контур 
+		ErasePixel(p2);
+
+		if (p1->Y != p2->Y)
+		{
+			// Если координата Y увеличивается, устанавливаем направление поиска точки на 
+			// противоположной стороне контура слева
+			// Если координата Y уменьшается, устанавливаем направление поиска точки на 
+			// противоположной стороне контура справа
+
+			searchDirection = (p2->Y > p1->Y) ? Contour::SearchNearestPointDirection::Left : Contour::SearchNearestPointDirection::Right;
+
+			if (p0->Y == p1->Y)
+				EraseLine(contour, i - 1, searchDirection);
+			EraseLine(contour, i, searchDirection);
+		}
+
+	}
+}
+
+
+
+
+/*
+	Восстанавливает все точки внутри заданного контура.
+	Для восстановления использует данные из m_pShapesBuffer
+	Алгоритм восстановления содержимого контура аналогичен алгоритму стирания контура,
+	за исключением того что значение цвета пикселя внутри контура  не равно константе
+	0xFF а берётся из соответствующего пикселя буфера m_pShapesBuffer
+	Точки самого контура не восстанавливаются
+*/
+void Level::RestoreContourContent(Contour* contour)
+{
+	// Минимальная длина контура содержащего внутреннюю область равна 4
+	// таким образом для контура с длиной меньше 4 нет необходимости воостанавливать
+	// 	содержание внутренней области
+	if (contour->Length < 4)
+		return;
+
+	Contour::SearchNearestPointDirection searchDirection = Contour::SearchNearestPointDirection::Left;
+
+	Point nullPoint = Point(-1, -1);
+	Point* p0 = &nullPoint;
+	Point* p1 = &nullPoint;
+	Point* p2 = contour->GetPoint(0);
+	
+	for (int i = 1; i < contour->Length; i++)
+	{
+		p0 = p1;
+		p1 = p2;
+		p2 = contour->GetPoint(i);
+		
+		if (p1->Y != p2->Y)
+		{
+			// Если координата Y увеличивается, устанавливаем направление поиска точки на 
+			// противоположной стороне контура слева
+			// Если координата Y уменьшается, устанавливаем направление поиска точки на 
+			// противоположной стороне контура справа
+
+			searchDirection = (p2->Y > p1->Y) ? Contour::SearchNearestPointDirection::Left : Contour::SearchNearestPointDirection::Right;
+
+			if (p0->Y == p1->Y)
+				RestoreLine(contour, i - 1, searchDirection);
+			RestoreLine(contour, i, searchDirection);
+		}
+	}
+
+}
 
 
 //----------------------------------------------------------------------------
@@ -454,53 +558,10 @@ Direction Level::NextDirection(Direction direction)
 //----------------------------------------------------------------------------
 void Level::RemoveShape(Contour* contour)
 {
-	//byte baseColor = 0xFF;
 	unsigned char baseColor = contour->GetColor();
 
 	std::clock_t    start;
 	start = std::clock();
-	/*
-	//
-	//// Перенесём точки из контура в массив и отсортируем его по возрастанию Y
-	//Pt* sortedPoints = new Pt[contour->Length];
-
-	//int sortedPointsLength = 0;
-	//for (Point^ pt : contour->Points)
-	//{
-	//	sortedPoints[sortedPointsLength].X = pt->X;
-	//	sortedPoints[sortedPointsLength].Y = pt->Y;
-	//	sortedPointsLength++;
-	//}
-
-	//qsort(sortedPoints, sortedPointsLength, sizeof(Pt), comparePoints);
-
-	//std::vector<std::vector<int>> pointIndex;
-	//
-	//int i = 0;
-	//int j = i + 1;
-
-	//do
-	//{
-	//	std::vector<int> * vector_X = new std::vector<int>;
-	//	vector_X.push_back(sortedPoints[i].X);
-	//	while (sortedPoints[i].Y == sortedPoints[j].Y);
-	//	{
-	//		vector_X.push_back(sortedPoints[j].X);
-	//		j++;
-	//	} 
-	//	pointIndex.push_back(vector_X);
-	//	i = j;
-	//	j++;
-	//} while (j<sortedPointsLength);
-	//
-	//Pt p;
-	//
-	//for (int j = 0; j < i; j++)
-	//{
-	//	p.X = sortedPoints[j].X;
-	//	p.Y = sortedPoints[j].Y;
-	//}
-	*/
 	Point* p1 = nullptr;
 	Point* p2 = nullptr;
 	Point* p3 = nullptr;
@@ -538,69 +599,18 @@ void Level::RemoveShape(Contour* contour)
 double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 sec//153072ms
 }
 
-// Закрашивает промежуток между внешним и внутренним контуром пустым цветом 0xFF.
-// Закрашивание выполняется по строкам
-// выполняем обход внешнего контура по часовой стрелке (в том же направлении в котором искали точки контура)
-// Если при переходе от предыдущей точки к текущей координата Y увеличилась или не изменилась 
-// то среди точек внешнего и внутреннего контура ищем ближайшую точку СЛЕВА от текущей	
-// Если при переходе от предыдущей точки к текущей координата Y уменьшилась или не изменилась
-// 	то среди точек внешнего и внутреннего контура ищем ближайшую точку СПРАВА от текущей	
-// ищем точку ближайшую точку слева от текущей	
-
-// Линию от текущей точки до найденной ближайшей точки ( справа ли слева ) закрашиваем пустым цветом
-//
-//----------------------------------------------------------------------------
-//enum HorizontalDirection {Left, Right};
-
+/*
+	Закрашивает пространство внутри внешннего контура пустым цветом 0xFF.
+	Если внутренний контур не пустой то восстанавливаем содержимое внутреннего контура
+*/
 void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 {
-	std::clock_t    start;
-	start = std::clock();
-	// минимальная длина контура содержащего внутреннюю область равна 4
-	// таким образом дл яконтура с длиной меньше 4 достаточно стереть сам контур
-	if (externalContour->Length < 4)
-	{
-		for (int i = 0; i < externalContour->Length; i++)
-			SetPixel(externalContour->GetPoint(i), 0xFF);
-		return;
-	}
+	if (!externalContour)
+		throw std::invalid_argument("Pointer to externalContour is null");
 
-	Contour::SearchNearestPointDirection searchDirection = Contour::SearchNearestPointDirection::Left;
-
-	Point nullPoint = Point(-1, -1);
-	Point* p0 = &nullPoint;
-	Point* p1 = &nullPoint;
-	Point* p2 = externalContour->GetPoint(0);
-
-	SetPixel(externalContour->GetPoint(0), 0xFF);
-	for (int i = 1; i < externalContour->Size(); i++)
-	{
-		p0 = p1;
-		p1 = p2;
-		p2 = externalContour->GetPoint(i);
-
-		// Закрашиваем сам контур 
-		SetPixel(p2, 0xFF);
-
-		if (p1->Y != p2->Y)
-		{
-			// Если координата Y увеличивается, устанавливаем направление поиска точки на 
-			// противоположной стороне контура слева
-			if (p2->Y > p1->Y)
-				searchDirection = Contour::SearchNearestPointDirection::Left;
-			// Если координата Y уменьшается, устанавливаем направление поиска точки на 
-			// противоположной стороне контура справа
-			if (p2->Y < p1->Y)
-				searchDirection = Contour::SearchNearestPointDirection::Right;
-
-			if (p0->Y == p1->Y)
-				EraseLine(externalContour, internalContour, i-1, searchDirection);
-			EraseLine(externalContour, internalContour, i, searchDirection);
-		}
-		
-	}
-	std::clock_t end = std::clock();
-	double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 sec//153072ms
+	EraseContourContent(externalContour);
+	if (internalContour)
+		RestoreContourContent(internalContour);
 }
 
 void Level::EraseLine(Contour* externalContour, Contour* internalContour, int startPointNumber, Contour::SearchNearestPointDirection direction)
@@ -629,9 +639,88 @@ void Level::EraseLine(Contour* externalContour, Contour* internalContour, int st
 			endX = startPoint->X;
 		}
 		for (int x = startX; x <= endX; x++)
-			SetPixel(x, startPoint->Y, 0xFF);
+			ErasePixel(x, startPoint->Y);
 	}
 
+}
+
+void Level::EraseLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction)
+{
+	int startX = 0;
+	int endX = 0;
+	Point* startPoint = externalContour->GetPoint(startPointNumber);
+	Point* endPoint = nullptr;
+	
+	// Ищем точку на противоположной стороне внешнего контура
+	endPoint = externalContour->GetNearestContourPoint(startPointNumber, direction);
+	if (endPoint)
+	{
+		if (startPoint->X <= endPoint->X)
+		{
+			startX = startPoint->X;
+			endX = endPoint->X;
+		}
+		else
+		{
+			startX = endPoint->X;
+			endX = startPoint->X;
+		}
+		for (int x = startX; x <= endX; x++)
+			ErasePixel(x, startPoint->Y);
+	}
+}
+
+
+void Level::RestoreLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction)
+{
+	int startX = 0;
+	int endX = 0;
+	Point* startPoint = externalContour->GetPoint(startPointNumber);
+	Point* endPoint = nullptr;
+
+	// Ищем точку на противоположной стороне внешнего контура
+	endPoint = externalContour->GetNearestContourPoint(startPointNumber, direction);
+	if (endPoint)
+	{
+		if (startPoint->X <= endPoint->X)
+		{
+			startX = startPoint->X;
+			endX = endPoint->X;
+		}
+		else
+		{
+			startX = endPoint->X;
+			endX = startPoint->X;
+		}
+		for (int x = startX; x <= endX; x++)
+			RestorePixel(x, startPoint->Y);
+	}
+
+}
+
+/*
+Восстанавливает значение пикселя в указанной точке используя данные m_pShapesBuffer
+*/
+void Level::RestorePixel(Point* point)
+{
+	int offset = point->Y * m_Width + point->X;
+	m_pBuffer[offset] = m_pShapesBuffer[offset];
+}
+
+void Level::RestorePixel(int x, int y)
+{
+	int offset = y * m_Width + x;
+	m_pBuffer[offset] = m_pShapesBuffer[offset];
+}
+
+void Level::ErasePixel(int x, int y)
+{
+	m_pBuffer[y * m_Width + x] = EMPTY_COLOR;
+}
+
+void Level::ErasePixel(Point* point)
+{
+	m_pBuffer[point->Y * m_Width + point->X] = EMPTY_COLOR;
 }
 
 

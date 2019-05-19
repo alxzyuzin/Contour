@@ -80,16 +80,7 @@ namespace Contour
 
         private void BtnExtractLevels_Tapped(object sender, TappedRoutedEventArgs e)
         {
-
-
             BuildLayersWindow();
-
-            //    bitmap.ExtractLevels();
-
-            //    foreach (Level level in bitmap.Levels)
-            //        cbx_color.Items.Add(level.Color.ToString());
-            //    tbl_Result.Text = "Levels extracted";
-            //
         }
 
         private void CbxCcolor_SelectionChanged(object sender, SelectionChangedEventArgs e)

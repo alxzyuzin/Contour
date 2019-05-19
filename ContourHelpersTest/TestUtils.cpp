@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "TestUtils.h"
 
 using namespace  ContourHelpers;
@@ -30,7 +31,7 @@ namespace ContourHelpersTest
 		}
 		return true;
 	}
-
+	
 	bool TestUtils::CompareLevelData(unsigned char levelData[], unsigned char referenceData[], int dataLength, wchar_t *message, int messageLength)
 	{
 		for (int i = 0; i < dataLength; i++)
