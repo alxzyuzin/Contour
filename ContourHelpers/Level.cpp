@@ -255,8 +255,8 @@ Contour* Level::FindExternalContour()
 			bool nextPointFound = FindNextExternalContourPoint(nextPoint, searchDirection);
 			if (nextPointFound)
 			{
-				if (GetPixel(nextPoint.X, nextPoint.Y) == m_Color)
-				{
+//				if (GetPixel(nextPoint.X, nextPoint.Y) == m_Color)
+//				{
 					if ((nextPoint.X == firstPoint.X) && (nextPoint.Y == firstPoint.Y))
 						return contour;
 					else
@@ -264,7 +264,7 @@ Contour* Level::FindExternalContour()
 						contour->AddPoint(nextPoint);
 						break;
 					}
-				}
+//				}
 			}
 			searchDirection = NextDirection(searchDirection);
 		}
@@ -279,24 +279,28 @@ bool Level::FindFirstInternalContourPoint(Contour* parentContour, Point& point)
 	if (!parentContour)
 		throw std::invalid_argument("Pointer to parentContour is null");
 
+	if (parentContour->Length < 4)
+		return false;
+
 	// Ищем первую точку не закращенной области внутри контура parentCountour
-	// обходим контур против часовой стрелки
 	for (int i = 0; i < parentContour->Size(); i++)
 	{
 		Point* StartPoint = parentContour->GetPoint(i);
 		Point* EndPoint = parentContour->FindLeftNearestPoint(i);
-		if (EndPoint)
+		if (!EndPoint)
+			continue;
+		for (int x = EndPoint->X + 1; x < StartPoint->X;  x++)
 		{
-			for (int x = EndPoint->X + 1; x < StartPoint->X;  x++)
-			{
-				unsigned char c = m_pBuffer[StartPoint->Y * m_Width + x];
-				if (m_pBuffer[StartPoint->Y * m_Width + x] == EMPTY_COLOR)
+			unsigned char c = m_pBuffer[StartPoint->Y * m_Width + x];
+			if (m_pBuffer[StartPoint->Y * m_Width + x] == EMPTY_COLOR
+				&&
+				parentContour->ContainsPoint(x, StartPoint->Y)
+				)
 				{
 					point.X = x;
 					point.Y = StartPoint->Y;
 					return true;
 				}
-			}
 		}
 	}
 	return false;

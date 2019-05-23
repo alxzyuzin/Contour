@@ -13,15 +13,7 @@ namespace ContourHelpersTest
 	const unsigned char B = 0x00;
 	const unsigned char W = 0xFE;
 
-	// 5x5 Square with black border and black point inside
-	unsigned char DataSet_1[25] =
-	{ 
-		B, B, B, B, B,
-		B, E, E, E, B,
-		B, E, B, E, B,
-		B, E, E, E, B,
-		B, B, B, B, B,
-	};
+	
 
 	// 5x5 Square with black border inside (inverted DataSet_1)
 	unsigned char DataSet_2[25] =
@@ -188,36 +180,35 @@ namespace ContourHelpersTest
 		Each pixel presented by 4 bytes
 		*/
 
-		// Empty square size 5x5 with black point in center
-		unsigned char EmptySquareWithBlackPoint[100] =
-		{   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF
-		};
+		//// Empty square size 5x5 with black point in center
+		//unsigned char EmptySquareWithBlackPoint[100] =
+		//{   E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+		//	E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+		//	E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+		//	E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+		//	E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
+		//};
 
 		// White 5x5 square
-		unsigned char WhiteSquare[25] =
-			{	W, W, W, W, W,
-				W, W, W, W, W,
-				W, W, W, W, W,
-				W, W, W, W, W,
-				W, W, W, W, W
-			};
 
     public:
+		unsigned char WhiteSquare[25] =
+		{ W, W, W, W, W,
+			W, W, W, W, W,
+			W, W, W, W, W,
+			W, W, W, W, W,
+			W, W, W, W, W
+		};
+
 		/*
-		Find first external contour point if parent contour is null
 		Analize 5x5 square area filled by white color (0xFE) 
 		Look for first shape pixel with color 0xFE
 		OK - if pixel found (function FindFirstContourPoint return true)
 		*/
-        TEST_METHOD(FindFirstExternalContourPoint_Test_1_1)
+        TEST_METHOD(Test_01_FindFirstExternalContourPoint)
         {
 			unsigned char WhiteSquareExpanded[100];
 			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
-			
 			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
 			Point firstContourPoint = Point(5, 5);
 			Point ExpectedPoint = Point(0, 0);
@@ -230,7 +221,7 @@ namespace ContourHelpersTest
 		Check coords first shape pixel with color 0xFE
 		OK - if expected coords == first contour point coords
 		*/
-		TEST_METHOD(FindFirstExternalContourPoint_Test_1_2)
+		TEST_METHOD(Test_02_FindFirstExternalContourPoint)
 		{
 			unsigned char WhiteSquareExpanded[100];
 			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
@@ -248,7 +239,7 @@ namespace ContourHelpersTest
 		Parent contour is null
 		OK - if expected coords == X = 4 Y = 1
 		*/
-		TEST_METHOD(FindNextExternalContourPoint_Test_1)
+		TEST_METHOD(Test_03_FindNextExternalContourPoint)
 		{
 			unsigned char WhiteSquareExpanded[100];
 			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
@@ -274,7 +265,7 @@ namespace ContourHelpersTest
 		Find contour in 5x5 empty square area ( filled with color 0xFF)
 		Expected result: contour not found
 		*/
-		TEST_METHOD(FindExternalContour_Test_0)
+		TEST_METHOD(Test_04_FindExternalContour)
 		{
 			unsigned char EmptySquareExpanded[100];
 			Level::ExpandLevelData(5, 5, B, EmptySquare, EmptySquareExpanded);
@@ -285,14 +276,22 @@ namespace ContourHelpersTest
 		}
 
 
+
+		unsigned char Dataset_05[25] =
+		{ W, W, W, W, W,
+			W, W, W, W, W,
+			W, W, W, W, W,
+			W, W, W, W, W,
+			W, W, W, W, W
+		};
 		/*
 		Find contour of square area filled with white color (0xFE)
 		Check contour length
 		*/
-		TEST_METHOD(FindExternalContour_Test_1)
+		TEST_METHOD(Test_05_FindExternalContour)
 		{
 			unsigned char WhiteSquareExpanded[100];
-			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
+			Level::ExpandLevelData(5, 5, W, Dataset_05, WhiteSquareExpanded);
 			
 			// use this expression to find array size
 			//int size = *(&arr + 1) - arr;
@@ -312,21 +311,32 @@ namespace ContourHelpersTest
 			}
 		}
 
+
+		// 5x5 Square with black border and black point inside
+		unsigned char DataSet_06[25] =
+		{
+			B, B, B, B, B,
+			B, E, E, E, B,
+			B, E, B, E, B,
+			B, E, E, E, B,
+			B, B, B, B, B,
+		};
+
 		/*
 		Find contour of square area having black border and black point in center
 		Check contour length
 		*/
-		TEST_METHOD(FindExternalContour_Test_2)
+		TEST_METHOD(Test_06_FindExternalContour)
 		{
 			wchar_t Message[100];
-			unsigned char DataSet_1_Expanded[100];
-			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSet_1_Expanded);
+			unsigned char DataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_06, DataSetExpanded);
 
 			// use this expression to find array size
 			//int size = *(&arr + 1) - arr;
 			int expectedContourLength = 16;
 
-			Level* level = new Level(5, 5, B, DataSet_1_Expanded);
+			Level* level = new Level(5, 5, B, DataSetExpanded);
 			Contour* contour = level->FindExternalContour();
 			swprintf(Message, 100, L"Contour length %i should be %i", contour->Size(), 16);
 			Assert::IsTrue(contour->Size() == expectedContourLength, Message);
@@ -340,7 +350,7 @@ namespace ContourHelpersTest
 			}
 		}
 
-		unsigned char DataSet_3[231] =
+		unsigned char DataSet_07[231] =
 		{   E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
 			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, E, E, B, B, B, E,
 			E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, E,
@@ -354,12 +364,11 @@ namespace ContourHelpersTest
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
 		};
 
-		TEST_METHOD(Test_3_FindExternalContour)
+		TEST_METHOD(Test_07_FindExternalContour)
 		{
 			wchar_t Message[100];
 			unsigned char DataSetExpanded[924];
-			Level::ExpandLevelData(21, 11, B, DataSet_3, DataSetExpanded);
-			int expectedContourLength = 16;
+			Level::ExpandLevelData(21, 11, B, DataSet_07, DataSetExpanded);
 			Level* level = new Level(21, 11, B, DataSetExpanded);
 			Contour* contour = level->FindExternalContour();
 			swprintf(Message, 100, L"Contour length should be %i", 16);
@@ -374,15 +383,26 @@ namespace ContourHelpersTest
 	private:
 		wchar_t Message[100];
 	public:
-		// Try to find first internal contour point
-		TEST_METHOD(FindFirstInternalContourPoint_Test_1)
+
+		// 5x5 Square with black border and black point inside
+		unsigned char DataSet_1[25] =
 		{
-			unsigned char DataSet_1_Expanded[100];
-			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSet_1_Expanded);
+			B, B, B, B, B,
+			B, E, E, E, B,
+			B, E, B, E, B,
+			B, E, E, E, B,
+			B, B, B, B, B,
+		};
+
+		// Try to find first internal contour point
+		TEST_METHOD(Test_01_FindFirstInternalContourPoint)
+		{
+			unsigned char DataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);
 
 			Point point = Point(MAXINT, MAXINT);
 			//Create level filled with test data
-			Level* level = new Level(5, 5, B, DataSet_1_Expanded);
+			Level* level = new Level(5, 5, B, DataSetExpanded);
 			// Find external contour
 			Contour* contour = level->FindExternalContour();
 			Assert::IsNotNull(contour, L"Contour not found.");
@@ -391,16 +411,26 @@ namespace ContourHelpersTest
 			Assert::IsTrue(result);
 		}
 
-		// Check if first internal contour point has expected coords
-		TEST_METHOD(FindFirstInternalContourPoint_Test_2)
+		// 5x5 Square with black border and black point inside
+		unsigned char DataSet_2[25] =
 		{
-			unsigned char DataSet_1_Expanded[100];
-			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSet_1_Expanded);
+			B, B, B, B, B,
+			B, E, E, E, B,
+			B, E, B, E, B,
+			B, E, E, E, B,
+			B, B, B, B, B,
+		};
+
+		// Check if first internal contour point has expected coords
+		TEST_METHOD(Test_02_FindFirstInternalContourPoint)
+		{
+			unsigned char DataSetExpanded[100];
+			Level::ExpandLevelData(5, 5, B, DataSet_2, DataSetExpanded);
 
 			Point point = Point(MAXINT, MAXINT);
 			Point expectedPoint = Point(1, 1);
 			//Create level filled with test data
-			Level* level = new Level(5, 5, B, DataSet_1_Expanded);
+			Level* level = new Level(5, 5, B, DataSetExpanded);
 			// Find external contour
 			Contour* contour = level->FindExternalContour();
 
@@ -410,12 +440,21 @@ namespace ContourHelpersTest
 			Assert::IsTrue(point == expectedPoint,L"Points does not match.");
 		}
 
-		// Check if next internal contour point i defined directions 
+
+		unsigned char DataSet_03[25] =
+		{
+			E, E, E, E, E,
+			E, B, B, B, E,
+			E, B, E, B, E,
+			E, B, B, B, E,
+			E, E, E, E, E,
+		};
+		// Check if next internal contour point if defined directions 
 		// can not be part of contour
-		TEST_METHOD(CheckNextInternalContourPoint_Test_1)
+		TEST_METHOD(Test_03_CheckNextInternalContourPoint)
 		{
 			unsigned char DataSetExpanded[100];
-			Level::ExpandLevelData(5, 5, B, DataSet_2, DataSetExpanded);
+			Level::ExpandLevelData(5, 5, B, DataSet_03, DataSetExpanded);
 			//Create level filled with test data
 			Level* level = new Level(5, 5, B, DataSetExpanded);
 			// Find external contour
@@ -448,6 +487,15 @@ namespace ContourHelpersTest
 			}
 		}
 
+
+		unsigned char DataSet_0[25] =
+		{
+			B, B, B, B, B,
+			B, E, E, E, B,
+			B, E, B, E, B,
+			B, E, E, E, B,
+			B, B, B, B, B,
+		};
 		Point ContourPoints[8] =
 		{
 			Point(1,1), Point(2,1), Point(3,1), Point(3,2),
@@ -455,19 +503,19 @@ namespace ContourHelpersTest
 		};
 
 		// Check function parameter value control
-		TEST_METHOD(FindInternalContour_Test_0)
+		TEST_METHOD(Test_0_FindInternalContour)
 		{
-			Assert::ExpectException< std::invalid_argument, Contour*>([]()
+			/*Assert::ExpectException< std::invalid_argument, Contour*>([]()
 				{
 					unsigned char DataSetExpanded[100];
-					Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);
+					Level::ExpandLevelData(5, 5, B, DataSet_0, DataSetExpanded);
 					Level* level = new Level(5, 5, B, DataSetExpanded);
 					return level->FindInternalContour(nullptr);
-				}, L"Parametr parentContour is null and exception not thrown.");
+				}, L"Parametr parentContour is null and exception not thrown.");*/
 		}
 
 		// Find internal contour
-		TEST_METHOD(FindInternalContour_Test_1)
+		TEST_METHOD(Test_05_FindInternalContour)
 		{
 			unsigned char DataSetExpanded[100];
 			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);
@@ -586,7 +634,7 @@ namespace ContourHelpersTest
 		
 		};
 
-		TEST_METHOD(InternalContour_Test_10)
+		TEST_METHOD(Test_10_InternalContour)
 		{
 			unsigned char DataSetExpanded[324];
 			Level::ExpandLevelData(9, 9, B, DataSet_10, DataSetExpanded);
@@ -597,6 +645,56 @@ namespace ContourHelpersTest
 			Assert::IsTrue(res, Message);
 		}
 
+		unsigned char DataSet_11[231] =
+		{
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, E, E, B, B, B, E,
+			E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, E,
+			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
+			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
+			E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, E, E,
+			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, B, B, B, B, E, E,
+			E, E, B, B, E, E, B, B, B, B, B, B, B, E, E, B, B, B, B, E, E,
+			E, E, E, E, E, B, B, B, B, E, B, B, B, E, E, B, B, B, B, E, E,
+			E, E, E, E, B, B, B, B, E, E, E, B, B, E, E, B, B, B, B, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
+		};
+
+		
+		TEST_METHOD(Test_11_FindInternalContour)
+		{
+			unsigned char DataSetExpanded[924];
+			Level::ExpandLevelData(21, 11, B, DataSet_11, DataSetExpanded);
+			Level* level = new Level(21, 11, B, DataSetExpanded);
+			Contour* externalCountour = level->FindExternalContour();
+			Contour* internalContour = level->FindInternalContour(externalCountour);
+			Assert::IsNull(internalContour,L"Internal contour is not null");
+		}
+
+		unsigned char DataSet_12[231] =
+		{
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, B, B, B, E, B, E, B, B, B, B, B, B, E, E, E, B, B, B, E,
+			E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, E,
+			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
+			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
+			E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, E, E,
+			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, B, B, B, B, E, E,
+			E, E, B, B, E, E, B, B, B, B, B, B, B, E, E, B, B, B, B, E, E,
+			E, E, E, E, E, B, B, B, B, E, B, B, B, E, E, B, B, B, B, E, E,
+			E, E, E, E, B, B, B, B, E, E, E, B, B, E, E, B, B, B, B, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
+		};
+
+		TEST_METHOD(Test_12_FindInternalContour)
+		{
+			unsigned char DataSetExpanded[924];
+			Level::ExpandLevelData(21, 11, B, DataSet_12, DataSetExpanded);
+			Level* level = new Level(21, 11, B, DataSetExpanded);
+			Contour* externalCountour = level->FindExternalContour();
+			Contour* internalContour = level->FindInternalContour(externalCountour);
+			Assert::AreEqual(1,internalContour->Length, L"Invalid internal contour length");
+		}
 
 	}; // class LevelTest_InternalContour
 
@@ -733,7 +831,7 @@ namespace ContourHelpersTest
 			Assert::IsFalse(contour->ContainsPoint(4, 7));
 		}
 
-		Point Contour_3[263] =
+		Point Contour_06[263] =
 		{
 			Point(380, 173), Point(381, 173), Point(381, 174), Point(381, 175), Point(381, 176),
 			Point(381, 177), Point(381, 178), Point(381, 179), Point(381, 180), Point(381, 181),
@@ -790,10 +888,34 @@ namespace ContourHelpersTest
 			Point(379, 176), Point(380, 175), Point(380, 174)
 		};
 
-		TEST_METHOD(Test_5_ContourContainsPoint)
+		TEST_METHOD(Test_06_ContourContainsPoint)
 		{
-			Contour* contour = new Contour(Contour_3, 263);
+			Contour* contour = new Contour(Contour_06, 263);
 			Assert::IsFalse(contour->ContainsPoint(377, 189));
+		}
+
+		unsigned char DataSet_07[231] =
+		{
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, E, E, B, B, B, E,
+			E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, E,
+			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
+			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
+			E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, E, E,
+			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, B, B, B, B, E, E,
+			E, E, B, B, E, E, B, B, B, B, B, B, B, E, E, B, B, B, B, E, E,
+			E, E, E, E, E, B, B, B, B, E, B, B, B, E, E, B, B, B, B, E, E,
+			E, E, E, E, B, B, B, B, E, E, E, B, B, E, E, B, B, B, B, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
+		};
+
+		TEST_METHOD(Test_07_ContourContainsPoint)
+		{
+			unsigned char DataSetExpanded[924];
+			Level::ExpandLevelData(21, 11, B, DataSet_07, DataSetExpanded);
+			Level* level = new Level(21, 11, B, DataSetExpanded);
+			Contour* contour = level->FindExternalContour();
+			Assert::IsFalse(contour->ContainsPoint(5, 6));
 		}
 
 
@@ -946,9 +1068,9 @@ namespace ContourHelpersTest
 		};
 
 
-		TEST_METHOD(EraseShape_Test_02)
+		TEST_METHOD(Test_02_EraseShape)
 		{
-			unsigned char InitialDataSetExpanded[324];
+			unsigned char InitialDataSetExpanded[100];
 			Level::ExpandLevelData(5, 5, B, DataSet_2_Initial, InitialDataSetExpanded);
 			Level* level = new Level(5, 5, B, InitialDataSetExpanded);
 			Contour* externalContour = level->FindExternalContour();// new Contour(ExternalContour_2, 16);
@@ -1231,6 +1353,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(9, 9, B, InitialDataSetExpanded);
 			Contour* externalContour = level->FindExternalContour();
 			Contour* internalContour = level->FindInternalContour(externalContour);
+			Assert::IsNotNull(internalContour, L"Internal contour not found.");
 			level->EraseContourContent(externalContour);
 			level->RestoreContourContent(internalContour);
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_9_Final, Message, 324);

@@ -41,7 +41,8 @@ namespace ContourHelpers
 
 	Contour::~Contour()
 	{
-
+		for (int y = 0; y < m_PointsMap.size(); y++)
+			delete m_PointsMap[y];
 	}
 
 	Point* Contour::operator[](unsigned int i)
@@ -55,6 +56,29 @@ namespace ContourHelpers
 	void Contour::AddPoint(Point point)
 	{
 		m_Points.push_back(point);
+		if (m_PointsMap.count(point.Y) == 0)
+		{
+			map<int, vector<int>*>* newXMap = new map<int, vector<int>*>();
+			vector<int>*  newXvector = new vector<int>();
+			newXvector->push_back(Length);
+			newXMap->insert(make_pair(point.X, newXvector));
+			m_PointsMap.insert(make_pair(point.Y, newXMap));
+		}
+		else
+		{
+			map<int, vector<int>*>* XMap = m_PointsMap[point.Y];
+			vector<int>*  Xvector = nullptr;
+			if (XMap->count(point.X) == 0)
+			{
+				Xvector = new vector<int>();
+				Xvector->push_back(Length);
+				XMap->insert(make_pair(point.X, Xvector));
+			}
+			else
+			{
+				XMap->at(point.X)->push_back(Length);
+			}
+		}
 		++Length;
 	}
 
@@ -104,6 +128,10 @@ namespace ContourHelpers
 		// Найдём точку контура ближайшую к точке с номером pointnumber лежащую справа в той же строке что и p2.  
 		int lastDistance = MAXINT;
 		Point *p = nullptr;
+		
+		// Этот алгоритм поиска ближайшей точки справа всегда возвращает точку
+		// с минимальным номером
+		//
 		for (unsigned int l = 0; l < m_Points.size(); l++)
 		{
 			if (l == pointnumber)
@@ -118,6 +146,19 @@ namespace ContourHelpers
 				}
 			}
 		}
+
+		/*set<int>* points = m_PointsMap[m_Points[pointnumber].Y];
+
+		for (int x : *points)
+		{
+			int newDistance = x - m_Points[pointnumber].X;
+			if (newDistance >= 0 && newDistance < lastDistance)
+			{
+				lastDistance = newDistance;
+				p = &m_Points[i];
+			}
+		}*/
+
 		return p;
 	}
 
@@ -327,13 +368,13 @@ namespace ContourHelpers
 	}
 
 	/*
-	  Находит ближайшую по горизонтали точку контура лежащую справа от точки,
-	  заданой координатами x, y
+	  Находит номер точки в m_Points ближайшей по горизонтали точки контура лежащей
+	  справа от точки, заданой координатами x, y
 	  Входные параметры
 			x, y - координаты точки для которой нужно найти
 					ближайшую справа точку контура
 	  Возвращаемое значение
-			номер точки если она найдена
+			номер точки в векторе m_Points если она найдена
 			-1 если точка не найдена
 	*/
 	int Contour::GetRightNearestPointIndex(int x, int y)
@@ -361,7 +402,8 @@ namespace ContourHelpers
 	}
 
 	/*
-	Возвращает индекс следующей точки контура
+	Возвращает индекс следующей точки контура. 
+	Для последней точки контура следующей считается точка с номером 0
 	Отсчёт идёт по часовой стрелке
 	*/
 	int Contour::GetNextContourPointIndex(int i)
@@ -371,6 +413,7 @@ namespace ContourHelpers
 
 	/*
 	 Возвращает индекс предыдущей точки контура
+	 Для точки контура с номером 0 предыдущей считается последняя точка контура
 	 Отсчёт идёт по часовой стрелке
 	*/
 	int Contour::GetPrevContourPointIndex(int i)
@@ -406,6 +449,39 @@ namespace ContourHelpers
 	Возвращаемое значение
 		true - если точка лежит внутри контура
 		false -  если точка является точкой контура или лежит вне контура
+
+		Проверка того что точка лежи внутри контура выполняется следующим образом
+		из проверяемой точки вправо проводится отрезок прямой до границы изображения.
+		Подсчитывается количество пересечений проведённого отрезка с контуром.
+		Если число пересечений нечётное то точка лежит внутри контура.
+		Если число пересечений чётное то точка лежит вне контура.
+
+		Считается что отрезок прямой пересекает линию контура в точке Point[i]
+		если точки Point[i-1] и Point[i+1] лежат по разные стороны проведённого
+		горизонтального отрезка.
+
+		Если точка Point[i-1] лежит на проведённом отрезке то просматриваем контур в
+		направлении убывания номеров точек контура пока не обнаружим точку с координатой Y
+		отличающейся от координаты Y проверяемой точки. 
+		Если найденная точка Point[i-n] и точка Point[i+1] лежат по разные стороны отрезка, то отрезок
+		пересекает контур в точке Point[i].
+
+		Если точка Point[i+1] лежит на проведённом отрезке то просматриваем контур в
+		направлении возрастания номеров точек контура пока не обнаружим точку с координатой Y
+		отличающейся от координаты Y проверяемой точки.
+		Если найденная точка Point[i+n] и точка Point[i-1] лежат по разные стороны отрезка, то отрезок
+		пересекает контур в точке Point[i].
+
+		В дальнейшем точки Point[i+n] и Point[i-n] будем называть Point[i+1] и Point[i-1]
+		соответственно.
+
+		если точки Point[i-1] и Point[i+1] лежат по одну сторону отрезка то считаем, что
+		отрезок не пересекает линию контура.
+
+		Если существует несколько точек контура с координатами X,Y предполагаемой
+		точки пересечения отрезка с линией контура, то определяем факт пересечения отрезком
+		линии контура для каждой такой точки отдельно.
+
 	*/
 	bool Contour::ContainsPoint(int x, int y)
 	{

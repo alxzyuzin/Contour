@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 #include <vector>
+#include <set>
 
-using namespace std;
+
 
 namespace ContourHelpers
 {
@@ -35,7 +36,13 @@ namespace ContourHelpers
 		ContourType Type = ContourType::External;
 
 	private:
-		vector<Point> m_Points;
+		std::vector<Point> m_Points;
+		// Структура данных в m_PointsMap
+		// первое значение с типом int - координата Y точки контура 
+		// второе значение с типом int - координата X точки контура
+		// третье значение с типом int - номер точки с координатами X,Y в векторе m_Points.
+		// Контур может содержать несколько точек с координатами X,Y.
+		std::map<int, std::map<int, std::vector<int>*>*> m_PointsMap;
 		unsigned char m_Color;
 	
 	public:
