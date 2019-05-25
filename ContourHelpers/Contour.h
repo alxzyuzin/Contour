@@ -74,8 +74,8 @@ namespace ContourHelpers
 		Point* GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction);
 		Point* GetNearestInternalContourPoint(Point* externalContourPoint, SearchNearestPointDirection diirection);
 
-		Point* GetPrevContourPoint(Point* point);
-		Point* GetNextContourPoint(Point* point);
+//		Point* GetPrevContourPoint(Point* point);
+//		Point* GetNextContourPoint(Point* point);
 
 		int GetRightNearestPointIndex(int x, int y);
 		int GetNextContourPointIndex(int i);
@@ -85,9 +85,10 @@ namespace ContourHelpers
 		Point* operator[](unsigned int i);
 		bool Contains(Point* point);
 		bool ContainsPoint(int x, int y);
-		bool ContainsPoint(Point* point);
-		bool EnclosePoint(Point* point);
+//		bool ContainsPoint(Point* point);
+//		bool EnclosePoint(Point* point);
 
+		std::vector<int>*  GetRightPoints(int x, int y);
 
 	};
 
