@@ -399,14 +399,10 @@ namespace ContourHelpersTest
 		{
 			unsigned char DataSetExpanded[100];
 			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);
-
 			Point point = Point(MAXINT, MAXINT);
-			//Create level filled with test data
 			Level* level = new Level(5, 5, B, DataSetExpanded);
-			// Find external contour
 			Contour* contour = level->FindExternalContour();
 			Assert::IsNotNull(contour, L"Contour not found.");
-			// Find first internal contour point
 			bool result  = level->FindFirstInternalContourPoint(contour, point);
 			Assert::IsTrue(result);
 		}
@@ -677,7 +673,7 @@ namespace ContourHelpersTest
 			E, E, B, B, B, E, B, E, B, B, B, B, B, B, E, E, E, B, B, B, E,
 			E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, E,
 			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
-			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
+			E, B, B, B, B, B, B, B, B, E, B, B, B, B, E, E, E, B, B, E, E,
 			E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, E, E,
 			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, B, B, B, B, E, E,
 			E, E, B, B, E, E, B, B, B, B, B, B, B, E, E, B, B, B, B, E, E,
@@ -1035,14 +1031,13 @@ namespace ContourHelpersTest
 			E, E, E, E, E,
 		};
 
-		TEST_METHOD(EraseShape_Test_01)
+		TEST_METHOD(Test_01_EraseShape)
 		{
 			unsigned char InitialDataSetExpanded[100];
 			Level::ExpandLevelData(5, 5, B, DataSet_1_Initial, InitialDataSetExpanded);
-			////Create level filled with test data
 			Level* level = new Level(5, 5, B, InitialDataSetExpanded);
-			Contour* externalContour = level->FindExternalContour(); // new Contour(ExternalContour_1, 16);
-			Contour* internalContour = level->FindInternalContour(externalContour); // new Contour(InternalContour_1, 8);
+			Contour* externalContour = level->FindExternalContour(); 
+			Contour* internalContour = level->FindInternalContour(externalContour); 
 			level->EraseShape(externalContour, internalContour);
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_1_Final, Message, 100);
 			Assert::IsTrue(r, Message);

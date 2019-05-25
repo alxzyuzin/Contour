@@ -26,7 +26,6 @@ namespace ContourHelpers
 
 	};
 
-	
 
 	class Contour sealed
 	{
@@ -59,10 +58,9 @@ namespace ContourHelpers
 		Point* GetPoint(int i);
 		unsigned char   GetColor();
 
-		int GetMinY();
-		int GetMaxY();
-		Point* Contour::GetMostLeftContourPoint(int y);
-
+//		int GetMinY();
+//		int GetMaxY();
+//		Point* Contour::GetMostLeftContourPoint(int y);
 
 		Point* FindLeftNearestPoint(int pointnumber);
 		Point* FindRightNearestPoint(int pointnumber);
@@ -74,9 +72,6 @@ namespace ContourHelpers
 		Point* GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction);
 		Point* GetNearestInternalContourPoint(Point* externalContourPoint, SearchNearestPointDirection diirection);
 
-//		Point* GetPrevContourPoint(Point* point);
-//		Point* GetNextContourPoint(Point* point);
-
 		int GetRightNearestPointIndex(int x, int y);
 		int GetNextContourPointIndex(int i);
 		int GetPrevContourPointIndex(int i);
@@ -85,11 +80,8 @@ namespace ContourHelpers
 		Point* operator[](unsigned int i);
 		bool Contains(Point* point);
 		bool ContainsPoint(int x, int y);
-//		bool ContainsPoint(Point* point);
-//		bool EnclosePoint(Point* point);
 
 		std::vector<int>*  GetRightPoints(int x, int y);
-
 	};
 
 }

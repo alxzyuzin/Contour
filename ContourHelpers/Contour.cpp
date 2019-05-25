@@ -483,66 +483,15 @@ namespace ContourHelpers
 		линии контура для каждой такой точки отдельно.
 
 	*/
-	//bool Contour::ContainsPoint(int x, int y)
-	//{
-	//	// Проверим принадлежность точки контуру
-	//	Point currentPoint = Point(x, y);
-	//	if (Contains(&currentPoint))
-	//		return false;
-	//	
-	//	int contourCrossingCount = 0;
-	//	// Выберем точку контура с Y = y, ближайшую справа к точке с координатами x, y.
-	//	int currentPointIndex = GetRightNearestPointIndex(x, y);
-
-	//	while (currentPointIndex >= 0)
-	//	{
-	//		// Получим индексы точек перед и после ближайшей точки справа 
-	//		int prevPointIndex = GetPrevContourPointIndex(currentPointIndex);
-	//		int nextPointIndex = GetNextContourPointIndex(currentPointIndex);
-
-	//		// Сравним координаты Y точек соседних с найденной ближайшей справа точкой контура
-	//		if (m_Points[prevPointIndex].Y == m_Points[currentPointIndex].Y)
-	//		{
-	//			// Если предыдущая точка контура лежит на той же горизонтали что текущая точка, начинаем двигаться
-	//			// по контуру назад пока не найдётся точка лежащая выше или ниже текущей точки.
-	//			while (m_Points[prevPointIndex].Y == m_Points[currentPointIndex].Y)
-	//				prevPointIndex = GetPrevContourPointIndex(prevPointIndex);
-	//		}
-
-	//		if (m_Points[nextPointIndex].Y == m_Points[currentPointIndex].Y)
-	//		{
-	//			// Если следующая точка контура лежит на той же горизонтали что текущая точка, начинаем двигаться
-	//			// по контуру вперёд пока не найдётся точка лежащая выше или ниже текущей точки.
-	//			while (m_Points[nextPointIndex].Y == m_Points[currentPointIndex].Y)
-	//				nextPointIndex = GetPrevContourPointIndex(nextPointIndex);
-	//		}
-
-	//		if (abs(m_Points[prevPointIndex].Y - m_Points[nextPointIndex].Y) == 2)
-	//		{	
-	//			// Если разность координат Y предыдущей и последующей точки равна 2 , это означает, что
-	//			// предыдущая и следующая точка контура лежат по разные стороны горизонтали на которой лежит
-	//			// найденная ближайшая справа точка контура, то есть горизонталь проведённая через ближайшую
-	//			// справа точку пересекает контур в этой точке
-	//			//		увеличиваем счётчик пересечений контура на 1
-	//			++contourCrossingCount;
-	//			// устанавливаем координату X найденной точки в качестве новой начальной координаты для поиска
-	//			// следующей ближайшей точки контура справа
-	//			x = m_Points[currentPointIndex].X;
-	//		}
-
-	//		x = m_Points[currentPointIndex].X;
-	//		// Выберем следующую точку контура лежащую на горизонтали y
-	//		currentPointIndex = GetRightNearestPointIndex(x, y);
-	//	}
-
-	//	return contourCrossingCount % 2 == 1 ? true : false;
-	//}
 	
 	bool Contour::ContainsPoint(int x, int y)
 	{
 		// Проверим принадлежность точки контуру
-		Point currentPoint = Point(x, y);
-		if (Contains(&currentPoint))
+		if ( (m_PointsMap.count(y) != 0) && (m_PointsMap[y]->count(x) !=0) )
+			return false;
+
+		//  Если среди точек контура нет точек с координатой Y равной y - точка x, y лежит за пределами контура
+		if (m_PointsMap.count(y) == 0)
 			return false;
 		
 		int contourCrossingCount = 0;
@@ -554,7 +503,6 @@ namespace ContourHelpers
 				for (int i : *v.second)
 					points.push_back(i);
 		}
-		
 
 		for (int currentPointIndex : points )
 		{
@@ -573,8 +521,8 @@ namespace ContourHelpers
 
 			if (m_Points[nextPointIndex].Y == m_Points[currentPointIndex].Y)
 			{
-		//		// Если следующая точка контура лежит на той же горизонтали что текущая точка, начинаем двигаться
-		//		// по контуру вперёд пока не найдётся точка лежащая выше или ниже текущей точки.
+				// Если следующая точка контура лежит на той же горизонтали что текущая точка, начинаем двигаться
+				// по контуру вперёд пока не найдётся точка лежащая выше или ниже текущей точки.
 				while (m_Points[nextPointIndex].Y == m_Points[currentPointIndex].Y)
 					nextPointIndex = GetPrevContourPointIndex(nextPointIndex);
 			}
@@ -591,44 +539,40 @@ namespace ContourHelpers
 				// следующей ближайшей точки контура справа
 				//		x = m_Points[currentPointIndex].X;
 			}
-
-		//	x = m_Points[currentPointIndex].X;
-		//	// Выберем следующую точку контура лежащую на горизонтали y
-		//	currentPointIndex = GetRightNearestPointIndex(x, y);
 		}
-
 		return contourCrossingCount % 2 == 1 ? true : false;
 	}
-	int Contour::GetMinY()
-	{
-		int y = MAXINT;
-		for (Point point : m_Points)
-			y = (point.Y < y) ? point.Y : y;
-		return y;
-	}
+	
+//	int Contour::GetMinY()
+//	{
+//		int y = MAXINT;
+//		for (Point point : m_Points)
+//			y = (point.Y < y) ? point.Y : y;
+//		return y;
+//	}
 
-	int Contour::GetMaxY()
-	{
-		int y = 0;
-		for (Point point : m_Points)
-			y = (point.Y > y) ? point.Y : y;
-		return y;
-	}
+//	int Contour::GetMaxY()
+//	{
+//		int y = 0;
+//		for (Point point : m_Points)
+//			y = (point.Y > y) ? point.Y : y;
+//		return y;
+//	}
 
-	Point* Contour::GetMostLeftContourPoint(int y)
-	{
-		int x = MAXINT;
-		Point* MostLeftPoint = nullptr;
-		for (int i=0; i< (int)m_Points.size(); i++)
-		{
-			if (y == m_Points[i].Y && m_Points[i].X < x)
-			{
-				x = m_Points[i].X;
-				MostLeftPoint = &m_Points[i];
-			}
-		}
-		return MostLeftPoint;
-	}
+//	Point* Contour::GetMostLeftContourPoint(int y)
+//	{
+//		int x = MAXINT;
+//		Point* MostLeftPoint = nullptr;
+//		for (int i=0; i< (int)m_Points.size(); i++)
+//		{
+//			if (y == m_Points[i].Y && m_Points[i].X < x)
+//			{
+//				x = m_Points[i].X;
+//				MostLeftPoint = &m_Points[i];
+//			}
+//		}
+//		return MostLeftPoint;
+//	}
 	
 	vector<int>* Contour::GetRightPoints(int x, int y)
 	{
