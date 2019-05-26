@@ -80,14 +80,8 @@ namespace ContourHelpers
 		void RestorePixel(int x, int y);
 		void RestorePixel(Point* point);
 		
-//		void ErasePixel(int x, int y);
-//		void ErasePixel(Point* point);
-		
-		
 		bool Level::BorderHasOnlyOneColor(int x, int y, int size);
 		void RemoveShape(Contour* contour);
-
-		inline void DrawHorizontalLine(int x1, int x2, int y, unsigned char color);
 
 		Direction StartDirection(Direction direction);
 		Direction NextDirection(Direction direction);

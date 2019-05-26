@@ -373,18 +373,31 @@ Contour* Level::FindInternalContour(Contour* parentContour)
 
 void Level::FindAllContours()
 {
-	while (true)
+	Contour* externalContour = nullptr;
+	do
 	{
-		Contour* externalContour = FindExternalContour();
-		if (!externalContour)
-			break;
-		m_Contours.push_back(externalContour);
-		Contour* internalContour = FindInternalContour(externalContour);
-		if (internalContour)
-			m_Contours.push_back(internalContour);
+		externalContour = FindExternalContour();
+		if (externalContour)
+		{
+			m_Contours.push_back(externalContour);
+			Contour* internalContour = nullptr;
+			do
+			{
+				internalContour = FindInternalContour(externalContour);
+				if (internalContour)
+				{
+					m_Contours.push_back(internalContour);
+					FillContour(internalContour, m_Color);
+				}
+			} while (internalContour);
+			FillContour(externalContour, EMPTY_COLOR);
+			//EraseShape(externalContour, internalContour);
+		}
+	} while (externalContour);
 
-		EraseShape(externalContour, internalContour);
-	} 
+	//FillContour(externalContour, EMPTY_COLOR);
+	//if (internalContour)
+	//	RestoreContourContent(internalContour);
 }
 
 /*
@@ -639,8 +652,6 @@ void Level::FillLine(Contour* externalContour, int startPointNumber, Contour::Se
 		}
 		for (int x = startX; x <= endX; x++)
 			m_pBuffer[startPoint->Y * m_Width + x] = color;
-	
-	//		SetPixel(x, startPoint->Y, color);
 	}
 }
 
@@ -686,33 +697,11 @@ void Level::RestorePixel(int x, int y)
 	int offset = y * m_Width + x;
 	m_pBuffer[offset] = m_pShapesBuffer[offset];
 }
-//
-//void Level::ErasePixel(int x, int y)
-//{
-//	m_pBuffer[y * m_Width + x] = EMPTY_COLOR;
-//}
-//
-//void Level::ErasePixel(Point* point)
-//{
-//	m_pBuffer[point->Y * m_Width + point->X] = EMPTY_COLOR;
-//}
-
 
 Point* Level::GetCorrespondingContourPoint(Contour* externalContour, Contour* internalContour, Point* startPoint, Contour::SearchNearestPointDirection searchDirection)
 {
 	return nullptr;
 }
-
-inline void Level::DrawHorizontalLine(int x1, int x2, int y, unsigned char color)
-{
-//	if (x1 > x2)
-//	{ 	int x = x1; x1 = x2; x2 = x; }
-	
-	int s = y * m_Width + x1;
-	for (int x = x1; x < x2; x++)
-			m_pBuffer[s + x] = color;
-}
-
 
 
 /* Проверяет пиксели лежащие на границе отстоящей от центрального пикселя
