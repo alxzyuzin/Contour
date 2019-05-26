@@ -1307,7 +1307,7 @@ namespace ContourHelpersTest
 			Level::ExpandLevelData(9, 9, B, DataSet_8_Initial, InitialDataSetExpanded);
 			Level* level = new Level(9, 9, B, InitialDataSetExpanded);
 			Contour* externalContour = level->FindExternalContour();
-			level->EraseContourContent(externalContour);
+			level->FillContour(externalContour, 0xFF);
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_8_Final, Message, 324);
 			Assert::IsTrue(r, Message);
 		}
@@ -1349,7 +1349,7 @@ namespace ContourHelpersTest
 			Contour* externalContour = level->FindExternalContour();
 			Contour* internalContour = level->FindInternalContour(externalContour);
 			Assert::IsNotNull(internalContour, L"Internal contour not found.");
-			level->EraseContourContent(externalContour);
+			level->FillContour(externalContour, 0xFF);
 			level->RestoreContourContent(internalContour);
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_9_Final, Message, 324);
 			Assert::IsTrue(r, Message);

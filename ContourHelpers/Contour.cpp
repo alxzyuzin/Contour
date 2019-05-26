@@ -434,12 +434,16 @@ namespace ContourHelpers
 
 	bool Contour::PointLaysOnContour(int x, int y)
 	{
-		for (Point p : m_Points)
-		{
-			if (p.X == x && p.Y == y)
-				return true;
-		}
-		return false;
+	//	for (Point p : m_Points)
+	//	{
+	//		if (p.X == x && p.Y == y)
+	//			return true;
+	//	}
+	//	return false;
+
+		if ((m_PointsMap.count(y) != 0) && (m_PointsMap[y]->count(x) != 0))
+			return true;
+
 	}
 
 	/*
@@ -542,37 +546,6 @@ namespace ContourHelpers
 		}
 		return contourCrossingCount % 2 == 1 ? true : false;
 	}
-	
-//	int Contour::GetMinY()
-//	{
-//		int y = MAXINT;
-//		for (Point point : m_Points)
-//			y = (point.Y < y) ? point.Y : y;
-//		return y;
-//	}
-
-//	int Contour::GetMaxY()
-//	{
-//		int y = 0;
-//		for (Point point : m_Points)
-//			y = (point.Y > y) ? point.Y : y;
-//		return y;
-//	}
-
-//	Point* Contour::GetMostLeftContourPoint(int y)
-//	{
-//		int x = MAXINT;
-//		Point* MostLeftPoint = nullptr;
-//		for (int i=0; i< (int)m_Points.size(); i++)
-//		{
-//			if (y == m_Points[i].Y && m_Points[i].X < x)
-//			{
-//				x = m_Points[i].X;
-//				MostLeftPoint = &m_Points[i];
-//			}
-//		}
-//		return MostLeftPoint;
-//	}
 	
 	vector<int>* Contour::GetRightPoints(int x, int y)
 	{

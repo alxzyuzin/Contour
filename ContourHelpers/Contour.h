@@ -58,10 +58,6 @@ namespace ContourHelpers
 		Point* GetPoint(int i);
 		unsigned char   GetColor();
 
-//		int GetMinY();
-//		int GetMaxY();
-//		Point* Contour::GetMostLeftContourPoint(int y);
-
 		Point* FindLeftNearestPoint(int pointnumber);
 		Point* FindRightNearestPoint(int pointnumber);
 		Point* GetRightNearestContourPoint(Point* point);

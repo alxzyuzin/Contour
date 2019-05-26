@@ -53,7 +53,7 @@ namespace ContourHelpers
 		void EraseShape(Contour* externalContour, Contour*  internalContour);
 		void FindAllContours();
 
-		void EraseContourContent(Contour* contour);
+		void FillContour(Contour* contour, unsigned char color);
 		void RestoreContourContent(Contour* contour);
 
 		bool FindFirstExternalContourPoint(Point& point);
@@ -66,10 +66,8 @@ namespace ContourHelpers
 		void EraseBuffer();
 	private:
 		
-		void EraseLine(Contour* externalContour, Contour* internalContour, int startPointNumber, Contour::SearchNearestPointDirection direction);
-		void EraseLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction);
+		void FillLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction, unsigned char color);
 		void RestoreLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction);
-		
 
 		unsigned char GetPixel(int x, int y);
 		unsigned char GetPixel(int position);
@@ -82,8 +80,8 @@ namespace ContourHelpers
 		void RestorePixel(int x, int y);
 		void RestorePixel(Point* point);
 		
-		void ErasePixel(int x, int y);
-		void ErasePixel(Point* point);
+//		void ErasePixel(int x, int y);
+//		void ErasePixel(Point* point);
 		
 		
 		bool Level::BorderHasOnlyOneColor(int x, int y, int size);
