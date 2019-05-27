@@ -111,25 +111,15 @@ void Level::GetLevelShapes(unsigned char* pPixelBuffer)
 	}
 }
 
-void Level::SetPixel(int position, unsigned char color)
-{
-	m_pBuffer[position] = color;
-}
-
-//unsigned char Level::GetPixel(int position)
+//void Level::SetPixel(int position, unsigned char color)
 //{
-//	return m_pBuffer[position];
+//	m_pBuffer[position] = color;
 //}
 
 void Level::SetPixel(Point* point, unsigned char color)
 {
 	m_pBuffer[point->Y * m_Width + point->X] = color;
 }
-
-//unsigned char Level::GetPixel(Point* point)
-//{
-//	return m_pBuffer[point->Y * m_Width + point->X];
-//}
 
 void Level::SetPixel(int x, int y, unsigned char color)
 {
@@ -623,11 +613,11 @@ void Level::RestoreLine(Contour* externalContour, int startPointNumber, Contour:
 /*
 Восстанавливает значение пикселя в указанной точке используя данные m_pShapesBuffer
 */
-void Level::RestorePixel(Point* point)
-{
-	int offset = point->Y * m_Width + point->X;
-	m_pBuffer[offset] = m_pShapesBuffer[offset];
-}
+//void Level::RestorePixel(Point* point)
+//{
+//	int offset = point->Y * m_Width + point->X;
+//	m_pBuffer[offset] = m_pShapesBuffer[offset];
+//}
 
 void Level::RestorePixel(int x, int y)
 {

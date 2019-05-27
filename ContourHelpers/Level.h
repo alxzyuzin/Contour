@@ -70,15 +70,13 @@ namespace ContourHelpers
 		void RestoreLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction);
 
 		unsigned char GetPixel(int x, int y);
-		//unsigned char GetPixel(int position);
-		//unsigned char GetPixel(Point* point);
 
 		void SetPixel(int x, int y, unsigned char color);
-		void SetPixel(int pos, unsigned char color);
+//		void SetPixel(int pos, unsigned char color);
 		void SetPixel(Point* point, unsigned char color);
 
 		void RestorePixel(int x, int y);
-		void RestorePixel(Point* point);
+//		void RestorePixel(Point* point);
 		
 		bool Level::BorderHasOnlyOneColor(int x, int y, int size);
 
