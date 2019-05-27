@@ -126,7 +126,7 @@ namespace ContourHelpers
 		return nullptr;
 	}
 
-	Point* Contour::GetNearestContourPoint(Point* point, Contour::SearchNearestPointDirection direction)
+	/*Point* Contour::GetNearestContourPoint(Point* point, Contour::SearchNearestPointDirection direction)
 	{
 		int lastDistance = MAXINT;
 		Point *p = nullptr;
@@ -157,7 +157,7 @@ namespace ContourHelpers
 		}
 		return p;
 	}
-
+*/
 	Point* Contour::GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction)
 	{
 		int lastDistance = direction == Right ? MAXINT : MININT;
@@ -249,7 +249,7 @@ namespace ContourHelpers
 		return p;
 	}
 
-	Point* Contour::GetNearestInternalContourPoint(Point* externalContourPoint, SearchNearestPointDirection direction)
+	/*Point* Contour::GetNearestInternalContourPoint(Point* externalContourPoint, SearchNearestPointDirection direction)
 	{
 		int lastDistance = direction == Right ? MAXINT : MININT;
 		Point *p = nullptr;
@@ -277,7 +277,7 @@ namespace ContourHelpers
 		}
 		return p;
 	}
-
+*/
 	/*
 	  Находит номер точки в m_Points ближайшей по горизонтали точки контура лежащей
 	  справа от точки, заданой координатами x, y

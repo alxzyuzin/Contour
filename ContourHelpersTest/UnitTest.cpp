@@ -917,54 +917,6 @@ namespace ContourHelpersTest
 
 	};
 
-	TEST_CLASS(ContourTest_FindRightNearestContourPoint)
-	{
-	private:
-		wchar_t Message[100];
-		Point Contour_1[8] =
-		{
-			Point(1,1), Point(2,1), Point(3,1), Point(3,2),
-			Point(3,3), Point(2,3), Point(1,3),	Point(1,2)
-		};
-
-	public:
-		// Point resides inside contour
-		//TEST_METHOD(FindRightNearestPoint_Test_0)
-		//{
-		//	Contour* contour = new Contour(Contour_1, 8);
-		//	Point* startPoint = new Point(2, 2);
-		//	Point* foundPoint = contour->GetRightNearestContourPoint(startPoint);
-		//	Point ExpectedPoint = Point(3, 2);
-		//	swprintf(Message, 100, L"Found point X=%i,Y=%i. Expected point X=%i,Y=%i",
-		//		foundPoint->X, foundPoint->Y,
-		//		ExpectedPoint.X, ExpectedPoint.Y);
-		//	Assert::IsTrue(*foundPoint == ExpectedPoint, Message);
-		//}
-
-		// Point resides on left outside contour
-	/*	TEST_METHOD(FindRightNearestPoint_Test_1)
-		{
-			Contour* contour = new Contour(Contour_1, 8);
-			Point* startPoint = new Point(0, 2);
-			Point  ExpectedPoint = Point(1, 2);
-			Point* foundPoint = contour->GetRightNearestContourPoint(startPoint);
-			swprintf(Message, 100, L"Found point X=%i,Y=%i. Expected point X=%i,Y=%i",
-				foundPoint->X, foundPoint->Y,
-				ExpectedPoint.X, ExpectedPoint.Y);
-			Assert::IsTrue(*foundPoint == ExpectedPoint, Message);
-		}*/
-
-		// Point resides on right outside contour
-	/*	TEST_METHOD(FindRightNearestPoint_Test_2)
-		{
-			Contour* contour = new Contour(Contour_1, 8);
-			Point* startPoint = new Point(4, 2);
-			Point* foundPoint = contour->GetRightNearestContourPoint(startPoint);
-			Assert::IsNull(foundPoint, L"Point not expected");
-		}*/
-
-
-	};
 
 	TEST_CLASS(LevelTest_EraseContour)
 	{
