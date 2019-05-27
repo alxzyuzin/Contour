@@ -557,10 +557,11 @@ Direction Level::NextDirection(Direction direction)
 //----------------------------------------------------------------------------
 void Level::RemoveShape(Contour* contour)
 {
-	unsigned char baseColor = contour->GetColor();
-
 	std::clock_t    start;
 	start = std::clock();
+
+	unsigned char baseColor = m_Color;
+
 	Point* p1 = nullptr;
 	Point* p2 = nullptr;
 	Point* p3 = nullptr;

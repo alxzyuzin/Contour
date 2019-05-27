@@ -22,11 +22,6 @@ namespace ContourHelpers
 		Type = type;
 	}
 
-	Contour::Contour(unsigned char color)
-	{
-		m_Color = color;
-	}
-
 	Contour::Contour(Point* contourPoints, int pointsNumber)
 	{
 		for (int i = 0; i < pointsNumber; i++)
@@ -80,12 +75,6 @@ namespace ContourHelpers
 	{
 		return &m_Points[i];
 	}
-
-	unsigned char Contour::GetColor()
-	{
-		return m_Color;
-	}
-
 
 	int Contour::Size()
 	{
@@ -277,7 +266,6 @@ namespace ContourHelpers
 		линии контура для каждой такой точки отдельно.
 
 	*/
-	
 	bool Contour::ContainsPoint(int x, int y)
 	{
 		// Проверим принадлежность точки контуру
@@ -337,18 +325,5 @@ namespace ContourHelpers
 		return contourCrossingCount % 2 == 1 ? true : false;
 	}
 	
-	/*vector<int>* Contour::GetRightPoints(int x, int y)
-	{
-		map<int, map<int, vector<int>*>* >::iterator  it = m_PointsMap.begin();
-
-		map<int, vector<int>*>* xMap = m_PointsMap[y];
-
-		for (auto N : *m_PointsMap[y])
-		{ 
-			auto i = N;
-		}
-
-		return nullptr;
-	}*/
 
 }  // namespace ContourHelpers

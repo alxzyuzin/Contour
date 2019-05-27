@@ -37,21 +37,17 @@ namespace ContourHelpers
 		// третье значение с типом int - номер точки с координатами X,Y в векторе m_Points.
 		// Контур может содержать несколько точек с координатами X,Y.
 		std::map<int, std::map<int, std::vector<int>*>*> m_PointsMap;
-		unsigned char m_Color;
 	
 	public:
 
 		Contour();
 		Contour(ContourType type);
-		
-		Contour(unsigned char contourColor);
 		Contour(Point* contourPoints, int pointsNumber);
 		~Contour();
 
 		void AddPoint(Point point);
 		int Size();
 		Point* GetPoint(int i);
-		unsigned char   GetColor();
 
 		Point* FindLeftNearestPoint(int pointnumber);
 		Point* FindRightNearestPoint(int pointnumber);
@@ -65,8 +61,6 @@ namespace ContourHelpers
 
 		Point* operator[](unsigned int i);
 		bool ContainsPoint(int x, int y);
-
-		//std::vector<int>*  GetRightPoints(int x, int y);
 	};
 
 }
