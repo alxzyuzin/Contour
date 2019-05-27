@@ -126,38 +126,7 @@ namespace ContourHelpers
 		return nullptr;
 	}
 
-	/*Point* Contour::GetNearestContourPoint(Point* point, Contour::SearchNearestPointDirection direction)
-	{
-		int lastDistance = MAXINT;
-		Point *p = nullptr;
-		for (int i = 0; i < this->Length; i++)
-		{
-			if (m_Points[i].Y == point->Y)
-			{
-				if (m_Points[i].X == point->X)
-					continue;
-
-				int newDistance = m_Points[i].X - point->X;
-				switch (direction)
-				{
-				case Right:
-					if (newDistance >= 0 && newDistance < lastDistance)
-					{
-						lastDistance = newDistance;
-						p = &m_Points[i];
-					}
-				case Left:
-					if (newDistance <= 0 && newDistance > lastDistance)
-					{
-						lastDistance = newDistance;
-						p = &m_Points[i];
-					}
-				}
-			}
-		}
-		return p;
-	}
-*/
+	
 	Point* Contour::GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction)
 	{
 		int lastDistance = direction == Right ? MAXINT : MININT;
@@ -249,35 +218,7 @@ namespace ContourHelpers
 		return p;
 	}
 
-	/*Point* Contour::GetNearestInternalContourPoint(Point* externalContourPoint, SearchNearestPointDirection direction)
-	{
-		int lastDistance = direction == Right ? MAXINT : MININT;
-		Point *p = nullptr;
-		for (int i = 0; i < Length; i++)
-		{
-			if (m_Points[i].Y == externalContourPoint->Y)
-			{
-				int newDistance = m_Points[i].X - externalContourPoint->X;
-				switch (direction)
-				{
-				case Right:
-					if (newDistance >= 0 && newDistance < lastDistance)
-					{
-						lastDistance = newDistance;
-						p = &m_Points[i];
-					}
-				case Left:
-					if (newDistance <= 0 && newDistance > lastDistance)
-					{
-						lastDistance = newDistance;
-						p = &m_Points[i];
-					}
-				}
-			}
-		}
-		return p;
-	}
-*/
+	
 	/*
 	  Находит номер точки в m_Points ближайшей по горизонтали точки контура лежащей
 	  справа от точки, заданой координатами x, y
@@ -288,29 +229,29 @@ namespace ContourHelpers
 			номер точки в векторе m_Points если она найдена
 			-1 если точка не найдена
 	*/
-	int Contour::GetRightNearestPointIndex(int x, int y)
-	{
-		int index = -1;
-		int lastDistance = MAXINT;
+	//int Contour::GetRightNearestPointIndex(int x, int y)
+	//{
+	//	int index = -1;
+	//	int lastDistance = MAXINT;
 
-		for (int i = 0; i < Length; i++)
-		{
-			if (m_Points[i].Y == y)
-			{
-				// Исключим из рассмотрения точку с координатами x,y
-				if (m_Points[i].X == x)
-					continue;
+	//	for (int i = 0; i < Length; i++)
+	//	{
+	//		if (m_Points[i].Y == y)
+	//		{
+	//			// Исключим из рассмотрения точку с координатами x,y
+	//			if (m_Points[i].X == x)
+	//				continue;
 
-				int newDistance = m_Points[i].X - x;
-				if (newDistance >= 0 && newDistance < lastDistance)
-				{
-					lastDistance = newDistance;
-					index = i;
-				}
-			}
-		}
-		return index;
-	}
+	//			int newDistance = m_Points[i].X - x;
+	//			if (newDistance >= 0 && newDistance < lastDistance)
+	//			{
+	//				lastDistance = newDistance;
+	//				index = i;
+	//			}
+	//		}
+	//	}
+	//	return index;
+	//}
 
 	/*
 	Возвращает индекс следующей точки контура. 

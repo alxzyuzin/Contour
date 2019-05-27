@@ -62,11 +62,9 @@ namespace ContourHelpers
 		Point* FindRightNearestPoint(int pointnumber);
 
 		enum SearchNearestPointDirection {Left, Right};
-//		Point* GetNearestContourPoint(Point* point, SearchNearestPointDirection direction);
 		Point* GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction);
-//		Point* GetNearestInternalContourPoint(Point* externalContourPoint, SearchNearestPointDirection diirection);
 
-		int GetRightNearestPointIndex(int x, int y);
+//		int GetRightNearestPointIndex(int x, int y);
 		int GetNextContourPointIndex(int i);
 		int GetPrevContourPointIndex(int i);
 		bool PointLaysOnContour(int x, int y);
