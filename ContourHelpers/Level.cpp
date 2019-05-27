@@ -145,13 +145,8 @@ unsigned char Level::GetPixel(int x, int y)
 
 /*
 Ищет первую точку контура (первую попавшуюся точку области закрашенной цветом shapeColor.
-IN parameters 
-	parentContour - function looking for first point of new contour inside parentContour.
-					If parentContour = nullptr it means that we start search most top level contours.
-	shapeColor	  - color of shape being contoured
 OUT parameters
 	point - found point. Variable point contains found point coords.
-
 RETURN value 
 	true  - if point found
 	false - if point NOT found
@@ -206,19 +201,12 @@ bool Level::FindNextExternalContourPoint(Point& currentPoint, Direction directio
 /*
 Функция выполняет поиск внешнего контура первой попавшейся закрашенной области 
 закрашенной цветом shapeColor внутри области определяемой контуром parentContour
-Входные параметры
-	parentContour -  контур внутри которого выполняется поиск закрашенной области
-					для оконтуривания
-	shapeColor -  цвет которым закрашена оконтуриваемая область
-
 Возвращаемое значение
 
 	Если контур найден - указатель на объект класса Contour, содержащий список
 	точек контура иначе nullptr
 
 Доработки
-	Убрать параметр shapeColor - он всегда равен значению переменной m_Color
-
 	Попробовать прекращать поиск точек контура как только новая точка
 	совпадёт с одной из найденных точек контура
 	В этом случае контура без внутренних точек будут короче и возможно поиск
@@ -251,16 +239,13 @@ Contour* Level::FindExternalContour()
 			bool nextPointFound = FindNextExternalContourPoint(nextPoint, searchDirection);
 			if (nextPointFound)
 			{
-//				if (GetPixel(nextPoint.X, nextPoint.Y) == m_Color)
-//				{
-					if ((nextPoint.X == firstPoint.X) && (nextPoint.Y == firstPoint.Y))
-						return contour;
-					else
-					{
-						contour->AddPoint(nextPoint);
-						break;
-					}
-//				}
+				if ((nextPoint.X == firstPoint.X) && (nextPoint.Y == firstPoint.Y))
+					return contour;
+				else
+				{
+					contour->AddPoint(nextPoint);
+					break;
+				}
 			}
 			searchDirection = NextDirection(searchDirection);
 		}

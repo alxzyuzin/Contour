@@ -60,6 +60,7 @@ namespace ContourHelpers
 
 		Point* FindLeftNearestPoint(int pointnumber);
 		Point* FindRightNearestPoint(int pointnumber);
+
 		Point* GetRightNearestContourPoint(Point* point);
 		Point* GetLeftNearestContourPoint(Point* point);
 		

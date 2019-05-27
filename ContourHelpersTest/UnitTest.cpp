@@ -754,7 +754,7 @@ namespace ContourHelpersTest
 				Level::ExpandLevelData(9, 9, B, DataSet_0, DataSetExpanded);
 				Level* level = new Level(9, 9, B, DataSetExpanded);
 				level->FindAllContours();
-				Assert::AreEqual((int)level->m_Contours.size(), 5);
+				Assert::AreEqual(3, (int)level->m_Contours.size());
 			}
 		
 

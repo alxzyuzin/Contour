@@ -103,63 +103,27 @@ namespace ContourHelpers
 	*/
 	Point* Contour::FindLeftNearestPoint(int pointnumber)
 	{
-		// Найдём ближайжую слева точку контура лежащую в той же строке что и точка контура с номером pointnumber
-		int lastDistance = MININT;
-		Point *p = nullptr;
-		for (unsigned int l = 0; l < m_Points.size(); l++)
+		int LeftNearestPointIndex = -1;
+		for (auto pointNumbers : *m_PointsMap[m_Points[pointnumber].Y])
 		{
-			if (l == pointnumber)
-				continue;
-			if (m_Points[l].Y == m_Points[pointnumber].Y)
-			{
-				int newDistance = m_Points[l].X - m_Points[pointnumber].X;
-				if (newDistance <= 0 && newDistance > lastDistance)
-				{
-					lastDistance = newDistance;
-					p = &m_Points[l];
-				}
-			}
+			if (pointNumbers.first < m_Points[pointnumber].X)
+				LeftNearestPointIndex = (*pointNumbers.second)[0];
+			else
+				break;
 		}
-		return p;
+		if (LeftNearestPointIndex >=0 )
+			return &m_Points[LeftNearestPointIndex];
+		return nullptr;
 	}
 
 	Point* Contour::FindRightNearestPoint(int pointnumber)
 	{
-		// Найдём точку контура ближайшую к точке с номером pointnumber лежащую справа в той же строке что и p2.  
-		int lastDistance = MAXINT;
-		Point *p = nullptr;
-		
-		// Этот алгоритм поиска ближайшей точки справа всегда возвращает точку
-		// с минимальным номером
-		//
-		for (unsigned int l = 0; l < m_Points.size(); l++)
+		for (auto pointNumbers : *m_PointsMap[m_Points[pointnumber].Y])
 		{
-			if (l == pointnumber)
-				continue;
-			if (m_Points[l].Y == m_Points[pointnumber].Y)
-			{
-				int newDistance = m_Points[l].X - m_Points[pointnumber].X;
-				if (newDistance >= 0 && newDistance < lastDistance)
-				{
-					lastDistance = newDistance;
-					p = &m_Points[l];
-				}
-			}
+			if (pointNumbers.first > m_Points[pointnumber].X)
+				return &m_Points[(*pointNumbers.second)[0]];
 		}
-
-		/*set<int>* points = m_PointsMap[m_Points[pointnumber].Y];
-
-		for (int x : *points)
-		{
-			int newDistance = x - m_Points[pointnumber].X;
-			if (newDistance >= 0 && newDistance < lastDistance)
-			{
-				lastDistance = newDistance;
-				p = &m_Points[i];
-			}
-		}*/
-
-		return p;
+		return nullptr;
 	}
 
 	/*
@@ -434,16 +398,9 @@ namespace ContourHelpers
 
 	bool Contour::PointLaysOnContour(int x, int y)
 	{
-	//	for (Point p : m_Points)
-	//	{
-	//		if (p.X == x && p.Y == y)
-	//			return true;
-	//	}
-	//	return false;
-
 		if ((m_PointsMap.count(y) != 0) && (m_PointsMap[y]->count(x) != 0))
 			return true;
-
+		return false;
 	}
 
 	/*
