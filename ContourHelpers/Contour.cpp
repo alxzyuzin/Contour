@@ -126,59 +126,6 @@ namespace ContourHelpers
 		return nullptr;
 	}
 
-	/*
-		Находит точку контура ближайшую к точке с координатами point.X, point.Y
-		лежащую справа в той же строке что и point.  
-	*/
-	Point* Contour::GetRightNearestContourPoint(Point* point)
-	{
-		int lastDistance = MAXINT;
-		Point *p = nullptr;
-		for (int i = 0; i < this->Length; i++)
-		{
-			if (m_Points[i].Y == point->Y)
-			{
-				if (m_Points[i].X == point->X)
-					continue;
-
-				int newDistance = m_Points[i].X - point->X;
-				if (newDistance >= 0 && newDistance < lastDistance)
-				{
-					lastDistance = newDistance;
-					p = &m_Points[i];
-				}
-			}
-		}
-		return p;
-	}
-
-	/*
-		Находит точку контура ближайшую к точке с координатами point.X, point.Y
-		лежащую слева в той же строке что и point.
-	*/
-	Point* Contour::GetLeftNearestContourPoint(Point* point)
-	{
-
-		int lastDistance = MAXINT;
-		Point *p = nullptr;
-		for (int i = 0; i < this->Length; i++)
-		{
-			if (m_Points[i].Y == point->Y)
-			{
-				if (m_Points[i].X == point->X)
-					continue;
-
-				int newDistance = m_Points[i].X - point->X;
-				if (newDistance <= 0 && newDistance > lastDistance)
-				{
-					lastDistance = newDistance;
-					p = &m_Points[i];
-				}
-			}
-		}
-		return p;
-	}
-
 	Point* Contour::GetNearestContourPoint(Point* point, Contour::SearchNearestPointDirection direction)
 	{
 		int lastDistance = MAXINT;
