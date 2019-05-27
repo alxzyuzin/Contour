@@ -17,12 +17,7 @@ namespace ContourHelpers
 			Y = y;
 		}
 
-		//bool operator ==(const Point& point);
-
-		friend bool operator==(const Point& l, const Point& r)
-		{
-			return l.X == r.X && l.Y == r.Y;
-		}
+		bool operator ==(const Point& point);
 
 	};
 
@@ -69,10 +64,9 @@ namespace ContourHelpers
 		bool PointLaysOnContour(int x, int y);
 
 		Point* operator[](unsigned int i);
-//		bool Contains(Point* point);
 		bool ContainsPoint(int x, int y);
 
-		std::vector<int>*  GetRightPoints(int x, int y);
+		//std::vector<int>*  GetRightPoints(int x, int y);
 	};
 
 }

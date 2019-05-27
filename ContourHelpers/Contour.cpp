@@ -7,16 +7,10 @@ using namespace std;
 namespace ContourHelpers
 {
 
-	/*bool Point::operator==(const Point& p1, const Point& p2)
+	bool Point::operator ==(const Point& point) 
 	{
-		return p1.X == p2.X && p1.Y == p2.Y;
-	}*/
-
-	//	bool Point::operator ==(const Point& point) {
-	//		if (this->X == point.X && this->Y == point.Y)
-	//			return true;
-	//		return false;
-	//	}
+			return this->X == point.X && this->Y == point.Y;
+	}
 
 	Contour::Contour()
 	{
@@ -125,7 +119,6 @@ namespace ContourHelpers
 		}
 		return nullptr;
 	}
-
 	
 	Point* Contour::GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction)
 	{
@@ -218,8 +211,6 @@ namespace ContourHelpers
 		return p;
 	}
 
-	
-
 	/*
 	Возвращает индекс следующей точки контура. 
 	Для последней точки контура следующей считается точка с номером 0
@@ -240,22 +231,9 @@ namespace ContourHelpers
 		return (--i + Length) % Length;
 	}
 
-
-	/*bool Contour::Contains(Point* point)
-	{
-		for (Point p : m_Points)
-		{
-			if (p.X == point->X && p.Y == point->Y)
-				return true;
-		}
-		return false;
-	}*/
-
 	bool Contour::PointLaysOnContour(int x, int y)
 	{
-		if ((m_PointsMap.count(y) != 0) && (m_PointsMap[y]->count(x) != 0))
-			return true;
-		return false;
+		return (m_PointsMap.count(y) != 0) && (m_PointsMap[y]->count(x) != 0);
 	}
 
 	/*
@@ -359,7 +337,7 @@ namespace ContourHelpers
 		return contourCrossingCount % 2 == 1 ? true : false;
 	}
 	
-	vector<int>* Contour::GetRightPoints(int x, int y)
+	/*vector<int>* Contour::GetRightPoints(int x, int y)
 	{
 		map<int, map<int, vector<int>*>* >::iterator  it = m_PointsMap.begin();
 
@@ -371,6 +349,6 @@ namespace ContourHelpers
 		}
 
 		return nullptr;
-	}
+	}*/
 
 }  // namespace ContourHelpers
