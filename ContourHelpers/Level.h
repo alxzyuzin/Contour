@@ -81,7 +81,7 @@ namespace ContourHelpers
 		void RestorePixel(Point* point);
 		
 		bool Level::BorderHasOnlyOneColor(int x, int y, int size);
-		void RemoveShape(Contour* contour);
+//		void RemoveShape(Contour* contour);
 
 		Direction StartDirection(Direction direction);
 		Direction NextDirection(Direction direction);

@@ -555,49 +555,49 @@ Direction Level::NextDirection(Direction direction)
 // и рисуем линию от текущей точки до точки на противоположной стороне контура
 //
 //----------------------------------------------------------------------------
-void Level::RemoveShape(Contour* contour)
-{
-	std::clock_t    start;
-	start = std::clock();
-
-	unsigned char baseColor = m_Color;
-
-	Point* p1 = nullptr;
-	Point* p2 = nullptr;
-	Point* p3 = nullptr;
-	
-	for (int i = 0; i < contour->Size() - 1; i++)
-	{
-		// выбираем две последовательные точки контура и определяем направление
-		// отрисовки контура по оси Y
-		p1 = contour->GetPoint(i);
-		p2 = contour->GetPoint(i+1);
-		// Если координата Y увеличивается ищем точку на противоположнойстороне контура слева
-		if (p2->Y >= p1->Y)
-		{
-			p3 = contour->FindLeftNearestPoint(i + 1);
-			if (!p3)
-				continue;
-			for (int x = p2->X; x >= p3->X; x--)
-				SetPixel(x, p2->Y, baseColor);
-		}
-		// Если координата Y уменьшается ищем точку на противоположнойстороне контура справ
-		if (p2->Y <= p1->Y)
-		{
-			p3 = contour->FindRightNearestPoint(i + 1);
-			if (!p3)
-				continue;
-			for (int x = p2->X; x <= p3->X; x++)
-				SetPixel(x, p2->Y, baseColor);
-		}
-	}
-	// Закрашиваем сам контур 
-	for (int i = 0; i < contour->Size(); i++)
-		SetPixel(contour->GetPoint(i), baseColor);
-	std::clock_t end = std::clock();
-
-double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 sec//153072ms
-}
+//void Level::RemoveShape(Contour* contour)
+//{
+//	std::clock_t    start;
+//	start = std::clock();
+//
+//	unsigned char baseColor = m_Color;
+//
+//	Point* p1 = nullptr;
+//	Point* p2 = nullptr;
+//	Point* p3 = nullptr;
+//	
+//	for (int i = 0; i < contour->Size() - 1; i++)
+//	{
+//		// выбираем две последовательные точки контура и определяем направление
+//		// отрисовки контура по оси Y
+//		p1 = contour->GetPoint(i);
+//		p2 = contour->GetPoint(i+1);
+//		// Если координата Y увеличивается ищем точку на противоположнойстороне контура слева
+//		if (p2->Y >= p1->Y)
+//		{
+//			p3 = contour->FindLeftNearestPoint(i + 1);
+//			if (!p3)
+//				continue;
+//			for (int x = p2->X; x >= p3->X; x--)
+//				SetPixel(x, p2->Y, baseColor);
+//		}
+//		// Если координата Y уменьшается ищем точку на противоположнойстороне контура справ
+//		if (p2->Y <= p1->Y)
+//		{
+//			p3 = contour->FindRightNearestPoint(i + 1);
+//			if (!p3)
+//				continue;
+//			for (int x = p2->X; x <= p3->X; x++)
+//				SetPixel(x, p2->Y, baseColor);
+//		}
+//	}
+//	// Закрашиваем сам контур 
+//	for (int i = 0; i < contour->Size(); i++)
+//		SetPixel(contour->GetPoint(i), baseColor);
+//	std::clock_t end = std::clock();
+//
+//double time = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000); // 119 sec//153072ms
+//}
 
 /*
 	Закрашивает пространство внутри внешннего контура пустым цветом 0xFF.
