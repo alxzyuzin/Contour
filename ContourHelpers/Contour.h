@@ -64,13 +64,12 @@ namespace ContourHelpers
 		enum SearchNearestPointDirection {Left, Right};
 		Point* GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction);
 
-//		int GetRightNearestPointIndex(int x, int y);
 		int GetNextContourPointIndex(int i);
 		int GetPrevContourPointIndex(int i);
 		bool PointLaysOnContour(int x, int y);
 
 		Point* operator[](unsigned int i);
-		bool Contains(Point* point);
+//		bool Contains(Point* point);
 		bool ContainsPoint(int x, int y);
 
 		std::vector<int>*  GetRightPoints(int x, int y);

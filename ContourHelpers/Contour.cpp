@@ -219,39 +219,6 @@ namespace ContourHelpers
 	}
 
 	
-	/*
-	  Находит номер точки в m_Points ближайшей по горизонтали точки контура лежащей
-	  справа от точки, заданой координатами x, y
-	  Входные параметры
-			x, y - координаты точки для которой нужно найти
-					ближайшую справа точку контура
-	  Возвращаемое значение
-			номер точки в векторе m_Points если она найдена
-			-1 если точка не найдена
-	*/
-	//int Contour::GetRightNearestPointIndex(int x, int y)
-	//{
-	//	int index = -1;
-	//	int lastDistance = MAXINT;
-
-	//	for (int i = 0; i < Length; i++)
-	//	{
-	//		if (m_Points[i].Y == y)
-	//		{
-	//			// Исключим из рассмотрения точку с координатами x,y
-	//			if (m_Points[i].X == x)
-	//				continue;
-
-	//			int newDistance = m_Points[i].X - x;
-	//			if (newDistance >= 0 && newDistance < lastDistance)
-	//			{
-	//				lastDistance = newDistance;
-	//				index = i;
-	//			}
-	//		}
-	//	}
-	//	return index;
-	//}
 
 	/*
 	Возвращает индекс следующей точки контура. 
@@ -274,7 +241,7 @@ namespace ContourHelpers
 	}
 
 
-	bool Contour::Contains(Point* point)
+	/*bool Contour::Contains(Point* point)
 	{
 		for (Point p : m_Points)
 		{
@@ -282,7 +249,7 @@ namespace ContourHelpers
 				return true;
 		}
 		return false;
-	}
+	}*/
 
 	bool Contour::PointLaysOnContour(int x, int y)
 	{
