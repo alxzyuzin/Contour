@@ -25,18 +25,18 @@ namespace Contour
     public sealed partial class MainPage : Page
     {
         //private WriteableBitmap wbitmap = null;
-        private ContourHelpers.Bitmap bitmap = null;
+        private ContourHelpers.ContourBitmap bitmap = null;
 
         public MainPage()
         {
             this.InitializeComponent();
 
-            for (byte i=2; i<17; i++)
+            for (byte i = 2; i < 17; i++)
                 cbx_levels.Items.Add(i.ToString());
 
-            cbx_levels.SelectedIndex =0;
+            cbx_levels.SelectedIndex = 0;
 
-            
+
         }
 
         private async void BtnLoadImage_TappedAsync(object sender, TappedRoutedEventArgs e)
@@ -52,7 +52,7 @@ namespace Contour
             {
                 ImageProperties props = await file.Properties.GetImagePropertiesAsync();
 
-                bitmap = new Bitmap(this, (int)props.Width, (int)props.Height);
+                bitmap = new ContourBitmap(this, (int)props.Width, (int)props.Height);
 
                 IRandomAccessStream stream = await  file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);

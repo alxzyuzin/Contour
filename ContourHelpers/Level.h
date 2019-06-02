@@ -72,19 +72,16 @@ namespace ContourHelpers
 		unsigned char GetPixel(int x, int y);
 
 		void SetPixel(int x, int y, unsigned char color);
-//		void SetPixel(int pos, unsigned char color);
 		void SetPixel(Point* point, unsigned char color);
 
 		void RestorePixel(int x, int y);
-//		void RestorePixel(Point* point);
 		
 		bool Level::BorderHasOnlyOneColor(int x, int y, int size);
 
 		Direction StartDirection(Direction direction);
 		Direction NextDirection(Direction direction);
-		Direction PrevDirection(Direction direction);
 
-		Point* Level::GetCorrespondingContourPoint(Contour* externalContour, Contour* internalContour, Point* startPoint, Contour::SearchNearestPointDirection searchDirection);
+//		Point* Level::GetCorrespondingContourPoint(Contour* externalContour, Contour* internalContour, Point* startPoint, Contour::SearchNearestPointDirection searchDirection);
 
 		/*----------------------------------*/
 		/* Debug functions section start    */

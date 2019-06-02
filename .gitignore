@@ -7,7 +7,8 @@
 *.userosscache
 *.sln.docstates
 /TestImages/*
-
+/ContourProfiler/Generated files/*
+/ContourProfiler/Assets/*
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

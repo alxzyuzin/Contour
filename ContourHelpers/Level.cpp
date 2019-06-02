@@ -111,11 +111,6 @@ void Level::GetLevelShapes(unsigned char* pPixelBuffer)
 	}
 }
 
-//void Level::SetPixel(int position, unsigned char color)
-//{
-//	m_pBuffer[position] = color;
-//}
-
 void Level::SetPixel(Point* point, unsigned char color)
 {
 	m_pBuffer[point->Y * m_Width + point->X] = color;
@@ -366,13 +361,8 @@ void Level::FindAllContours()
 				}
 			} while (internalContour);
 			FillContour(externalContour, EMPTY_COLOR);
-			//EraseShape(externalContour, internalContour);
 		}
 	} while (externalContour);
-
-	//FillContour(externalContour, EMPTY_COLOR);
-	//if (internalContour)
-	//	RestoreContourContent(internalContour);
 }
 
 /*
@@ -433,9 +423,6 @@ void Level::FillContour(Contour* contour, unsigned char color)
 	}
 }
 
-
-
-
 /*
 	Восстанавливает все точки внутри заданного контура.
 	Для восстановления использует данные из m_pShapesBuffer
@@ -482,7 +469,6 @@ void Level::RestoreContourContent(Contour* contour)
 
 }
 
-
 //----------------------------------------------------------------------------
 // Вычисляет новое начальное направление поиска следующей точки исходя из напрвления 
 // в котором находится текущая точка по отношению к предыдущей
@@ -506,22 +492,6 @@ Direction Level::StartDirection(Direction direction)
 	}
 }
 
-Direction Level::PrevDirection(Direction direction)
-{
-	switch (direction)
-	{
-		case N: return NW;
-		case NE: return N;
-		case E: return NE;
-		case SE: return E;
-		case S: return SE;
-		case SW: return S;
-		case W: return SW;
-		case NW: return W;
-		default:return N;
-	}
-}
-
 Direction Level::NextDirection(Direction direction)
 {
 	switch (direction)
@@ -538,8 +508,6 @@ Direction Level::NextDirection(Direction direction)
 	}
 }
 
-
-
 /*
 	Закрашивает пространство внутри внешннего контура пустым цветом 0xFF.
 	Если внутренний контур не пустой то восстанавливаем содержимое внутреннего контура
@@ -553,7 +521,6 @@ void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 	if (internalContour)
 		RestoreContourContent(internalContour);
 }
-
 
 
 void Level::FillLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction, unsigned char color)
@@ -582,7 +549,6 @@ void Level::FillLine(Contour* externalContour, int startPointNumber, Contour::Se
 	}
 }
 
-
 void Level::RestoreLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction)
 {
 	int startX = 0;
@@ -610,26 +576,11 @@ void Level::RestoreLine(Contour* externalContour, int startPointNumber, Contour:
 
 }
 
-/*
-Восстанавливает значение пикселя в указанной точке используя данные m_pShapesBuffer
-*/
-//void Level::RestorePixel(Point* point)
-//{
-//	int offset = point->Y * m_Width + point->X;
-//	m_pBuffer[offset] = m_pShapesBuffer[offset];
-//}
-
 void Level::RestorePixel(int x, int y)
 {
 	int offset = y * m_Width + x;
 	m_pBuffer[offset] = m_pShapesBuffer[offset];
 }
-
-Point* Level::GetCorrespondingContourPoint(Contour* externalContour, Contour* internalContour, Point* startPoint, Contour::SearchNearestPointDirection searchDirection)
-{
-	return nullptr;
-}
-
 
 /* Проверяет пиксели лежащие на границе отстоящей от центрального пикселя
  заданного координатами x,y на расстояние size. 

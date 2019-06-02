@@ -692,6 +692,29 @@ namespace ContourHelpersTest
 			Assert::AreEqual(1,internalContour->Length, L"Invalid internal contour length");
 		}
 
+		/*unsigned char DataSet_13[81] =
+		{
+			B, B, B, B, B, B, B, B, B,
+			B, E, E, E, B, E, E, E, B,
+			B, E, E, E, B, E, E, E, B,
+			B, E, E, E, B, E, E, E, B,
+			B, E, E, E, B, E, E, E, B,
+			B, E, E, E, B, E, E, E, B,
+			B, E, E, E, B, E, E, E, B,
+			B, E, E, E, B, E, E, E, B,
+			B, B, B, B, B, B, B, B, B,
+		};
+
+		TEST_METHOD(Test_13_FindInternalContour)
+		{
+			unsigned char DataSetExpanded[924];
+			Level::ExpandLevelData(21, 11, B, DataSet_12, DataSetExpanded);
+			Level* level = new Level(21, 11, B, DataSetExpanded);
+			Contour* externalCountour = level->FindExternalContour();
+			Contour* internalContour = level->FindInternalContour(externalCountour);
+			Assert::AreEqual(1, internalContour->Length, L"Invalid internal contour length");
+		}*/
+
 	}; // class LevelTest_InternalContour
 
 	TEST_CLASS(LevelTest_FindAllContours)
@@ -748,7 +771,7 @@ namespace ContourHelpersTest
 
 		public:
 			
-			TEST_METHOD(FindAllContours_Test_0)
+			TEST_METHOD(Test_0_FindAllContours)
 			{
 				unsigned char DataSetExpanded[324];
 				Level::ExpandLevelData(9, 9, B, DataSet_0, DataSetExpanded);
@@ -757,7 +780,27 @@ namespace ContourHelpersTest
 				Assert::AreEqual(3, (int)level->m_Contours.size());
 			}
 		
+			unsigned char DataSet_1[81] =
+			{
+				B, B, B, B, B, B, B, B, B,
+				B, E, E, E, B, B, B, B, B,
+				B, E, E, E, B, B, B, B, B,
+				B, B, B, B, B, E, E, E, B,
+				B, B, B, B, B, E, B, E, B,
+				B, E, E, E, B, E, B, E, B,
+				B, E, E, E, B, E, E, E, B,
+				B, E, E, E, B, E, E, E, B,
+				B, B, B, B, B, B, B, B, B,
+			};
 
+			TEST_METHOD(_Test_1_FindAllContours)
+			{
+				unsigned char DataSetExpanded[324];
+				Level::ExpandLevelData(9, 9, B, DataSet_1, DataSetExpanded);
+				Level* level = new Level(9, 9, B, DataSetExpanded);
+				level->FindAllContours();
+				Assert::AreEqual(4, (int)level->m_Contours.size());
+			}
 	};
 
 	/*

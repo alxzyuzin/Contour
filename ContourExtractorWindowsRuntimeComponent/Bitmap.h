@@ -1,16 +1,16 @@
 ﻿#pragma once
 #include <robuffer.h>
 #include <ppltasks.h>
-#include "Level.h"
+//#include "Level.h"
 
-using namespace Windows::UI::Xaml::Media::Imaging;
-using namespace Windows::Storage;
-using namespace Windows::Storage::Streams;
-using namespace Windows::Foundation;
-using namespace Windows::UI::Xaml::Controls;
+//using namespace Windows::UI::Xaml::Media::Imaging;
+//using namespace Windows::Storage;
+//using namespace Windows::Storage::Streams;
+//using namespace Windows::Foundation;
+//using namespace Windows::UI::Xaml::Controls;
 using namespace Platform;
 
-namespace ContourHelpers
+namespace ContourExtractorWindowsRuntimeComponent
 {
 	public ref class DisplayParams sealed
 	{
@@ -46,10 +46,10 @@ namespace ContourHelpers
 
 	public:
 
-		property WriteableBitmap^ ImageData
+		property  Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ ImageData
 		{
-			WriteableBitmap^ get();
-			void set(WriteableBitmap^ imageDataValue);
+			Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ get();
+			void set(Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ imageDataValue);
 		}
 
 		property Array<byte>^ GrayScaleColorMap
@@ -60,9 +60,9 @@ namespace ContourHelpers
 	public:
 		ContourBitmap();
 		ContourBitmap(int width, int height);
-		ContourBitmap(Page^ page, int width, int height);
+		ContourBitmap(Windows::UI::Xaml::Controls::Page^ page, int width, int height);
 
-		void SetSource(IRandomAccessStream^ stream);
+		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		/// IAsyncAction^ SetSourceAsync(IRandomAccessStream^ stream);
 		void ConvertToGrayscale(byte levels);
 		void ExtractLevels();
@@ -75,7 +75,7 @@ namespace ContourHelpers
 	private:	//Methods
 		void	DisplayLevelShapes(unsigned char color);
 		void	DisplayLevelContours(unsigned char color);
-		Level*	SelectLevel(unsigned char color);
+//		Level*	SelectLevel(unsigned char color);
 		void	SortColorMap(std::vector<unsigned char>* colormap);
 		void	ClearPixelBuffer();
 		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
@@ -86,10 +86,10 @@ namespace ContourHelpers
 		int m_PixelBufferLength;	// Длина буфера изображения в байтах
 		unsigned char* m_pPixelBuffer;		// Указатель на буфер WriteableBitmap. Содержимое этого буфера является источником данных для объекта Image
 		unsigned char* m_pOriginalImageData; // Буфер хранит оригинальное изображение загруженное из файла
-		WriteableBitmap^ m_ImageData = nullptr;
-		Page^ m_pMainPage;
+		Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ m_ImageData = nullptr;
+		Windows::UI::Xaml::Controls::Page^ m_pMainPage;
 		bool m_Initialized = false;
-		vector<Level*> m_Levels;
+//		std::vector<Level*> m_Levels;
 	};
 
 }
