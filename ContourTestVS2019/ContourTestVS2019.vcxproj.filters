@@ -2,10 +2,10 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Common">
-      <UniqueIdentifier>2cc78e1a-956a-43d2-b529-712994c26f85</UniqueIdentifier>
+      <UniqueIdentifier>29b8a550-d2de-471e-bed6-9dc7adcb2b46</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>858cf69e-c343-4317-81d7-bf195113dc0d</UniqueIdentifier>
+      <UniqueIdentifier>8c5a786d-7518-45ec-a20b-4c41cb3a4fcb</UniqueIdentifier>
       <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
     </Filter>
   </ItemGroup>
@@ -13,16 +13,14 @@
     <ApplicationDefinition Include="UnitTestApp.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="UnitTestApp.xaml.cpp" />
     <ClCompile Include="UnitTest.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="TestUtils.cpp" />
-    <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Contour.cpp" />
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Level.cpp" />
+    <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Contour.cpp" />
+    <ClCompile Include="TestUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="UnitTestApp.xaml.h" />
     <ClInclude Include="TestUtils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -53,8 +51,5 @@
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ContourHelpersTest_TemporaryKey.pfx" />
   </ItemGroup>
 </Project>

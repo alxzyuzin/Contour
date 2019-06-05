@@ -140,9 +140,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ContourHelpers\ContourHelpers.vcxproj">
-      <Project>{20d0b4cc-ab75-4710-b7b5-1c57a5709a3b}</Project>
-      <Name>ContourHelpers</Name>
+    <ProjectReference Include="..\ContourExtractorWindowsRuntimeComponent\ContourExtractorWindowsRuntimeComponent.vcxproj">
+      <Project>{b5596cc7-90bb-467a-961d-e0d9eb4add98}</Project>
+      <Name>ContourExtractorWindowsRuntimeComponent</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

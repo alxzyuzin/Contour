@@ -65,6 +65,10 @@ void ContourProfiler::MainPage::ButtonOutlineFile_Tapped(Platform::Object^ sende
 	
 	bitmap->ConvertToGrayscale(2);
 	bitmap->ExtractLevels();
+	bitmap->OutlineImage();
+	
+	bitmap->DisplayContours();
+	bitmap->ImageData->Invalidate();
 	
 }
 

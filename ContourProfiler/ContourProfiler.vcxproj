@@ -151,6 +151,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>C:\Users\alxzy\source\repos\Contour\Debug\ContourHelpers\ContourHelpers.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -160,6 +161,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>C:\Users\alxzy\source\repos\Contour\Debug\ContourHelpers\ContourHelpers.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

@@ -157,6 +157,10 @@ void ContourBitmap::RestoreOriginalImage()
 	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
 }
 
+//void ContourBitmap::DisplayContours()
+//{
+//
+//}
 void ContourBitmap::Clear()
 {
 	for(auto level:m_Levels)

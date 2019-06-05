@@ -1,23 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2042
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour", "Contour\Contour.csproj", "{7EEC5B6F-D122-4AAC-AA4B-96802927810E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{20D0B4CC-AB75-4710-B7B5-1C57A5709A3B} = {20D0B4CC-AB75-4710-B7B5-1C57A5709A3B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ContourHelpers", "ContourHelpers\ContourHelpers.vcxproj", "{20D0B4CC-AB75-4710-B7B5-1C57A5709A3B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ContourHelpersTest", "ContourHelpersTest\ContourHelpersTest.vcxproj", "{2CC78E1A-956A-43D2-B529-712994C26F85}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ContourProfiler", "ContourProfiler\ContourProfiler.vcxproj", "{5CF2F0F3-2E61-44E6-8B92-FDEA46524B25}"
-	ProjectSection(ProjectDependencies) = postProject
-		{20D0B4CC-AB75-4710-B7B5-1C57A5709A3B} = {20D0B4CC-AB75-4710-B7B5-1C57A5709A3B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ContourExtractorWindowsRuntimeComponent", "ContourExtractorWindowsRuntimeComponent\ContourExtractorWindowsRuntimeComponent.vcxproj", "{B5596CC7-90BB-467A-961D-E0D9EB4ADD98}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7340587A-F34E-40BA-8721-14D7186D3D61}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+		Performance2.psess = Performance2.psess
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ContourTestVS2019", "ContourTestVS2019\ContourTestVS2019.vcxproj", "{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,11 +131,38 @@ Global
 		{B5596CC7-90BB-467A-961D-E0D9EB4ADD98}.Release|x64.Build.0 = Release|x64
 		{B5596CC7-90BB-467A-961D-E0D9EB4ADD98}.Release|x86.ActiveCfg = Release|Win32
 		{B5596CC7-90BB-467A-961D-E0D9EB4ADD98}.Release|x86.Build.0 = Release|Win32
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|ARM.ActiveCfg = Debug|ARM
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|ARM.Build.0 = Debug|ARM
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|ARM.Deploy.0 = Debug|ARM
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|ARM64.Build.0 = Debug|ARM64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|x64.ActiveCfg = Debug|x64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|x64.Build.0 = Debug|x64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|x64.Deploy.0 = Debug|x64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|x86.ActiveCfg = Debug|Win32
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|x86.Build.0 = Debug|Win32
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Debug|x86.Deploy.0 = Debug|Win32
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|ARM.ActiveCfg = Release|ARM
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|ARM.Build.0 = Release|ARM
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|ARM.Deploy.0 = Release|ARM
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|ARM64.ActiveCfg = Release|ARM64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|ARM64.Build.0 = Release|ARM64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|ARM64.Deploy.0 = Release|ARM64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|x64.ActiveCfg = Release|x64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|x64.Build.0 = Release|x64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|x64.Deploy.0 = Release|x64
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|x86.ActiveCfg = Release|Win32
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|x86.Build.0 = Release|Win32
+		{29B8A550-D2DE-471E-BED6-9DC7ADCB2B46}.Release|x86.Deploy.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1A2704D3-2F66-425E-B429-EE5C2C6F067A}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

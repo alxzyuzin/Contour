@@ -8,7 +8,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 using System.Runtime.InteropServices.WindowsRuntime;
 
-using ContourHelpers;
+using ContourExtractorWindowsRuntimeComponent;
 using Windows.Storage.Streams;
 using System.Collections.Generic;
 using Windows.Graphics.Imaging;
@@ -25,7 +25,7 @@ namespace Contour
     public sealed partial class MainPage : Page
     {
         //private WriteableBitmap wbitmap = null;
-        private ContourHelpers.ContourBitmap bitmap = null;
+        private ContourBitmap bitmap = null;
 
         public MainPage()
         {

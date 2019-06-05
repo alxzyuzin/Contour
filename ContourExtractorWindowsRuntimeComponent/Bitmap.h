@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <robuffer.h>
 #include <ppltasks.h>
-//#include "Level.h"
+#include "Level.h"
 
 //using namespace Windows::UI::Xaml::Media::Imaging;
 //using namespace Windows::Storage;
@@ -63,19 +63,19 @@ namespace ContourExtractorWindowsRuntimeComponent
 		ContourBitmap(Windows::UI::Xaml::Controls::Page^ page, int width, int height);
 
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
-		/// IAsyncAction^ SetSourceAsync(IRandomAccessStream^ stream);
-		void ConvertToGrayscale(byte levels);
+		void ConvertToGrayscale(unsigned char levels);
 		void ExtractLevels();
 		void OutlineImage();
 		void RectifyLevel(unsigned char color, int size);
 		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
 		void RestoreOriginalImage();
+		void DisplayContours();
 		void Clear();
 
 	private:	//Methods
 		void	DisplayLevelShapes(unsigned char color);
 		void	DisplayLevelContours(unsigned char color);
-//		Level*	SelectLevel(unsigned char color);
+		Level*	SelectLevel(unsigned char color);
 		void	SortColorMap(std::vector<unsigned char>* colormap);
 		void	ClearPixelBuffer();
 		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
@@ -89,7 +89,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ m_ImageData = nullptr;
 		Windows::UI::Xaml::Controls::Page^ m_pMainPage;
 		bool m_Initialized = false;
-//		std::vector<Level*> m_Levels;
+		std::vector<Level*> m_Levels;
 	};
 
 }

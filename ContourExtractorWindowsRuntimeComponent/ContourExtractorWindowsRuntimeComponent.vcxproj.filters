@@ -9,9 +9,13 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Bitmap.cpp" />
+    <ClCompile Include="Level.cpp" />
+    <ClCompile Include="Contour.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="Bitmap.h" />
+    <ClInclude Include="Level.h" />
+    <ClInclude Include="Contour.h" />
   </ItemGroup>
 </Project>

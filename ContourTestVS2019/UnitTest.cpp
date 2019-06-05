@@ -1,80 +1,40 @@
 ﻿#include "pch.h"
 #include "CppUnitTest.h"
-#include "..\ContourExtractorWindowsRuntimeComponent\Contour.h"
-#include "..\ContourExtractorWindowsRuntimeComponent\Level.h"
 #include "TestUtils.h"
+#include <..\ContourExtractorWindowsRuntimeComponent\Contour.h>
+#include <..\ContourExtractorWindowsRuntimeComponent\Level.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-//using namespace  ContourExtractorWindowsRuntimeComponent;
+using namespace std;
+using namespace  ContourExtractorWindowsRuntimeComponent;
 
-namespace ContourHelpersTest
+namespace ContourTestVS2019
 {
+
 	const unsigned char E = 0xFF;
 	const unsigned char B = 0x00;
 	const unsigned char W = 0xFE;
-
 	
-
-	// 5x5 Square with black border inside (inverted DataSet_1)
-	unsigned char DataSet_2[25] =
-	{
-		E, E, E, E, E,
-		E, B, B, B, E,
-		E, B, E, B, E,
-		E, B, B, B, E,
-		E, E, E, E, E,
-	};
-
-
-	// 5x5 Square border
-	Point SquareBorderContourPoints_5x5[16] =
-	{ 
-		Point(0,0),Point(1,0),Point(2,0),Point(3,0),Point(4,0),
-		Point(4,1),Point(4,2),Point(4,3),Point(4,4),
-		Point(3,4), Point(2,4),Point(1,4),Point(0,4),
-		Point(0,3),Point(0,2), Point(0,1) 
-	};
-
-	// 3x3 Square border
-	Point SquareBorderContourPoints_3x3[8] =
-	{
-		Point(1,1),Point(2,1),Point(3,1),Point(3,2),Point(3,3),
-		Point(3,3),Point(1,3),Point(1,2) 
-	};
-
-	Direction AllDirections[8] = 
-	{ 
-		Direction::N,
-		Direction::NE,
-		Direction::E,
-		Direction::SE,
-		Direction::S,
-		Direction::SW,
-		Direction::W,
-		Direction::NW
-	};
-
-
-	TEST_CLASS(LevelTest_ServiceFunctions)
+   	TEST_CLASS(LevelTest_ServiceFunctions)
 	{
 		unsigned char EmptySquare[25] =
-		{  
+		{
 			E, E, E, E, E,
 			E, E, E, E, E,
 			E, E, E, E, E,
 			E, E, E, E, E,
-			E, E, E, E, E 
+			E, E, E, E, E
 		};
-		
+
 		unsigned char ReferenceEmptySquareExpanded[100] =
-		{   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
+		{ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
 			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
 			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
 			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
 			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF
 		};
 
-		
+
 
 		TEST_METHOD(ExpandLevelData_Test_1)
 		{
@@ -88,7 +48,7 @@ namespace ContourHelpersTest
 			}
 		}
 
-			unsigned char FibbonachiSquare[25] =
+		unsigned char FibbonachiSquare[25] =
 		{
 			B, E, B, E, B,
 			B, E, E, B, B,
@@ -98,7 +58,7 @@ namespace ContourHelpersTest
 		};
 
 		unsigned char ReferenceFibbonachiSquareExpanded[100] =
-		{   0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF,
+		{ 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF,
 			0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF,
 			0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF,
 			0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -111,17 +71,17 @@ namespace ContourHelpersTest
 			unsigned char FibbonachiSquareExpanded[100];
 
 			Level::ExpandLevelData(5, 5, B, FibbonachiSquare, FibbonachiSquareExpanded);
-			
-			for (int i = 0; i<100; i++)
+
+			for (int i = 0; i < 100; i++)
 			{
 				unsigned char c = ReferenceFibbonachiSquareExpanded[i];
 				unsigned char f = FibbonachiSquareExpanded[i];
-				swprintf(Message, 100, L"Point %i isn't equal to reference. Point color %X should be %X", i,f,c);
+				swprintf(Message, 100, L"Point %i isn't equal to reference. Point color %X should be %X", i, f, c);
 				Assert::IsTrue(c == f, Message);
 				++i;
 			}
 		}
-		
+
 	}; // LevelTest_ServiceFunctions
 
 	TEST_CLASS(LevelTest_FunctionsParams)
@@ -168,30 +128,14 @@ namespace ContourHelpersTest
 				}, L"Parametr pixelBuffer is null and exception not thrown.");
 		}
 
-	};
+	}; // class LevelTest_FunctionsParams
 
-    TEST_CLASS(LevelTest_ExternalContour)
-    {
+	TEST_CLASS(LevelTest_ExternalContour)
+	{
 	private:
 		wchar_t Message[100];
 
-		/*
-		5x5 area of the same color pixels (pixel color 0xFE) 
-		Each pixel presented by 4 bytes
-		*/
-
-		//// Empty square size 5x5 with black point in center
-		//unsigned char EmptySquareWithBlackPoint[100] =
-		//{   E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
-		//	E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
-		//	E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
-		//	E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
-		//	E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
-		//};
-
-		// White 5x5 square
-
-    public:
+	public:
 		unsigned char WhiteSquare[25] =
 		{ W, W, W, W, W,
 			W, W, W, W, W,
@@ -201,12 +145,12 @@ namespace ContourHelpersTest
 		};
 
 		/*
-		Analize 5x5 square area filled by white color (0xFE) 
+		Analize 5x5 square area filled by white color (0xFE)
 		Look for first shape pixel with color 0xFE
 		OK - if pixel found (function FindFirstContourPoint return true)
 		*/
-        TEST_METHOD(Test_01_FindFirstExternalContourPoint)
-        {
+		TEST_METHOD(Test_01_FindFirstExternalContourPoint)
+		{
 			unsigned char WhiteSquareExpanded[100];
 			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
 			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
@@ -214,7 +158,7 @@ namespace ContourHelpersTest
 			Point ExpectedPoint = Point(0, 0);
 			bool r = level->FindFirstExternalContourPoint(firstContourPoint);
 			Assert::IsTrue(r);
-        }
+		}
 
 		/*
 		Find first external contour point if parent contour is null
@@ -233,7 +177,6 @@ namespace ContourHelpersTest
 			Assert::IsTrue(firstContourPoint == ExpectedPoint);
 		}
 
-		
 		/*
 		Find next pixel if current pixel lays in upper right corner of OneColor area 0xFE
 		Parent contour is null
@@ -243,7 +186,7 @@ namespace ContourHelpersTest
 		{
 			unsigned char WhiteSquareExpanded[100];
 			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
-			
+
 			Level* level = new Level(5, 5, 0xFE, WhiteSquareExpanded);
 			Point currentPoint = Point(4, 0);
 			Point nextExpectedPoint = Point(4, 1);
@@ -269,20 +212,27 @@ namespace ContourHelpersTest
 		{
 			unsigned char EmptySquareExpanded[100];
 			Level::ExpandLevelData(5, 5, B, EmptySquare, EmptySquareExpanded);
-			
+
 			Level* level = new Level(5, 5, B, EmptySquareExpanded);
 			Contour* contour = level->FindExternalContour();
 			Assert::IsNull(contour, L"contour is not null");
 		}
 
-
-
 		unsigned char Dataset_05[25] =
-		{ W, W, W, W, W,
+		{ 
+			W, W, W, W, W,
 			W, W, W, W, W,
 			W, W, W, W, W,
 			W, W, W, W, W,
 			W, W, W, W, W
+		};
+		// 5x5 Square border
+		Point SquareBorderContourPoints_5x5[16] =
+		{
+			Point(0,0),Point(1,0),Point(2,0),Point(3,0),Point(4,0),
+			Point(4,1),Point(4,2),Point(4,3),Point(4,4),
+			Point(3,4), Point(2,4),Point(1,4),Point(0,4),
+			Point(0,3),Point(0,2), Point(0,1)
 		};
 		/*
 		Find contour of square area filled with white color (0xFE)
@@ -292,11 +242,11 @@ namespace ContourHelpersTest
 		{
 			unsigned char WhiteSquareExpanded[100];
 			Level::ExpandLevelData(5, 5, W, Dataset_05, WhiteSquareExpanded);
-			
+
 			// use this expression to find array size
 			//int size = *(&arr + 1) - arr;
 			int expectedContourLength = 16;
-						
+
 			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
 			Contour* contour = level->FindExternalContour();
 			swprintf(Message, 100, L"Contour length %i should be %i", contour->Size(), 16);
@@ -351,7 +301,7 @@ namespace ContourHelpersTest
 		}
 
 		unsigned char DataSet_07[231] =
-		{   E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+		{ E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
 			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, E, E, B, B, B, E,
 			E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, E,
 			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
@@ -375,13 +325,25 @@ namespace ContourHelpersTest
 			Assert::AreEqual(64, contour->Length, Message);
 		}
 
-	
+
 	}; // class LevelTest_ExternalContour
 
 	TEST_CLASS(LevelTest_InternalContour)
 	{
 	private:
 		wchar_t Message[100];
+		Direction AllDirections[8] =
+		{
+			Direction::N,
+			Direction::NE,
+			Direction::E,
+			Direction::SE,
+			Direction::S,
+			Direction::SW,
+			Direction::W,
+			Direction::NW
+		};
+
 	public:
 
 		// 5x5 Square with black border and black point inside
@@ -403,7 +365,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(5, 5, B, DataSetExpanded);
 			Contour* contour = level->FindExternalContour();
 			Assert::IsNotNull(contour, L"Contour not found.");
-			bool result  = level->FindFirstInternalContourPoint(contour, point);
+			bool result = level->FindFirstInternalContourPoint(contour, point);
 			Assert::IsTrue(result);
 		}
 
@@ -432,8 +394,8 @@ namespace ContourHelpersTest
 
 			bool result = level->FindFirstInternalContourPoint(contour, point);
 			Assert::IsTrue(result, L"First point not found.");
-			
-			Assert::IsTrue(point == expectedPoint,L"Points does not match.");
+
+			Assert::IsTrue(point == expectedPoint, L"Points does not match.");
 		}
 
 
@@ -530,7 +492,7 @@ namespace ContourHelpersTest
 					i, point->X, point->Y, ContourPoints[i].X, ContourPoints[i].Y);
 				Assert::IsTrue(*point == ContourPoints[i]);
 			}
-		
+
 		}
 
 		TEST_METHOD(FindNextInternalContourPoint_Test_0)
@@ -581,7 +543,7 @@ namespace ContourHelpersTest
 			Assert::IsTrue(CurrentPoint == ExpectedPoint, Message);
 		}
 
-		
+
 		unsigned char DataSet_9[25] =
 		{
 			E, E, E, E, E,
@@ -590,9 +552,9 @@ namespace ContourHelpersTest
 			E, E, E, E, E,
 			E, E, E, E, E
 
-			
+
 		};
-		Point Contour_9_External[1] = {	Point(1,1) };
+		Point Contour_9_External[1] = { Point(1,1) };
 
 		// Find internal contour in external contour if external contour length is 1
 		TEST_METHOD(InternalContour_Test_9)
@@ -621,13 +583,13 @@ namespace ContourHelpersTest
 			B, B, B, B, B, B, B, B, B,
 			B, B, B, B, B, B, B, B, B
 		};
-		
 
-		Point Contour_10_Internal[10] = 
+
+		Point Contour_10_Internal[10] =
 		{
 			Point(5,2), Point(6,2), Point(5,3), Point(5,4),Point(4,5), Point(4,6),
 			Point(3,6), Point(3,5), Point(3,4), Point(4,3)
-		
+
 		};
 
 		TEST_METHOD(Test_10_InternalContour)
@@ -637,8 +599,8 @@ namespace ContourHelpersTest
 			Level* level = new Level(9, 9, B, DataSetExpanded);
 			Contour* externalCountour = level->FindExternalContour();
 			Contour* internalContour = level->FindInternalContour(externalCountour);
-			//bool res = TestUtils::CompareContours(internalContour, Contour_10_Internal,10, Message, 100);
-			bool res = false;
+			bool res = TestUtils::CompareContours(internalContour, Contour_10_Internal,10, Message, 100);
+			//bool res = false;
 			Assert::IsTrue(res, Message);
 		}
 
@@ -657,7 +619,7 @@ namespace ContourHelpersTest
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
 		};
 
-		
+
 		TEST_METHOD(Test_11_FindInternalContour)
 		{
 			unsigned char DataSetExpanded[924];
@@ -665,7 +627,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(21, 11, B, DataSetExpanded);
 			Contour* externalCountour = level->FindExternalContour();
 			Contour* internalContour = level->FindInternalContour(externalCountour);
-			Assert::IsNull(internalContour,L"Internal contour is not null");
+			Assert::IsNull(internalContour, L"Internal contour is not null");
 		}
 
 		unsigned char DataSet_12[231] =
@@ -690,7 +652,7 @@ namespace ContourHelpersTest
 			Level* level = new Level(21, 11, B, DataSetExpanded);
 			Contour* externalCountour = level->FindExternalContour();
 			Contour* internalContour = level->FindInternalContour(externalCountour);
-			Assert::AreEqual(1,internalContour->Length, L"Invalid internal contour length");
+			Assert::AreEqual(1, internalContour->Length, L"Invalid internal contour length");
 		}
 
 		/*unsigned char DataSet_13[81] =
@@ -704,7 +666,7 @@ namespace ContourHelpersTest
 			B, E, E, E, B, E, E, E, B,
 			B, E, E, E, B, E, E, E, B,
 			B, B, B, B, B, B, B, B, B,
-		};
+		};*/
 
 		TEST_METHOD(Test_13_FindInternalContour)
 		{
@@ -714,97 +676,96 @@ namespace ContourHelpersTest
 			Contour* externalCountour = level->FindExternalContour();
 			Contour* internalContour = level->FindInternalContour(externalCountour);
 			Assert::AreEqual(1, internalContour->Length, L"Invalid internal contour length");
-		}*/
+		}
 
 	}; // class LevelTest_InternalContour
 
 	TEST_CLASS(LevelTest_FindAllContours)
 	{
-		private:
-			wchar_t Message[100];
-			array<wchar_t, 100> Msg;
-			unsigned char DataSet_0[81] =
-			{
-				B, B, B, B, B, B, B, B, B,
-				B, E, E, E, E, E, E, E, B,
-				B, B, E, B, E, B, B, E, B,
-				B, B, E, E, E, E, B, E, B,
-				B, E, E, E, E, E, E, E, B,
-				B, E, B, B, B, B, B, E, B,
-				B, E, B, E, E, E, B, E, B,
-				B, E, B, E, B, E, B, E, B,
-				B, B, B, E, B, E, B, B, B,
-			};
+	private:
+		array<wchar_t, 100> Msg;
+		unsigned char DataSet_0[81] =
+		{
+			B, B, B, B, B, B, B, B, B,
+			B, E, E, E, E, E, E, E, B,
+			B, B, E, B, E, B, B, E, B,
+			B, B, E, E, E, E, B, E, B,
+			B, E, E, E, E, E, E, E, B,
+			B, E, B, B, B, B, B, E, B,
+			B, E, B, E, E, E, B, E, B,
+			B, E, B, E, B, E, B, E, B,
+			B, B, B, E, B, E, B, B, B,
+		};
 
-			Point Contour_0_1_External[36] =
-			{
-				Point(0,0), Point(1,0), Point(2,0), Point(3,0), Point(4,0),	Point(5,0),
-				Point(6,0), Point(7,0), Point(8,0), Point(8,1), Point(8,2), Point(8,3),
-				Point(8,4), Point(8,5), Point(8,6), Point(8,7), Point(8,8), Point(7,8),
-				Point(6,8), Point(6,7), Point(6,6), Point(5,5), Point(4,5), Point(3,5), 
-				Point(2,6),	Point(2,7), Point(2,8), Point(1,8), Point(0,8), Point(0,7),
-				Point(0,6),	Point(0,5), Point(0,4),	Point(0,3), Point(0,2),	Point(0,1)
-			};
+		Point Contour_0_1_External[36] =
+		{
+			Point(0,0), Point(1,0), Point(2,0), Point(3,0), Point(4,0),	Point(5,0),
+			Point(6,0), Point(7,0), Point(8,0), Point(8,1), Point(8,2), Point(8,3),
+			Point(8,4), Point(8,5), Point(8,6), Point(8,7), Point(8,8), Point(7,8),
+			Point(6,8), Point(6,7), Point(6,6), Point(5,5), Point(4,5), Point(3,5),
+			Point(2,6),	Point(2,7), Point(2,8), Point(1,8), Point(0,8), Point(0,7),
+			Point(0,6),	Point(0,5), Point(0,4),	Point(0,3), Point(0,2),	Point(0,1)
+		};
 
-			Point Contour_0_2_Internal[28] =
-			{
-				Point(1,1), Point(2,1), Point(3,1), Point(4,1), Point(5,1),	Point(6,1),
-				Point(7,1), Point(7,2), Point(7,3), Point(7,4), Point(7,5),	Point(7,6),
-				Point(7,7), Point(7,6), Point(7,5),	Point(6,4), Point(5,4),	Point(4,4),
-				Point(3,4), Point(2,4), Point(1,5),	Point(1,6), Point(1,7),	Point(1,6),
-				Point(1,5), Point(1,4), Point(2,3),	Point(2,2)
-			};
+		Point Contour_0_2_Internal[28] =
+		{
+			Point(1,1), Point(2,1), Point(3,1), Point(4,1), Point(5,1),	Point(6,1),
+			Point(7,1), Point(7,2), Point(7,3), Point(7,4), Point(7,5),	Point(7,6),
+			Point(7,7), Point(7,6), Point(7,5),	Point(6,4), Point(5,4),	Point(4,4),
+			Point(3,4), Point(2,4), Point(1,5),	Point(1,6), Point(1,7),	Point(1,6),
+			Point(1,5), Point(1,4), Point(2,3),	Point(2,2)
+		};
 
-			Point Contour_0_3_External[1] =
-			{
-				Point(3,2)
-			};
+		Point Contour_0_3_External[1] =
+		{
+			Point(3,2)
+		};
 
-			Point Contour_0_4_External[3] =
-			{
-				Point(5,2), Point(6,2), Point(6,3)
-			};
+		Point Contour_0_4_External[3] =
+		{
+			Point(5,2), Point(6,2), Point(6,3)
+		};
 
-			Point Contour_0_5_External[2] =
-			{
-				Point(4,7), Point(4,8)
-			};
+		Point Contour_0_5_External[2] =
+		{
+			Point(4,7), Point(4,8)
+		};
 
-		public:
-			
-			TEST_METHOD(Test_0_FindAllContours)
-			{
-				unsigned char DataSetExpanded[324];
-				Level::ExpandLevelData(9, 9, B, DataSet_0, DataSetExpanded);
-				Level* level = new Level(9, 9, B, DataSetExpanded);
-				level->FindAllContours();
-				Assert::AreEqual(3, (int)level->m_Contours.size());
-			}
-		
-			unsigned char DataSet_1[81] =
-			{
-				B, B, B, B, B, B, B, B, B,
-				B, E, E, E, B, B, B, B, B,
-				B, E, E, E, B, B, B, B, B,
-				B, B, B, B, B, E, E, E, B,
-				B, B, B, B, B, E, B, E, B,
-				B, E, E, E, B, E, B, E, B,
-				B, E, E, E, B, E, E, E, B,
-				B, E, E, E, B, E, E, E, B,
-				B, B, B, B, B, B, B, B, B,
-			};
+	public:
 
-			TEST_METHOD(_Test_1_FindAllContours)
-			{
-				unsigned char DataSetExpanded[324];
-				Level::ExpandLevelData(9, 9, B, DataSet_1, DataSetExpanded);
-				Level* level = new Level(9, 9, B, DataSetExpanded);
-				level->FindAllContours();
-				Assert::AreEqual(4, (int)level->m_Contours.size());
-			}
-	};
+		TEST_METHOD(Test_0_FindAllContours)
+		{
+			unsigned char DataSetExpanded[324];
+			Level::ExpandLevelData(9, 9, B, DataSet_0, DataSetExpanded);
+			Level* level = new Level(9, 9, B, DataSetExpanded);
+			level->FindAllContours();
+			Assert::AreEqual(3, (int)level->m_Contours.size());
+		}
 
-	/*
+		unsigned char DataSet_1[81] =
+		{
+			B, B, B, B, B, B, B, B, B,
+			B, E, E, E, B, B, B, B, B,
+			B, E, E, E, B, B, B, B, B,
+			B, B, B, B, B, E, E, E, B,
+			B, B, B, B, B, E, B, E, B,
+			B, E, E, E, B, E, B, E, B,
+			B, E, E, E, B, E, E, E, B,
+			B, E, E, E, B, E, E, E, B,
+			B, B, B, B, B, B, B, B, B,
+		};
+
+		TEST_METHOD(_Test_1_FindAllContours)
+		{
+			unsigned char DataSetExpanded[324];
+			Level::ExpandLevelData(9, 9, B, DataSet_1, DataSetExpanded);
+			Level* level = new Level(9, 9, B, DataSetExpanded);
+			level->FindAllContours();
+			Assert::AreEqual(4, (int)level->m_Contours.size());
+		}
+	};  // class LevelTest_FindAllContours
+
+		/*
 	Набор тестов функции проверки принадлежности точки контуру ContainsPoint(int x, int y)
 	*/
 	TEST_CLASS(ContourTest_PointInsideContour)
@@ -959,8 +920,7 @@ namespace ContourHelpersTest
 		}
 
 
-	};
-
+	}; // class ContourTest_PointInsideContour
 
 	TEST_CLASS(LevelTest_EraseContour)
 	{
@@ -1032,8 +992,8 @@ namespace ContourHelpersTest
 			unsigned char InitialDataSetExpanded[100];
 			Level::ExpandLevelData(5, 5, B, DataSet_1_Initial, InitialDataSetExpanded);
 			Level* level = new Level(5, 5, B, InitialDataSetExpanded);
-			Contour* externalContour = level->FindExternalContour(); 
-			Contour* internalContour = level->FindInternalContour(externalContour); 
+			Contour* externalContour = level->FindExternalContour();
+			Contour* internalContour = level->FindInternalContour(externalContour);
 			level->EraseShape(externalContour, internalContour);
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_1_Final, Message, 100);
 			Assert::IsTrue(r, Message);
@@ -1116,7 +1076,7 @@ namespace ContourHelpersTest
 			E, E, E, B, E,
 			E, E, E, E, E,
 			E, E, E, E, E,
-			
+
 		};
 
 		unsigned char DataSet_4_Final[25] =
@@ -1130,7 +1090,7 @@ namespace ContourHelpersTest
 
 		Point ExternalContour_4[1] = { Point(3,2) };
 
-		
+
 		TEST_METHOD(EraseShape_Test_04)
 		{
 			unsigned char InitialDataSetExpanded[100];
@@ -1386,7 +1346,7 @@ namespace ContourHelpersTest
 			Level::ExpandLevelData(9, 9, B, DataSet_9_Initial, InitialDataSetExpanded);
 			Level* level = new Level(9, 9, B, InitialDataSetExpanded);
 			level->EraseBuffer();
-			
+
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_10_Final, Message, 324);
 			Assert::IsTrue(r, Message);
 		}
@@ -1429,7 +1389,7 @@ namespace ContourHelpersTest
 		}
 
 		unsigned char DataSet_12_Initial[231] =
-		{ 
+		{
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
 			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, E, E, B, B, B, E,
 			E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, E,
@@ -1469,63 +1429,62 @@ namespace ContourHelpersTest
 			Assert::IsTrue(r, Message);
 		}
 
-
 		unsigned char DataSet_13_Initial[1700] =
 		{
-/* 01 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 02 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 03 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 04 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, B,
-/* 05 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, B, B, B, E, E, B, B, B,
-/* 06 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, B, E, E, E, B, B, B,
-/* 07 */ B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, B, B, B,
-/* 08 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, B, B, B,
-/* 09 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, E, B, B, B,
-/* 10 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, E, B, B, B,
+			/* 01 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 02 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 03 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 04 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, B,
+			/* 05 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, B, B, B, E, E, B, B, B,
+			/* 06 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, B, E, E, E, B, B, B,
+			/* 07 */ B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, B, B, B,
+			/* 08 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, B, B, B,
+			/* 09 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, E, B, B, B,
+			/* 10 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, E, B, B, B,
 
-/* 11 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, E, B, B, B,
-/* 12 */ B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, B, B, B,
-/* 13 */ B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, B, B, B,
-/* 14 */ B, B, B, B, B, E, E, E, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, E, E, E, B, B, B,
-/* 15 */ B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, E, E, B, B, B,
-/* 16 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, E, E, B, B, B, B,
-/* 17 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, E, E, B, B, B, B,
-/* 18 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, B, B, B, B,
-/* 19 */ B, B, B, B, B, E, E, E, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, E, E, B, B, B, B,
-/* 20 */ B, B, B, B, B, E, E, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, E, B, B, B, B,
+			/* 11 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, E, B, B, B,
+			/* 12 */ B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, B, B, B,
+			/* 13 */ B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, B, B, B,
+			/* 14 */ B, B, B, B, B, E, E, E, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, E, E, E, B, B, B,
+			/* 15 */ B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, E, E, B, B, B,
+			/* 16 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, E, E, B, B, B, B,
+			/* 17 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, E, E, B, B, B, B,
+			/* 18 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, B, B, B, B,
+			/* 19 */ B, B, B, B, B, E, E, E, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, E, E, B, B, B, B,
+			/* 20 */ B, B, B, B, B, E, E, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, E, E, B, B, B, B,
 
-/* 21 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, B, E, E, E, E, E, E, E, B, B, E, E, E, E, B, B, B, B,
-/* 22 */ B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, B, B, B, E, E, E, E, E, E, B, B, E, E, E, E, B, B, B, B,
-/* 23 */ B, B, B, E, B, B, B, E, E, E, E, E, E, E, E, B, B, B, E, E, E, E, E, E, B, B, E, E, E, E, B, B, B, B,
-/* 24 */ B, B, B, E, E, B, E, E, E, E, E, E, E, E, B, B, B, E, E, E, E, E, E, B, B, B, E, E, E, E, B, B, B, B,
-/* 25 */ B, B, B, E, E, E, E, E, E, E, E, E, E, B, B, B, E, E, E, E, E, E, B, B, B, B, E, E, E, B, B, B, B, B,
-/* 26 */ B, B, B, E, E, E, E, E, E, E, E, E, B, B, B, B, E, E, E, E, E, E, B, B, B, E, E, E, E, B, B, B, B, B,
-/* 27 */ B, B, B, E, E, E, E, E, E, E, E, B, B, B, B, B, E, E, E, E, E, B, B, B, B, E, E, E, E, B, B, B, B, B,
-/* 28 */ B, B, B, E, E, E, E, E, E, E, B, B, B, B, B, B, E, E, E, E, E, B, B, B, E, E, E, E, E, B, B, B, B, B,
-/* 29 */ B, B, B, E, E, B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, B, B, B, E, E, E, E, B, B, B, B, B, B,
-/* 30 */ B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, B, B, E, E, E, E, E, B, B, B, B, B, B,
+			/* 21 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, B, E, E, E, E, E, E, E, B, B, E, E, E, E, B, B, B, B,
+			/* 22 */ B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, B, B, B, E, E, E, E, E, E, B, B, E, E, E, E, B, B, B, B,
+			/* 23 */ B, B, B, E, B, B, B, E, E, E, E, E, E, E, E, B, B, B, E, E, E, E, E, E, B, B, E, E, E, E, B, B, B, B,
+			/* 24 */ B, B, B, E, E, B, E, E, E, E, E, E, E, E, B, B, B, E, E, E, E, E, E, B, B, B, E, E, E, E, B, B, B, B,
+			/* 25 */ B, B, B, E, E, E, E, E, E, E, E, E, E, B, B, B, E, E, E, E, E, E, B, B, B, B, E, E, E, B, B, B, B, B,
+			/* 26 */ B, B, B, E, E, E, E, E, E, E, E, E, B, B, B, B, E, E, E, E, E, E, B, B, B, E, E, E, E, B, B, B, B, B,
+			/* 27 */ B, B, B, E, E, E, E, E, E, E, E, B, B, B, B, B, E, E, E, E, E, B, B, B, B, E, E, E, E, B, B, B, B, B,
+			/* 28 */ B, B, B, E, E, E, E, E, E, E, B, B, B, B, B, B, E, E, E, E, E, B, B, B, E, E, E, E, E, B, B, B, B, B,
+			/* 29 */ B, B, B, E, E, B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, B, B, B, E, E, E, E, B, B, B, B, B, B,
+			/* 30 */ B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, B, B, E, E, E, E, E, B, B, B, B, B, B,
 
-/* 31 */ B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, B, B, B, B, E, E, E, E, E, E, B, B, B, B, B, B,
-/* 32 */ B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, E, B, B, B, B, B, E, E, E, E, E, E, E, B, B, B, B, B, B,
-/* 33 */ B, B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, B, B, B, B, B, E, E, E, E, E, E, B, B, B, B, B, B,
-/* 34 */ B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, B, B, B, B, B, E, E, E, E, E, B, B, B, B, B, B, B,
-/* 35 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, E, E, E, E, B, B, B, B, B, B, B,
-/* 36 */ B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 37 */ B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 38 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, B, B, B, B, B, B, B, B, B, B, B,
-/* 39 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B,
-/* 40 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B,
+			/* 31 */ B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, B, B, B, B, E, E, E, E, E, E, B, B, B, B, B, B,
+			/* 32 */ B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, E, B, B, B, B, B, E, E, E, E, E, E, E, B, B, B, B, B, B,
+			/* 33 */ B, B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, B, B, B, B, B, E, E, E, E, E, E, B, B, B, B, B, B,
+			/* 34 */ B, B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, B, B, B, B, B, E, E, E, E, E, B, B, B, B, B, B, B,
+			/* 35 */ B, B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, E, E, E, E, B, B, B, B, B, B, B,
+			/* 36 */ B, B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 37 */ B, B, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 38 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, B, B, B, B, B, B, B, B, B, B, B,
+			/* 39 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B,
+			/* 40 */ B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B,
 
-/* 41 */ B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, B, B, B, B, B, B, B, B, B,
-/* 42 */ B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 43 */ B, B, B, E, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 44 */ B, B, B, B, B, E, E, E, E, B, B, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 45 */ B, B, B, B, B, E, E, E, E, B, B, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 46 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 47 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 48 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 49 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
-/* 50 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B
+			/* 41 */ B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, E, B, B, B, B, B, B, B, B, B,
+			/* 42 */ B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 43 */ B, B, B, E, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 44 */ B, B, B, B, B, E, E, E, E, B, B, E, E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 45 */ B, B, B, B, B, E, E, E, E, B, B, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 46 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 47 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 48 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 49 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			/* 50 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B
 		};
 
 		unsigned char DataSet_13_Final[1700] =
@@ -1582,7 +1541,6 @@ namespace ContourHelpersTest
 			/* 01 */ E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
 		};
 
-
 		TEST_METHOD(Test_13_EraseShape)
 		{
 			unsigned char InitialDataSetExpanded[6800];
@@ -1594,8 +1552,6 @@ namespace ContourHelpersTest
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_13_Final, Message, 100);
 			Assert::IsTrue(r, Message);
 		}
+	}; // class LevelTest_EraseContour
 
-
-	};
-
-}  // namespace ContourHelpersTest
+} // namespace ContourTestVS2019

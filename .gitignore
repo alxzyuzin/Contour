@@ -9,6 +9,8 @@
 /TestImages/*
 /ContourProfiler/Generated files/*
 /ContourProfiler/Assets/*
+/ContourTestVS2019/Generated files/*
+/ContourTestVS2019/Assets/*
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
