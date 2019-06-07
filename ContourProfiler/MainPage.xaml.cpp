@@ -33,15 +33,13 @@ void ContourProfiler::MainPage::ButtonLoadFile_Tapped(Platform::Object^ sender, 
 	openPicker->SuggestedStartLocation = PickerLocationId::PicturesLibrary;
 	openPicker->FileTypeFilter->Append(".jpg");
 	openPicker->FileTypeFilter->Append(".bmp");
-
 	create_task(openPicker->PickSingleFileAsync()).then([this](StorageFile^ file)
 		{
 			if (file)
 			{
 				create_task(file->Properties->GetImagePropertiesAsync()).then([this, file](ImageProperties^ props)
 				{
-					bitmap = ref new ContourBitmap((int)props->Width, (int)props->Height);
-
+					((MainPage^)this)->bitmap = ref new ContourBitmap((int)props->Width, (int)props->Height);
 					create_task(file->OpenAsync(FileAccessMode::Read)).then([this](IRandomAccessStream^ stream)
 					{
 						bitmap->SetSource(stream);
@@ -58,18 +56,20 @@ void ContourProfiler::MainPage::ButtonLoadFile_Tapped(Platform::Object^ sender, 
 
 }
 
+// Изображение разделено на 2 слоя. Исходное время построения контуров  5774 (4587) ms (40 контуров)
+// Оптимизация Contour::GetniarestContourPoint,  время построения контуров 3051 ms
 void ContourProfiler::MainPage::ButtonOutlineFile_Tapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e)
 {
 	if (bitmap == nullptr)
 		return;
-	
+	int i = 0;
 	bitmap->ConvertToGrayscale(2);
 	bitmap->ExtractLevels();
 	bitmap->OutlineImage();
 	
 	bitmap->DisplayContours();
 	bitmap->ImageData->Invalidate();
-	
+	i = 1;
 }
 
 void ContourProfiler::MainPage::ButtonExit_Tapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e)

@@ -82,7 +82,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 	}
 
 	/*
-		Находит ближайшую слева точку контура лежащую в той же строке что и заданная
+		Находит ближайшую слева точку контура лежащую в той же строке что и заданная,
+		не совпадающую с заданной точкой.
 	*/
 	Point* Contour::FindLeftNearestPoint(int pointnumber)
 	{
@@ -99,6 +100,10 @@ namespace ContourExtractorWindowsRuntimeComponent
 		return nullptr;
 	}
 
+	/*
+		Находит ближайшую справа точку контура, лежащую в той же строке что и заданная
+		не совпадающую с заданной точкой.
+	*/
 	Point* Contour::FindRightNearestPoint(int pointnumber)
 	{
 		for (auto pointNumbers : *m_PointsMap[m_Points[pointnumber].Y])
@@ -112,7 +117,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	Point* Contour::GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction)
 	{
 		int lastDistance = direction == Right ? MAXINT : MININT;
-		Point *p = nullptr;
+//		Point *p = nullptr;
 
 		int prevPoint = GetNextContourPointIndex(pointIndex);
 		int nextPoint = GetPrevContourPointIndex(pointIndex);
@@ -132,7 +137,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 				// Пик направленн вверх
 				// Пик направлен внутрь контура если точка НАД пиком 
 				// лежит внутри контура или принадлежит контуру
-
+				// Если пик направленн вверх и точка над пиком не лежит внутри контура и
+				// не лежит на контуре значит ни слева ни справа от точки pointindex не точек
+				// контура: возвращаем nullptr
 				if (!ContainsPoint(m_Points[pointIndex].X, m_Points[pointIndex].Y - 1)
 					&&
 					!PointLaysOnContour(m_Points[pointIndex].X, m_Points[pointIndex].Y - 1)
@@ -145,8 +152,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 				// Пик направленн вниз
 				// Пик направлен внутрь контура если точка ПОД пиком 
 				// лежит внутри контура или принадлежит контуру
-
-				// точка под пиком
+				// Если пик направленн вниз и точка под пиком не лежит внутри контура и
+				// не лежит на контуре значит ни слева ни справа от точки pointindex не точек
+				// контура: возвращаем nullptr
 				if (!ContainsPoint(m_Points[pointIndex].X, m_Points[pointIndex].Y + 1)
 					&&
 					!PointLaysOnContour(m_Points[pointIndex].X, m_Points[pointIndex].Y + 1)
@@ -155,7 +163,10 @@ namespace ContourExtractorWindowsRuntimeComponent
 			}
 			if (m_Points[prevPoint].Y == m_Points[pointIndex].Y)
 			{
-				// Имеем плато из трёх точек (минимум)
+				// Имеем плато минимум из трёх точек prevPoint, pointIndexб nextPoint 
+				// В этом случае возвращаем prevPoint или nextPoint в зависимости от
+				// требуемого направления поиска и направления изменения координаты Х при 
+				// переборе точек в порядке возрастания номеров
 				switch (direction)
 				{
 				case Contour::Left:
@@ -168,36 +179,23 @@ namespace ContourExtractorWindowsRuntimeComponent
 			}
 		}
 
-		// В цикле просмотрим все точки контура и выберем ближайшую 
-		// к точке с номером pointIndex
-		for (int i = 0; i < this->Length; i++)
+		// XPoints содержит список номеров точек с координатами X,Y;
+		std::vector<int>* XPoints = (m_PointsMap[m_Points[pointIndex].Y])->at(m_Points[pointIndex].X);
+		if (XPoints->size() > 1)
 		{
-			// Исключим из рассмотрения точку с номером pointIndex
-			if (i == pointIndex)
-				continue;
-
-			if (m_Points[i].Y == m_Points[pointIndex].Y)
+			return &m_Points[XPoints->at(0)];
+		}
+		else
+		{
+			switch (direction)
 			{
-
-				int newDistance = m_Points[i].X - m_Points[pointIndex].X;
-				switch (direction)
-				{
-				case Right:
-					if (newDistance >= 0 && newDistance < lastDistance)
-					{
-						lastDistance = newDistance;
-						p = &m_Points[i];
-					}
-				case Left:
-					if (newDistance <= 0 && newDistance > lastDistance)
-					{
-						lastDistance = newDistance;
-						p = &m_Points[i];
-					}
-				}
+			case Right:
+				return  FindRightNearestPoint(pointIndex);
+			case Left:
+				return  FindLeftNearestPoint(pointIndex);
 			}
 		}
-		return p;
+		return nullptr;
 	}
 
 	/*
@@ -207,7 +205,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 	*/
 	int Contour::GetNextContourPointIndex(int i)
 	{
-		return ++i % Length;
+		int k = i + 1;
+		return k % Length;
 	}
 
 	/*
@@ -217,7 +216,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 	*/
 	int Contour::GetPrevContourPointIndex(int i)
 	{
-		return (--i + Length) % Length;
+		int k = i + Length - 1 ;
+		return k % Length;
 	}
 
 	bool Contour::PointLaysOnContour(int x, int y)
@@ -268,16 +268,18 @@ namespace ContourExtractorWindowsRuntimeComponent
 	*/
 	bool Contour::ContainsPoint(int x, int y)
 	{
-		// Проверим принадлежность точки контуру
-		if ((m_PointsMap.count(y) != 0) && (m_PointsMap[y]->count(x) != 0))
-			return false;
-
 		//  Если среди точек контура нет точек с координатой Y равной y - точка x, y лежит за пределами контура
 		if (m_PointsMap.count(y) == 0)
 			return false;
-
+		
+		// Проверим принадлежность точки контуру
+		if ((m_PointsMap.count(y) != 0) && (m_PointsMap[y]->count(x) != 0))
+			return false;
+	
 		int contourCrossingCount = 0;
 		// Сформируем список номеров точек контура с Y = y, лежащих справа от точки с координатами x, y.
+
+		// Не нужно формировать этот список.  В этом цикле for выполнить код в цикле for ниже
 		vector<int> points;
 		for (auto v : *m_PointsMap[y])
 		{
@@ -285,7 +287,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 				for (int i : *v.second)
 					points.push_back(i);
 		}
-
+		// код из этого цикла for выполнить в предыдущем for
 		for (int currentPointIndex : points)
 		{
 			// Получим индексы точек перед и после текущей точки 

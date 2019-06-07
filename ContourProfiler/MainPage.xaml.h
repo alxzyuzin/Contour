@@ -16,11 +16,11 @@ namespace ContourProfiler
 	public ref class MainPage sealed
 	{
 
-	private:
+	//private:
 		ContourExtractorWindowsRuntimeComponent::ContourBitmap^ bitmap;
 	public:
 		MainPage();
-
+	//	ContourExtractorWindowsRuntimeComponent::ContourBitmap^ bitmap;
 	private:
 		void ButtonLoadFile_Tapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e);
 		void ButtonOutlineFile_Tapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e);
