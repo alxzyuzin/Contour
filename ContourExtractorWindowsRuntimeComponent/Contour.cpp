@@ -116,12 +116,12 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	Point* Contour::GetNearestContourPoint(int pointIndex, SearchNearestPointDirection direction)
 	{
-		int lastDistance = direction == Right ? MAXINT : MININT;
-//		Point *p = nullptr;
-
 		int prevPoint = GetNextContourPointIndex(pointIndex);
 		int nextPoint = GetPrevContourPointIndex(pointIndex);
 
+		int prevY = m_Points[prevPoint].Y;
+		int nextY = m_Points[nextPoint].Y;
+		int currY = m_Points[pointIndex].Y;
 		// Если предыдущая и следующая точки контура имеют одинаковое значение
 		// координаты Y (лежат в одной строке), это означает что точка с номером
 		// pointIndex лежит на пике контура обращённом вверх или вниз
@@ -129,39 +129,39 @@ namespace ContourExtractorWindowsRuntimeComponent
 		// лежащей справа или слева от точки с номером pointIndex
 		// если пик направлен во вне контура возвращаем null
 
-		if ((m_Points[prevPoint].Y - m_Points[nextPoint].Y) == 0)
+		if ((prevY - nextY) == 0)
 		{
 			// Имеем пик
-			if (m_Points[prevPoint].Y > m_Points[pointIndex].Y)
-			{
-				// Пик направленн вверх
-				// Пик направлен внутрь контура если точка НАД пиком 
-				// лежит внутри контура или принадлежит контуру
-				// Если пик направленн вверх и точка над пиком не лежит внутри контура и
-				// не лежит на контуре значит ни слева ни справа от точки pointindex не точек
-				// контура: возвращаем nullptr
-				if (!ContainsPoint(m_Points[pointIndex].X, m_Points[pointIndex].Y - 1)
-					&&
-					!PointLaysOnContour(m_Points[pointIndex].X, m_Points[pointIndex].Y - 1)
-					)
-					return nullptr;
+			int X = m_Points[pointIndex].X;
+			int Y = currY;
 
-			}
-			if (m_Points[prevPoint].Y < m_Points[pointIndex].Y)
+			// Пик направленн вверх
+			// Координаты точки над пиком
+			// Пик направлен внутрь контура если точка НАД пиком 
+			// лежит внутри контура или принадлежит контуру
+			// Если пик направленн вверх и точка над пиком не лежит внутри контура и
+			// не лежит на контуре значит ни слева ни справа от точки pointindex не точек
+			// контура: возвращаем nullptr
+			if (prevY > currY)
+				Y = currY - 1;
+
+			// Пик направленн вниз
+			// Координаты точки под пиком
+			// Пик направлен внутрь контура если точка ПОД пиком 
+			// лежит внутри контура или принадлежит контуру
+			// Если пик направленн вниз и точка под пиком не лежит внутри контура и
+			// не лежит на контуре значит ни слева ни справа от точки pointindex не точек
+			// контура: возвращаем nullptr
+			if (prevY < currY)
+				Y = currY + 1;
+			
+			if (prevY != currY)
 			{
-				// Пик направленн вниз
-				// Пик направлен внутрь контура если точка ПОД пиком 
-				// лежит внутри контура или принадлежит контуру
-				// Если пик направленн вниз и точка под пиком не лежит внутри контура и
-				// не лежит на контуре значит ни слева ни справа от точки pointindex не точек
-				// контура: возвращаем nullptr
-				if (!ContainsPoint(m_Points[pointIndex].X, m_Points[pointIndex].Y + 1)
-					&&
-					!PointLaysOnContour(m_Points[pointIndex].X, m_Points[pointIndex].Y + 1)
-					)
+				if (!ContainsPoint(X, Y) && !PointLaysOnContour(X, Y)					)
 					return nullptr;
 			}
-			if (m_Points[prevPoint].Y == m_Points[pointIndex].Y)
+
+			if (prevY == currY)
 			{
 				// Имеем плато минимум из трёх точек prevPoint, pointIndexб nextPoint 
 				// В этом случае возвращаем prevPoint или nextPoint в зависимости от
@@ -178,9 +178,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 				}
 			}
 		}
-
 		// XPoints содержит список номеров точек с координатами X,Y;
-		std::vector<int>* XPoints = (m_PointsMap[m_Points[pointIndex].Y])->at(m_Points[pointIndex].X);
+		std::vector<int>* XPoints = (m_PointsMap[currY])->at(m_Points[pointIndex].X);
 		if (XPoints->size() > 1)
 		{
 			return &m_Points[XPoints->at(0)];
