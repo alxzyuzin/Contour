@@ -59,12 +59,16 @@ void ContourProfiler::MainPage::ButtonLoadFile_Tapped(Platform::Object^ sender, 
 // Изображение разделено на 2 слоя. Исходное время построения контуров  5774 (4587) ms (40 контуров)
 // Оптимизация Contour::GetniarestContourPoint,  время построения контуров 2644 -3998 ms
 // Вторая оптимизация Contour::GetniarestContourPoint,  время построения контуров 2566 -4447 ms
+
+// Изображение разделено на 4 слоя. Исходное время построения контуров 409 818 ms (760 контуров)
+// Вторая оптимизация Contour::GetniarestContourPoint,  время построения контуров 176 365 ms
+// Oптимизация Contour::ContainsPoint удаление операций по выделению памяти ,  время построения контуров 107 365 ms
 void ContourProfiler::MainPage::ButtonOutlineFile_Tapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e)
 {
 	if (bitmap == nullptr)
 		return;
 	int i = 0;
-	bitmap->ConvertToGrayscale(2);
+	bitmap->ConvertToGrayscale(4);
 	bitmap->ExtractLevels();
 	bitmap->OutlineImage();
 	
