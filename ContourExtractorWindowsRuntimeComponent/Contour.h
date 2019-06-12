@@ -62,6 +62,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 		Point* operator[](unsigned int i);
 		bool ContainsPoint(int x, int y);
+
 	};
 
 }

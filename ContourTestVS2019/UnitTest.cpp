@@ -365,7 +365,8 @@ namespace ContourTestVS2019
 			Level* level = new Level(5, 5, B, DataSetExpanded);
 			Contour* contour = level->FindExternalContour();
 			Assert::IsNotNull(contour, L"Contour not found.");
-			bool result = level->FindFirstInternalContourPoint(contour, point);
+			bool result = false;
+			result = level->FindFirstInternalContourPoint(contour, point);
 			Assert::IsTrue(result);
 		}
 
@@ -463,7 +464,7 @@ namespace ContourTestVS2019
 		// Check function parameter value control
 		TEST_METHOD(Test_0_FindInternalContour)
 		{
-			/*Assert::ExpectException< std::invalid_argument, Contour*>([]()
+			/*Assert::ExpectException< std::invalid_argument, Contour*>([this]()
 				{
 					unsigned char DataSetExpanded[100];
 					Level::ExpandLevelData(5, 5, B, DataSet_0, DataSetExpanded);
@@ -495,7 +496,49 @@ namespace ContourTestVS2019
 
 		}
 
-		TEST_METHOD(FindNextInternalContourPoint_Test_0)
+		unsigned char DataSet_06[350] =
+		{
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, E, E, B, B, B, B,
+			B, B, B, B, B, B, B, E, E, E, E, B, B, B,
+			B, B, B, B, B, B, B, E, E, E, E, B, B, B,
+			B, B, B, B, B, B, B, E, E, E, E, B, B, B,
+			B, B, B, B, B, B, B, E, E, E, E, B, B, B,
+			B, B, B, B, B, B, B, E, E, E, E, B, B, B,
+			B, B, B, B, B, B, E, E, E, E, E, B, B, B,
+			E, E, B, B, B, B, E, E, E, E, E, B, B, B,
+			E, E, E, B, B, B, E, E, E, E, B, B, B, B,
+			E, E, E, E, B, B, E, E, E, B, B, B, B, B,
+			E, E, E, E, B, E, E, E, E, B, B, B, B, B,
+			E, E, E, E, E, E, E, E, B, B, B, B, B, B,
+			E, E, E, E, E, E, E, E, B, B, B, B, B, B,
+			E, E, E, E, E, E, E, E, E, B, B, B, B, B,
+			E, E, E, E, E, E, E, E, B, B, B, B, B, B,
+			E, E, E, E, E, E, E, E, B, B, B, B, B, B,
+			E, E, E, E, E, E, B, B, B, B, B, B, B, B,
+			E, E, E, E, E, E, B, B, B, B, B, B, B, B,
+			E, E, E, E, E, E, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B
+		};
+
+		TEST_METHOD(Test_06_FindInternalContour)
+		{
+			unsigned char DataSetExpanded[1400];
+			Level::ExpandLevelData(14, 25, B, DataSet_06, DataSetExpanded);
+			//Create level filled with test data
+			Level* level = new Level(14, 25, B, DataSetExpanded);
+			// Find external contour
+			Contour* externalCountour = level->FindExternalContour();
+
+			Contour* internalContour = level->FindInternalContour(externalCountour);
+			Assert::IsNull(internalContour, L"Internal contour is not null");
+		}
+
+		TEST_METHOD(Test_00_FindNextInternalContourPoint)
 		{
 			unsigned char DataSetExpanded[100];
 			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);

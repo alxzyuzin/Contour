@@ -321,4 +321,5 @@ namespace ContourExtractorWindowsRuntimeComponent
 	}
 
 
+
 }  // namespace ContourHelpers

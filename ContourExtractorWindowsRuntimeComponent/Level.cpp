@@ -240,32 +240,37 @@ Contour* Level::FindExternalContour()
 	return contour;
 }
 
-bool Level::FindFirstInternalContourPoint(Contour* parentContour, Point& point)
+bool Level::FindFirstInternalContourPoint(Contour* contour, Point& point)
 {
-	if (!parentContour)
+	if (!contour)
 		throw std::invalid_argument("Pointer to parentContour is null");
 
-	if (parentContour->Length < 4)
+	if (contour->Length < 4)
 		return false;
 
-	// Ищем первую точку не закращенной области внутри контура parentCountour
-	for (int i = 0; i < parentContour->Size(); i++)
+	Point* prevPoint = nullptr;
+	Point* currPoint = contour->GetPoint(0);
+	Point* nextPoint = contour->GetPoint(contour->Size() - 1);
+	for (int i = contour->Size() - 2; i >= 0; i--)
 	{
-		Point* StartPoint = parentContour->GetPoint(i);
-		Point* EndPoint = parentContour->FindLeftNearestPoint(i);
-		if (!EndPoint)
-			continue;
-		for (int x = EndPoint->X + 1; x < StartPoint->X; x++)
+		prevPoint = currPoint;
+		currPoint = nextPoint;
+		nextPoint = contour->GetPoint(i);
+
+		if ((prevPoint->Y < currPoint->Y) && (currPoint->Y <= nextPoint->Y))
 		{
-			unsigned char c = m_pBuffer[StartPoint->Y * m_Width + x];
-			if (m_pBuffer[StartPoint->Y * m_Width + x] == EMPTY_COLOR
-				&&
-				parentContour->ContainsPoint(x, StartPoint->Y)
-				)
+			Point* StartPoint = currPoint;
+			Point* EndPoint = contour->FindRightNearestPoint(i + 1);
+			if (!EndPoint)
+				continue;
+			for (int x = StartPoint->X + 1; x < EndPoint->X; x++)
 			{
-				point.X = x;
-				point.Y = StartPoint->Y;
-				return true;
+				if (m_pBuffer[StartPoint->Y * m_Width + x] == EMPTY_COLOR)
+				{
+					point.X = x;
+					point.Y = StartPoint->Y;
+					return true;
+				}
 			}
 		}
 	}
@@ -521,7 +526,6 @@ void Level::EraseShape(Contour* externalContour, Contour*  internalContour)
 	if (internalContour)
 		RestoreContourContent(internalContour);
 }
-
 
 void Level::FillLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction, unsigned char color)
 {
