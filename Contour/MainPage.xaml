@@ -6,21 +6,49 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="#070707FF"
+    DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
-    <Grid Background="Gray">
+    <Page.Resources>
+        <Style TargetType="Button">
+            <Setter Property="BorderBrush" Value="Orange"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="10,5,10,5"/>
+            <Setter Property="Background" Value="#FF7F7F7F"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+
+        <Style x:Name="DisplayLayersStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            
+        </Style>
+    </Page.Resources>
+    <Grid Background="#FF3F3F3F">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="50px"/>
+            <RowDefinition Height="60px"/>
+            <RowDefinition Height="30px"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="260"/>
         </Grid.ColumnDefinitions>
 
         <Image  x:Name="OutlineImage" Grid.Row="0" Grid.Column="0"  Margin="25"/>
-        <StackPanel Grid.Row="0" Grid.Column="1" Margin="10">
+        <!-- Command buttons -->
+        <StackPanel Grid.Row="1" Grid.Column="0" Margin="10" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="btnLoadImage"  Content="Load Image" Tapped="BtnLoadImage_TappedAsync" />
+            <Button x:Name="btnRestoreOriginalImage"  Content="Restore original image" Tapped="BtnRestoreOriginalImage_Tapped"/>
+            <Button x:Name="btnOutlineImage" Content="Outline image" Tapped="BtnOutlineImage_Tapped"/>
+            <Button x:Name="btnSaveImage" Content="Save image" Tapped="BtnSaveImage_Tapped"/>
+        </StackPanel>
+        <TextBlock x:Name="tbl_Result" Grid.Row="2" Foreground="Orange" FontSize="20"/>
+        
+        <StackPanel Grid.Row="0" Grid.Column="1" Margin="10" Grid.RowSpan="3">
+            <!-- Outline parameters -->
             <Border BorderBrush="DarkGray" BorderThickness="1">
                 <Grid Margin="10,10,10,10">
                     <Grid.RowDefinitions>
@@ -31,71 +59,51 @@
                         <ColumnDefinition Width="120"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Options" Grid.Row="0" Grid.Column="0"  VerticalAlignment="Center" FontWeight="Bold" />
+                    <TextBlock Text="Options" Grid.Row="0" Grid.Column="0" Style="{StaticResource DisplayLayersStyle}" />
                     <TextBlock Text="Number of levels" Grid.Row="1" Grid.Column="0"  VerticalAlignment="Center" />
-                    <ComboBox x:Name="cbx_levels" Grid.Row="1" Grid.Column="1" AllowDrop="True" Height="40" />
+                    <ComboBox x:Name="cbx_levels" Grid.Row="1" Grid.Column="1" AllowDrop="True" Height="40"
+                              SelectedIndex="{Binding LevelsNumber, Mode=TwoWay}">
+                        <ComboBox.Items >
+                            <ComboBoxItem Content="2"/>
+                            <ComboBoxItem Content="4"/>
+                            <ComboBoxItem Content="6"/>
+                            <ComboBoxItem Content="8"/>
+                            <ComboBoxItem Content="12"/>
+                            <ComboBoxItem Content="14"/>
+                            <ComboBoxItem Content="16"/>
+                        </ComboBox.Items>
+
+                    </ComboBox>
                 </Grid>
             </Border>
-            
-            
-
             <TextBlock/>
-            <Button x:Name="btnLoadImage"  Content="Load Image"  HorizontalAlignment="Stretch"  
-                    FontSize="15" Margin="0,5,0,5"
-                    Tapped="BtnLoadImage_TappedAsync" />
-
-            <Button x:Name="btnConvertToGrayScale"  Content="Convert to grayscale" HorizontalAlignment="Stretch" 
-                    FontSize="15" Margin="0,5,0,5"
-                    Tapped="BtnConvertToGrayScale_Tapped"/>
-
-            <Button x:Name="btnRestoreOriginalImage"  Content="Restore original image" HorizontalAlignment="Stretch" 
-                    FontSize="15" Margin="0,5,0,5"
-                    Tapped="BtnRestoreOriginalImage_Tapped"/>
-
-
-            <Button x:Name="btnSliceImage" Content="Extract levels" HorizontalAlignment="Stretch"
-                    FontSize="15" Margin="0,5,0,5"
-                    Tapped="BtnExtractLevels_Tapped"/>
-            
-            <Button x:Name="btnOutlineImage" Content="Outline image" HorizontalAlignment="Stretch"
-                    FontSize="15" Margin="0,5,0,5"
-                    Tapped="BtnOutlineImage_Tapped"/>
-
-            <Button x:Name="btnClearImage" Content="Clear image" HorizontalAlignment="Stretch"
-                    FontSize="15" Margin="0,5,0,5"
-                    Tapped="BtnClearImage_Tapped"/>
-
-            <Button x:Name="btnSaveImage" Content="Save image" HorizontalAlignment="Stretch"
-                    FontSize="15" Margin="0,5,0,5"
-                    Tapped="BtnSaveImage_Tapped"/>
 
             <Border BorderBrush="DarkGray" BorderThickness="1">
-
                 <StackPanel>
                     <StackPanel>
-                    <TextBlock Text="Display layers"  FontWeight="Bold" />
-                    <Grid Margin="10,0,10,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Display layers" Style="{StaticResource DisplayLayersStyle}" />
+                        <Grid Margin="10,0,10,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="70"/>
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="Shapes" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" FontWeight="Bold" />
-                        <TextBlock Text="Contours" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" FontWeight="Bold" />
-                        <TextBlock Text="Layer" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" FontWeight="Bold" />
-                    </Grid>
+                            <TextBlock Text="Layer"    Grid.Row="0" Grid.Column="0"  Style="{StaticResource DisplayLayersStyle}" />
+                            <TextBlock Text="Shapes"   Grid.Row="0" Grid.Column="1"  Style="{StaticResource DisplayLayersStyle}" />
+                            <TextBlock Text="Contours" Grid.Row="0" Grid.Column="2"  Style="{StaticResource DisplayLayersStyle}" />
+                            
+                        </Grid>
                     </StackPanel>
                     <StackPanel  x:Name="stp_Layers">
-                        
+
                     </StackPanel>
                     <!--local:LayerDisplayParams></-->
                 </StackPanel>
             </Border>
 
         </StackPanel>
-        <TextBlock x:Name="tbl_Result" Grid.Column="1" Grid.Row="1"/>
+        
     </Grid>
 
 </Page>

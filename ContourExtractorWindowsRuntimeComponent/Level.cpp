@@ -260,7 +260,8 @@ bool Level::FindFirstInternalContourPoint(Contour* contour, Point& point)
 		if ((prevPoint->Y < currPoint->Y) && (currPoint->Y <= nextPoint->Y))
 		{
 			Point* StartPoint = currPoint;
-			Point* EndPoint = contour->FindRightNearestPoint(i + 1);
+			//Point* EndPoint = contour->FindRightNearestPoint(i + 1);
+			Point* EndPoint = contour->GetNearestContourPoint(i + 1, Contour::SearchNearestPointDirection::Right);
 			if (!EndPoint)
 				continue;
 			for (int x = StartPoint->X + 1; x < EndPoint->X; x++)

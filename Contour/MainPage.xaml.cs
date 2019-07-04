@@ -4,8 +4,6 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media.Imaging;
-
 using System.Runtime.InteropServices.WindowsRuntime;
 
 using ContourExtractorWindowsRuntimeComponent;
@@ -24,25 +22,21 @@ namespace Contour
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        //private WriteableBitmap wbitmap = null;
         private ContourBitmap bitmap = null;
+        public byte LevelsNumber { get; set; } = 2;
+        public string ImageFileName { get; set; } = string.Empty;
 
         public MainPage()
         {
             this.InitializeComponent();
-
-            for (byte i = 2; i < 17; i++)
-                cbx_levels.Items.Add(i.ToString());
-
-            cbx_levels.SelectedIndex = 0;
-
-
         }
 
         private async void BtnLoadImage_TappedAsync(object sender, TappedRoutedEventArgs e)
         {
-            FileOpenPicker openPicker = new FileOpenPicker();
-            openPicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            FileOpenPicker openPicker = new FileOpenPicker
+            {
+                SuggestedStartLocation = PickerLocationId.PicturesLibrary,
+            };
             openPicker.FileTypeFilter.Add(".jpg");
             openPicker.FileTypeFilter.Add(".bmp");
 
@@ -50,6 +44,7 @@ namespace Contour
 
             if (file != null)
             {
+                ImageFileName = file.DisplayName;
                 ImageProperties props = await file.Properties.GetImagePropertiesAsync();
 
                 bitmap = new ContourBitmap(this, (int)props.Width, (int)props.Height);
@@ -57,25 +52,16 @@ namespace Contour
                 IRandomAccessStream stream = await  file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);
                 OutlineImage.Source = bitmap.ImageData;
-
-                bitmap.ConvertToGrayscale(byte.Parse((cbx_levels.SelectedValue.ToString())));
+                string a = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
+                bitmap.ConvertToGrayscale(byte.Parse(a));
                 bitmap.ExtractLevels();
                 BuildLayersWindow();
-                tbl_Result.Text = "Image loaded";
+                tbl_Result.Text = $"Image loaded {ImageFileName}"; 
             }
             else
             {
-                tbl_Result.Text = "Image not loaded";
+                tbl_Result.Text = "Operation canceled";
             }
-        }
-
-        private void BtnConvertToGrayScale_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            byte levels = byte.Parse((cbx_levels.SelectedValue.ToString()));
-
-            bitmap.ConvertToGrayscale(levels);
-            bitmap.ImageData.Invalidate();
-            tbl_Result.Text = "Conversion copleted";
         }
 
         private void BtnExtractLevels_Tapped(object sender, TappedRoutedEventArgs e)
@@ -83,32 +69,8 @@ namespace Contour
             BuildLayersWindow();
         }
 
-        private void CbxCcolor_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-//            string level = cbx_color.SelectedValue.ToString();
-//            bitmap.DisplayLevel(byte.Parse(level));
-//            bitmap.ImageData.Invalidate();
-//            tbl_Result.Text = string.Format("Level {0} selected", level) ;
-        }
 
-        private void BtnOutlineImage_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            bitmap.OutlineImage();
-            tbl_Result.Text = string.Format("Image outlined");
-        }
-
-        private void BtnClearImage_Tapped(object sender, TappedRoutedEventArgs e)
-        {
- //           string color = cbx_color.SelectedValue.ToString();
- 
-
- //           bitmap.RectifyLevel(byte.Parse(color), int.Parse(size));
-
- //           tbl_Result.Text = string.Format("Level {0} cleared", color);
-
-        }
-
-        private async void BtnSaveImage_Tapped(object sender, TappedRoutedEventArgs e)
+         private async void BtnSaveImage_Tapped(object sender, TappedRoutedEventArgs e)
         {
              FileSavePicker picker = new FileSavePicker();
              picker.FileTypeChoices.Add("bmp File", new List<string>() { ".bmp" });
@@ -138,12 +100,10 @@ namespace Contour
             foreach (byte color in bitmap.GrayScaleColorMap)
             {
                 LayerDisplayParams ldp =  new LayerDisplayParams(color);
-                ldp.OutlineButtonTapped += OnOutlineButtonTapped;
                 ldp.ContourSwitchToggled += OnContourSwitchToggled;
                 ldp.ShapeSwitchToggled += OnShapeSwitchToggled;
                 stp_Layers.Children.Add(ldp);
             }
-            
         }
 
         private DisplayParams[] BuilDisplayParamsArray()
@@ -165,9 +125,15 @@ namespace Contour
             return parameters;
         }
 
-        private void OnOutlineButtonTapped(object obj, TappedRoutedEventArgs e)
+        private void BtnOutlineImage_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            ;
+            if (bitmap == null)
+                return;
+             bitmap.ConvertToGrayscale(LevelsNumber);
+            bitmap.ExtractLevels();
+            bitmap.OutlineImage();
+
+            tbl_Result.Text = "Image {ImageFileName} outlined.";
         }
 
         private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)

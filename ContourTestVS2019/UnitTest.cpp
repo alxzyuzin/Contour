@@ -538,15 +538,41 @@ namespace ContourTestVS2019
 			Assert::IsNull(internalContour, L"Internal contour is not null");
 		}
 
+		unsigned char DataSet_07[180] =
+		{
+			B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, E, E, E, B, B,
+			B, B, B, B, B, B, E, E, E, E, B, B,
+			E, E, B, B, B, B, E, E, E, E, B, B,
+			E, E, E, B, B, B, E, E, E, E, B, B,
+			E, E, E, E, B, B, E, E, E, B, B, B,
+			E, E, E, E, B, E, E, E, E, B, B, B,
+			E, E, E, B, B, E, E, E, B, B, B, B,
+			E, E, E, E, E, E, E, E, B, B, B, B,
+			E, E, E, E, E, E, E, E, E, B, B, B,
+			E, E, E, E, E, E, E, E, B, B, B, B,
+			E, E, E, E, E, E, E, E, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B
+		};
+
+		TEST_METHOD(Test_07_FindInternalContour)
+		{
+			unsigned char DataSetExpanded[720];
+			Level::ExpandLevelData(12, 15, B, DataSet_07, DataSetExpanded);
+			Level* level = new Level(12, 15, B, DataSetExpanded);
+			Contour* externalCountour = level->FindExternalContour();
+			Contour* internalContour = level->FindInternalContour(externalCountour);
+			Assert::IsNull(internalContour, L"Internal contour is not null");
+		}
+
 		TEST_METHOD(Test_00_FindNextInternalContourPoint)
 		{
 			unsigned char DataSetExpanded[100];
 			Level::ExpandLevelData(5, 5, B, DataSet_1, DataSetExpanded);
-			//Create level filled with test data
 			Level* level = new Level(5, 5, B, DataSetExpanded);
-			// Find external contour
 			Contour* contour = level->FindExternalContour();
-
 			Point firstPoint = Point(1, 1);
 			Point NextPoint = Point(2, 1);
 			Direction initialDirection = Direction::E;
@@ -572,11 +598,8 @@ namespace ContourTestVS2019
 		{
 			unsigned char DataSetExpanded[324];
 			Level::ExpandLevelData(9, 9, B, DataSet_3, DataSetExpanded);
-			//Create level filled with test data
 			Level* level = new Level(9, 9, B, DataSetExpanded);
-			// Find external contour
 			Contour* contour = level->FindExternalContour();
-
 			Point CurrentPoint = Point(1, 5);
 			Point ExpectedPoint = Point(1, 6);
 			Direction direction = Direction::SW;
@@ -594,13 +617,11 @@ namespace ContourTestVS2019
 			E, E, E, E, E,
 			E, E, E, E, E,
 			E, E, E, E, E
-
-
 		};
 		Point Contour_9_External[1] = { Point(1,1) };
 
 		// Find internal contour in external contour if external contour length is 1
-		TEST_METHOD(InternalContour_Test_9)
+		TEST_METHOD(Test_09_InternalContour)
 		{
 			unsigned char DataSetExpanded[100];
 			Level::ExpandLevelData(5, 5, B, DataSet_9, DataSetExpanded);
