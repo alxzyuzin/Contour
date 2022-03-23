@@ -30,7 +30,13 @@ namespace Contour
         {
             this.InitializeComponent();
         }
-
+        /// <summary>
+        /// Load JPG or BMP image to bitmap object
+        /// Convert color image to grayscale with defined levels of gray color
+        /// Extract each gray color to separate layer in bitmap object
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void BtnLoadImage_TappedAsync(object sender, TappedRoutedEventArgs e)
         {
             FileOpenPicker openPicker = new FileOpenPicker
@@ -47,14 +53,16 @@ namespace Contour
                 ImageFileName = file.DisplayName;
                 ImageProperties props = await file.Properties.GetImagePropertiesAsync();
 
-                bitmap = new ContourBitmap(this, (int)props.Width, (int)props.Height);
+                bitmap = new ContourBitmap((int)props.Width, (int)props.Height);
 
                 IRandomAccessStream stream = await  file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);
                 OutlineImage.Source = bitmap.ImageData;
-                string a = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
-                bitmap.ConvertToGrayscale(byte.Parse(a));
+                string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
+                bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
                 bitmap.ExtractLevels();
+                // Create window with toggle controls
+                // Separate toggle for each level (gray color)
                 BuildLayersWindow();
                 tbl_Result.Text = $"Image loaded {ImageFileName}"; 
             }
@@ -64,12 +72,23 @@ namespace Contour
             }
         }
 
+        private void BtnConvertToGrayScale_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
+            bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
+            bitmap.ExtractLevels();
+            BuildLayersWindow();
+        }
         private void BtnExtractLevels_Tapped(object sender, TappedRoutedEventArgs e)
         {
             BuildLayersWindow();
         }
 
-
+        /// <summary>
+        /// Save image with drowed contours to bmp file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
          private async void BtnSaveImage_Tapped(object sender, TappedRoutedEventArgs e)
         {
              FileSavePicker picker = new FileSavePicker();
@@ -89,14 +108,17 @@ namespace Contour
             await encoder.FlushAsync();
         }
 
+        /// <summary>
+        /// Create window with toggle controls to switch on(off) grayscale levels and contours associated with these levels
+        /// </summary>
         private void BuildLayersWindow()
         {
             Button b = new Button();
-
+            // Clear Layers window from controls created for previous convertion color image to grayscale
             int lcount = stp_Layers.Children.Count;
             for (int i = 0; i < lcount; i++)
                 stp_Layers.Children.RemoveAt(0);
-
+            // Create new control for each gray color in bitmap
             foreach (byte color in bitmap.GrayScaleColorMap)
             {
                 LayerDisplayParams ldp =  new LayerDisplayParams(color);
@@ -106,15 +128,19 @@ namespace Contour
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private DisplayParams[] BuilDisplayParamsArray()
         {
-             DisplayParams[] parameters = new DisplayParams[stp_Layers.Children.Count];
+            DisplayParams[] parameters = new DisplayParams[stp_Layers.Children.Count];
 
             for (int i = 0; i < stp_Layers.Children.Count; i++)
             {
                 DisplayParams displayParams = new DisplayParams();
-                
-                LayerDisplayParams userParams = (LayerDisplayParams)  stp_Layers.Children[i];
+
+                LayerDisplayParams userParams = (LayerDisplayParams)stp_Layers.Children[i];
 
                 displayParams.Color = userParams.Color;
                 displayParams.DisplayShapes = userParams.DisplayShapes;
@@ -129,11 +155,11 @@ namespace Contour
         {
             if (bitmap == null)
                 return;
-             bitmap.ConvertToGrayscale(LevelsNumber);
+            bitmap.ConvertToGrayscale(LevelsNumber);
             bitmap.ExtractLevels();
             bitmap.OutlineImage();
 
-            tbl_Result.Text = "Image {ImageFileName} outlined.";
+            tbl_Result.Text = $"Image {ImageFileName} outlined.";
         }
 
         private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)
@@ -149,7 +175,7 @@ namespace Contour
             bitmap.DisplayOutlinedImage(parameters);
             bitmap.ImageData.Invalidate();
         }
-        
+
         private void BtnRestoreOriginalImage_Tapped(object sender, TappedRoutedEventArgs e)
         {
             bitmap.RestoreOriginalImage();

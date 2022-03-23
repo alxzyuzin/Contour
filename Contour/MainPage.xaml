@@ -41,6 +41,7 @@
         <!-- Command buttons -->
         <StackPanel Grid.Row="1" Grid.Column="0" Margin="10" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button x:Name="btnLoadImage"  Content="Load Image" Tapped="BtnLoadImage_TappedAsync" />
+            <Button x:Name="btnConvertToGrayScale"  Content="Convert To GrayScale" Tapped="BtnConvertToGrayScale_Tapped" />
             <Button x:Name="btnRestoreOriginalImage"  Content="Restore original image" Tapped="BtnRestoreOriginalImage_Tapped"/>
             <Button x:Name="btnOutlineImage" Content="Outline image" Tapped="BtnOutlineImage_Tapped"/>
             <Button x:Name="btnSaveImage" Content="Save image" Tapped="BtnSaveImage_Tapped"/>

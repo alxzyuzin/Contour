@@ -3,11 +3,6 @@
 #include <ppltasks.h>
 #include "Level.h"
 
-//using namespace Windows::UI::Xaml::Media::Imaging;
-//using namespace Windows::Storage;
-//using namespace Windows::Storage::Streams;
-//using namespace Windows::Foundation;
-//using namespace Windows::UI::Xaml::Controls;
 using namespace Platform;
 
 namespace ContourExtractorWindowsRuntimeComponent
@@ -15,18 +10,21 @@ namespace ContourExtractorWindowsRuntimeComponent
 	public ref class DisplayParams sealed
 	{
 	public:
-		property byte Color
+		// Цвет к которому относится данный набор параметров
+	property byte Color
 		{
 			byte get();
 			void set(byte color);
 		}
 
+		// If TRUE display shapes from this level on the output image
 		property bool DisplayShapes
 		{
 			bool get();
 			void set(bool displayShapes);
 		}
 
+		// If TRUE display contours from this level on the output image
 		property bool DisplayContours
 		{
 			bool get();
@@ -41,6 +39,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	[Windows::Foundation::Metadata::WebHostHiddenAttribute]
 
+	// This class contain all information using in image convertion process
+	//		List of gray colors after converting original image to grayscale
+	//		List of grayscaled image Levels after extracting  
 	public ref class ContourBitmap sealed
 	{
 
@@ -52,6 +53,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 			void set(Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ imageDataValue);
 		}
 
+		// List of gray colors present in image after converting  
 		property Array<byte>^ GrayScaleColorMap
 		{
 			Array<byte>^ get();
@@ -60,7 +62,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	public:
 		ContourBitmap();
 		ContourBitmap(int width, int height);
-		ContourBitmap(Windows::UI::Xaml::Controls::Page^ page, int width, int height);
+		//ContourBitmap(int width, int height, unsigned char* pPixelBuffer);
 
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		void ConvertToGrayscale(unsigned char levels);
@@ -86,7 +88,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		int m_PixelBufferLength;	// Длина буфера изображения в байтах
 		unsigned char* m_pPixelBuffer;		// Указатель на буфер WriteableBitmap. Содержимое этого буфера является источником данных для объекта Image
 		unsigned char* m_pOriginalImageData; // Буфер хранит оригинальное изображение загруженное из файла
-		Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ m_ImageData = nullptr;
+		Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ m_Bitmap = nullptr;
 		Windows::UI::Xaml::Controls::Page^ m_pMainPage;
 		bool m_Initialized = false;
 		std::vector<Level*> m_Levels;

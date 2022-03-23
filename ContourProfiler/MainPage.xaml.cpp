@@ -68,7 +68,7 @@ void ContourProfiler::MainPage::ButtonOutlineFile_Tapped(Platform::Object^ sende
 	if (bitmap == nullptr)
 		return;
 	int i = 0;
-	bitmap->ConvertToGrayscale(4);
+	bitmap->ConvertToGrayscale(8);
 	bitmap->ExtractLevels();
 	bitmap->OutlineImage();
 	

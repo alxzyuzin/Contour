@@ -13,8 +13,8 @@ using namespace ContourExtractorWindowsRuntimeComponent;
 //=============================================================================
 // Свойства
 //=============================================================================
-WriteableBitmap^	ContourBitmap::ImageData::get() { return m_ImageData; }
-void				ContourBitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m_ImageData = imageDataValue; }
+WriteableBitmap^	ContourBitmap::ImageData::get() { return m_Bitmap; }
+void				ContourBitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m_Bitmap = imageDataValue; }
 
 // Массив оттенков серого содержащихся в изображении
 Array<unsigned char>^ ContourBitmap::GrayScaleColorMap::get()
@@ -23,7 +23,6 @@ Array<unsigned char>^ ContourBitmap::GrayScaleColorMap::get()
 	for (int i = 0; i < (int)m_Levels.size(); i++)
 		grayScaleColorMap->set(i, m_Levels[i]->m_Color);
 	return grayScaleColorMap;
-	return nullptr;
 }
 
 
@@ -38,44 +37,47 @@ ContourBitmap::ContourBitmap()
 	m_PixelBufferLength = 0;
 }
 
-ContourBitmap::ContourBitmap(int width, int height)
-{
-	m_Width = width;   // 
-	m_Height = height;
-	m_PixelBufferLength = 4 * width * height;
-	m_ImageData = ref new WriteableBitmap(width, height);
-	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Copy of original image data
-}
-
 /*
   Input parameters
-  page   - pointer to main application page
-  width  - image width
-  height - image height
+	width  - image width
+	height - image height
 */
-ContourBitmap::ContourBitmap(Page^ page, int width, int height)
+ContourBitmap::ContourBitmap(int width, int height)
 {
-	m_Width = width;   // 
+	m_Width = width;   
 	m_Height = height;
 	m_PixelBufferLength = 4 * width * height;
-	m_ImageData = ref new WriteableBitmap(width, height);
-	m_pMainPage = page;
+	m_Bitmap = ref new WriteableBitmap(width, height);
 	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Copy of original image data
 }
 
+//ContourBitmap::ContourBitmap(int width, int height,unsigned char* pPixelBuffer)
+//{
+//	m_Width = width;
+//	m_Height = height;
+//	m_PixelBufferLength = 4 * width * height;
+//	m_pPixelBuffer = pPixelBuffer;
+//	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Copy of original image data
+//	memcpy(m_pOriginalImageData, m_pPixelBuffer, m_PixelBufferLength);
+//}
+
+// Функция получает указатель нв внутренний буфер WritableBitmap
+// В дальнейшем все манипуляции с изображением выполняются непосредственно
+// во внутреннем буфере WritableBitmap
 void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 {
-	m_ImageData->SetSource(stream);
-	IBuffer^ m_pBuffer = m_ImageData->PixelBuffer;
+	m_Bitmap->SetSource(stream);  // m_Bitmap - WritableBitmap^
 
 	using namespace Microsoft::WRL;
 
-	// Obtain IBufferByteAccess
+	// Obtain access to image data
 	ComPtr<IBufferByteAccess> pBufferByteAccess;
-	ComPtr<IUnknown> pBuffer((IUnknown*)m_pBuffer);
+	IBuffer^ pIBuffer = m_Bitmap->PixelBuffer;
+	ComPtr<IUnknown> pBuffer((IUnknown*)pIBuffer);
 	pBuffer.As(&pBufferByteAccess);
 	// Get pointer to pixel bytes
-	pBufferByteAccess->Buffer(&m_pPixelBuffer);
+	pBufferByteAccess->Buffer(&m_pPixelBuffer); // Теперь m_pPixelBuffer содержит адрес даных изображения во внутреннем буфере WritableBitmap
+	// До начала всех менипуляций сделаем копию данных изображения в m_pOriginalImageData
 	memcpy(m_pOriginalImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
 
@@ -98,6 +100,8 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 			int pos = j * (m_Width * 4) + (i);
 			unsigned char pixelColor = (((m_pPixelBuffer[pos] + m_pPixelBuffer[pos + 1] + m_pPixelBuffer[pos + 2]) / 3) / range)*range;
 			// Зарезервируем цвет 0xFF для пикселей фона
+			// All pixels with color 0xFF in source image convert into color 0xFE
+			// Далее при построении контуров в слоях цвет 0xFF будет означать отсутствие в этом месте пикселя
 			pixelColor = pixelColor == 0xFF ? 0xFE : pixelColor;
 			m_pPixelBuffer[pos] = pixelColor;
 			m_pPixelBuffer[pos + 1] = pixelColor;
@@ -124,9 +128,9 @@ void ContourBitmap::ExtractLevels()
 		for (int i = 0; i < (m_Width * 4); i += 4)
 		{
 			int pos = j * (m_Width * 4) + i;
-
-			byte pixelColor = m_pPixelBuffer[pos];
-
+			// Сравниваем толко один байт поскольку при преобразовании в оттенки серого
+			// все байты одного пикселя принимают одно значение
+			byte pixelColor = m_pPixelBuffer[pos]; 
 			bool newColor = true;
 			for (byte b : colormap)
 			{
@@ -147,11 +151,15 @@ void ContourBitmap::ExtractLevels()
 	//// Затем разнести пиксели по буферам за один просмотр
 
 	//// Вынесем каждый оттенок в отдельный буфер
+	// Переменная m_Levels Содержит список уровней (экземпляров класса Level). Каждый уровень представляет
+	// собой срез изображения по одному из оттенков серого
+	// Данные хранятся в массиве байтов. Каждому пкселю исходного изображения  в Level соответствует один байт. 
+	// Конструктор класса Level извлекает пиксели с цветом заданным параметром levelColor из буфера m_pPixelBuffer
+	// и создаёт срез исходного изображения по цвету levelColor
 	for (unsigned char levelColor : colormap)
-		m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer));
+		m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer)); // std::vector<Level*>
 	return;
 }
-
 
 void ContourBitmap::RestoreOriginalImage()
 {
@@ -173,9 +181,9 @@ void ContourBitmap::Clear()
 		level->Clear();
 		delete level;
 	}
-	delete m_pPixelBuffer;
+	//delete m_pPixelBuffer;
 	delete[] m_pOriginalImageData;
-	delete m_ImageData;
+	delete m_Bitmap;
 	m_Width = 0;				// Ширина изображения в рикселях
 	m_Height = 0;				// Высота изображения в рикселях
 	m_PixelBufferLength = 0;	// Длина буфера изображения в байтах
@@ -258,6 +266,8 @@ void ContourBitmap::DisplayLevelContours(unsigned char color)
 		}
 }
 
+
+// Возвращает указатель на уровень заданного цвета
 Level* ContourBitmap::SelectLevel(unsigned char color)
 {
 	for (Level* level : m_Levels)
@@ -291,6 +301,8 @@ void ContourBitmap::SortColorMap(std::vector<unsigned char>* colormap)
 	*/
 }
 
+// Закрашивает буфер изображения белым цветом
+// Необходимо переписать (Один цикл от i=0 до BufferLength)
 void ContourBitmap::ClearPixelBuffer()
 {
 	for (int j = 0; j < m_Height; j++)
