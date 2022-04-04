@@ -5,8 +5,9 @@
     xmlns:local="using:Contour"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Windows.UI.Xaml.Controls" 
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
-    Background="#070707FF"
     DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
     <Page.Resources>
@@ -22,89 +23,105 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            
+
+        </Style>
+
+        <Style x:Key="MenuFlyoutAcrilickThemeResources" TargetType="MenuFlyoutPresenter">
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Padding" Value="0,3" />
+        </Style>
+
+        <Style x:Key="StatusTextBlocksStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Margin" Value="5,0,5,0" />
         </Style>
     </Page.Resources>
-    <Grid Background="#FF3F3F3F">
+
+    <Grid Background="#FFA0A0A0">
         <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <!-- Menu row -->
             <RowDefinition Height="*"/>
-            <RowDefinition Height="60px"/>
-            <RowDefinition Height="30px"/>
+            <!-- Image area row -->
+            <RowDefinition Height="100"/>
+            <!-- View options and status row -->
+            
         </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" >
+            <muxc:MenuBar x:Name="menuMain" Height="50"  Margin="0,-6,0,10" 
+                     Background="Transparent"  >
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="260"/>
-        </Grid.ColumnDefinitions>
+                <muxc:MenuBarItem Title="File" FocusVisualMargin="2" CornerRadius="0" >
 
-        <Image  x:Name="OutlineImage" Grid.Row="0" Grid.Column="0"  Margin="25"/>
-        <!-- Command buttons -->
-        <StackPanel Grid.Row="1" Grid.Column="0" Margin="10" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="btnLoadImage"  Content="Load Image" Tapped="BtnLoadImage_TappedAsync" />
-            <Button x:Name="btnConvertToGrayScale"  Content="Convert To GrayScale" Tapped="BtnConvertToGrayScale_Tapped" />
-            <Button x:Name="btnRestoreOriginalImage"  Content="Restore original image" Tapped="BtnRestoreOriginalImage_Tapped"/>
-            <Button x:Name="btnOutlineImage" Content="Outline image" Tapped="BtnOutlineImage_Tapped"/>
-            <Button x:Name="btnSaveImage" Content="Save image" Tapped="BtnSaveImage_Tapped"/>
+                    <MenuFlyoutItem x:Name="mfiOpen"        Text="Open"         Click="mfiOpen_Clicked" />
+                    <MenuFlyoutItem x:Name="mfiSave"        Text="Save"         Click="mfiSave_Clicked" CornerRadius="0"/>
+                    <MenuFlyoutItem x:Name="mfiSaveAs"      Text="Save as..."   Click="mfiSaveAs_Clicked" CornerRadius="0"/>
+                    <MenuFlyoutItem x:Name="mfiPrint"       Text="Print"        Click="mfiPrint_Clicked" CornerRadius="0" />
+                    <MenuFlyoutItem x:Name="mfiOptions"     Text="Options"      Click="mfiOptions_Clicked" CornerRadius="0" />
+                    <MenuFlyoutItem x:Name="mfiExit"        Text="Exit"         Click="mfiExit_Clicked" CornerRadius="0"/>
+                </muxc:MenuBarItem>
+
+                <muxc:MenuBarItem Title="Operation">
+                    <MenuFlyoutItem x:Name="mfiConvert" Text="Convert" Click="mfiConvert_Clicked"/>
+                    <MenuFlyoutItem x:Name="mfiClean" Text="Clean" Click="mfiClean_Clicked"/>
+                    <MenuFlyoutItem x:Name="mfiOutline" Text="Outline" Click="mfiOutline_Clicked"/>
+                </muxc:MenuBarItem>
+
+                <muxc:MenuBarItem Title="Help">
+                    <MenuFlyoutItem x:Name="mfiAbout" Text="About" Click="mfiAbout_Clicked"/>
+                </muxc:MenuBarItem>
+            </muxc:MenuBar>
         </StackPanel>
-        <TextBlock x:Name="tbl_Result" Grid.Row="2" Foreground="Orange" FontSize="20"/>
-        
-        <StackPanel Grid.Row="0" Grid.Column="1" Margin="10" Grid.RowSpan="3">
-            <!-- Outline parameters -->
-            <Border BorderBrush="DarkGray" BorderThickness="1">
-                <Grid Margin="10,10,10,10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="20"/>
-                        <RowDefinition Height="40"/>
-                    </Grid.RowDefinitions>
+
+        <Image  x:Name="OutlineImage" Grid.Row="1"  Margin="25,26,25,25"/>
+        <!-- View options and controls -->
+        <StackPanel x:Name="DisplayOptions" Grid.Row="2" Orientation="Vertical"  
+                    Margin="20,0,50,0"  >
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DataContext="{Binding ApplicationStatus}" >
+                <ToggleSwitch Header="Display image" Width="90" 
+                          IsEnabled="{Binding ImageLoaded}" 
+                          IsOn="{Binding DisplayImage, Mode=TwoWay}" />
+                <ToggleSwitch Header="Original/Converted" OnContent="Converted" OffContent="Original" Width="90"
+                          IsEnabled="{Binding ImageConverted}"
+                          IsOn="{Binding DisplayConverted, Mode=TwoWay}"/>
+                <ToggleSwitch Header="Display contours" Width="90"
+                          IsEnabled="{Binding ImageOutlined}"
+                          IsOn="{Binding DisplayContour, Mode=TwoWay}" />
+            </StackPanel>
+            <!--StackPanel Orientation="Horizontal"-->
+                <Grid HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="400px"/>
                         <ColumnDefinition Width="*"/>
+                        <!--
+                        <ColumnDefinition Width="300px"/>
+                        -->
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Options" Grid.Row="0" Grid.Column="0" Style="{StaticResource DisplayLayersStyle}" />
-                    <TextBlock Text="Number of levels" Grid.Row="1" Grid.Column="0"  VerticalAlignment="Center" />
-                    <ComboBox x:Name="cbx_levels" Grid.Row="1" Grid.Column="1" AllowDrop="True" Height="40"
-                              SelectedIndex="{Binding LevelsNumber, Mode=TwoWay}">
-                        <ComboBox.Items >
-                            <ComboBoxItem Content="2"/>
-                            <ComboBoxItem Content="4"/>
-                            <ComboBoxItem Content="6"/>
-                            <ComboBoxItem Content="8"/>
-                            <ComboBoxItem Content="12"/>
-                            <ComboBoxItem Content="14"/>
-                            <ComboBoxItem Content="16"/>
-                        </ComboBox.Items>
-
-                    </ComboBox>
-                </Grid>
-            </Border>
-            <TextBlock/>
-
-            <Border BorderBrush="DarkGray" BorderThickness="1">
-                <StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="Display layers" Style="{StaticResource DisplayLayersStyle}" />
-                        <Grid Margin="10,0,10,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="70"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Text="Layer"    Grid.Row="0" Grid.Column="0"  Style="{StaticResource DisplayLayersStyle}" />
-                            <TextBlock Text="Shapes"   Grid.Row="0" Grid.Column="1"  Style="{StaticResource DisplayLayersStyle}" />
-                            <TextBlock Text="Contours" Grid.Row="0" Grid.Column="2"  Style="{StaticResource DisplayLayersStyle}" />
-                            
-                        </Grid>
-                    </StackPanel>
-                    <StackPanel  x:Name="stp_Layers">
-
-                    </StackPanel>
-                    <!--local:LayerDisplayParams></-->
+                    <!-- Status line -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock   Grid.Column="0" Text="File name" Style="{StaticResource StatusTextBlocksStyle}"/>
+                    <TextBlock   Grid.Column="1" Text="{Binding ImageFileName}" Style="{StaticResource StatusTextBlocksStyle}"/>
                 </StackPanel>
-            </Border>
-
-        </StackPanel>
+                
+                    <ProgressBar Grid.Column="1" Margin="30,0,30,0"/>
+                    <!--
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock   Grid.Column="3" Text="Mode" Style="{StaticResource StatusTextBlocksStyle}"/>
+                    <TextBlock   Grid.Column="4" TextAlignment="Left" Text="Reduced colors" Style="{StaticResource StatusTextBlocksStyle}"/>
+                    <TextBlock   Grid.Column="5" Text="Colors" Style="{StaticResource StatusTextBlocksStyle}"/>
+                    <TextBlock   Grid.Column="6" Text="16" Style="{StaticResource StatusTextBlocksStyle}"/>
+                </StackPanel>
+                    -->
+            </Grid>
+            </StackPanel>
+        <!--/StackPanel -->
         
+
+        <local:MessageBox x:Name="MsgBox" Grid.Row="0" Grid.Column="0" 
+                         Grid.RowSpan="4" Visibility="Collapsed" />
+
+        <local:OptionsWindow x:Name="OptionsWindow" Grid.Row="0" Grid.Column="0" 
+                         Grid.RowSpan="4" Visibility="Collapsed" InnerBoxHeight="320" InnerBoxWidth="500" />
     </Grid>
 
 </Page>

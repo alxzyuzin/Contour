@@ -44,6 +44,5 @@
   </Applications>
 
   <Capabilities>
-    <Capability Name="internetClient" />
-  </Capabilities>
+    <uap:Capability Name="picturesLibrary"/></Capabilities>
 </Package>

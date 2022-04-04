@@ -12,6 +12,10 @@ using System.Collections.Generic;
 using Windows.Graphics.Imaging;
 using System.IO;
 using Windows.UI.Xaml;
+using MUXC = Microsoft.UI.Xaml.Controls;
+using System.Threading.Tasks;
+using System.ComponentModel;
+
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -20,15 +24,45 @@ namespace Contour
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
+        private GeneralOptions Options = new GeneralOptions();
+        AppStatus ApplicationStatus = new AppStatus();
+
         private ContourBitmap bitmap = null;
-        public byte LevelsNumber { get; set; } = 2;
-        public string ImageFileName { get; set; } = string.Empty;
+        //public byte LevelsNumber { get; set; } = 2;
+
+        private string _imageFileName = string.Empty;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string ImageFileName
+        {
+            get => _imageFileName;
+            set
+            {
+                if (_imageFileName != value)
+                {
+                    _imageFileName = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ImageFileName)));
+                }
+               
+            }
+        }
 
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+            OptionsWindow.DataContext = Options;
+            DisplayOptions.DataContext = ApplicationStatus;
+           
+            ApplicationStatus.ImageLoaded = true;
+            ApplicationStatus.ImageConverted = true;
+            ApplicationStatus.ImageOutlined = true;
+
+            ApplicationStatus.DisplayImage = true;
+            ApplicationStatus.DisplayConverted = true;
+            ApplicationStatus.DisplayContour = true;
         }
         /// <summary>
         /// Load JPG or BMP image to bitmap object
@@ -58,26 +92,26 @@ namespace Contour
                 IRandomAccessStream stream = await  file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);
                 OutlineImage.Source = bitmap.ImageData;
-                string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
-                bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
-                bitmap.ExtractLevels();
+//                string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
+//                bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
+//                bitmap.ExtractLevels();
                 // Create window with toggle controls
                 // Separate toggle for each level (gray color)
-                BuildLayersWindow();
-                tbl_Result.Text = $"Image loaded {ImageFileName}"; 
+//                BuildLayersWindow();
+                //tbl_Result.Text = $"Image loaded {ImageFileName}"; 
             }
             else
             {
-                tbl_Result.Text = "Operation canceled";
+                //tbl_Result.Text = "Operation canceled";
             }
         }
 
         private void BtnConvertToGrayScale_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
-            bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
-            bitmap.ExtractLevels();
-            BuildLayersWindow();
+//            string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
+//            bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
+//            bitmap.ExtractLevels();
+//            BuildLayersWindow();
         }
         private void BtnExtractLevels_Tapped(object sender, TappedRoutedEventArgs e)
         {
@@ -113,19 +147,19 @@ namespace Contour
         /// </summary>
         private void BuildLayersWindow()
         {
-            Button b = new Button();
-            // Clear Layers window from controls created for previous convertion color image to grayscale
-            int lcount = stp_Layers.Children.Count;
-            for (int i = 0; i < lcount; i++)
-                stp_Layers.Children.RemoveAt(0);
-            // Create new control for each gray color in bitmap
-            foreach (byte color in bitmap.GrayScaleColorMap)
-            {
-                LayerDisplayParams ldp =  new LayerDisplayParams(color);
-                ldp.ContourSwitchToggled += OnContourSwitchToggled;
-                ldp.ShapeSwitchToggled += OnShapeSwitchToggled;
-                stp_Layers.Children.Add(ldp);
-            }
+            //Button b = new Button();
+            //// Clear Layers window from controls created for previous convertion color image to grayscale
+            //int lcount = stp_Layers.Children.Count;
+            //for (int i = 0; i < lcount; i++)
+            //    stp_Layers.Children.RemoveAt(0);
+            //// Create new control for each gray color in bitmap
+            //foreach (byte color in bitmap.GrayScaleColorMap)
+            //{
+            //    LayerDisplayParams ldp =  new LayerDisplayParams(color);
+            //    ldp.ContourSwitchToggled += OnContourSwitchToggled;
+            //    ldp.ShapeSwitchToggled += OnShapeSwitchToggled;
+            //    stp_Layers.Children.Add(ldp);
+            //}
         }
 
         /// <summary>
@@ -134,20 +168,21 @@ namespace Contour
         /// <returns></returns>
         private DisplayParams[] BuilDisplayParamsArray()
         {
-            DisplayParams[] parameters = new DisplayParams[stp_Layers.Children.Count];
+            DisplayParams[] parameters = new DisplayParams[0];
+            //DisplayParams[] parameters = new DisplayParams[stp_Layers.Children.Count];
 
-            for (int i = 0; i < stp_Layers.Children.Count; i++)
-            {
-                DisplayParams displayParams = new DisplayParams();
+            //for (int i = 0; i < stp_Layers.Children.Count; i++)
+            //{
+            //    DisplayParams displayParams = new DisplayParams();
 
-                LayerDisplayParams userParams = (LayerDisplayParams)stp_Layers.Children[i];
+            //    LayerDisplayParams userParams = (LayerDisplayParams)stp_Layers.Children[i];
 
-                displayParams.Color = userParams.Color;
-                displayParams.DisplayShapes = userParams.DisplayShapes;
-                displayParams.DisplayContours = userParams.DisplayContours;
+            //    displayParams.Color = userParams.Color;
+            //    displayParams.DisplayShapes = userParams.DisplayShapes;
+            //    displayParams.DisplayContours = userParams.DisplayContours;
 
-                parameters.SetValue(displayParams, i);
-            }
+            //    parameters.SetValue(displayParams, i);
+            //}
             return parameters;
         }
 
@@ -159,7 +194,7 @@ namespace Contour
             bitmap.ExtractLevels();
             bitmap.OutlineImage();
 
-            tbl_Result.Text = $"Image {ImageFileName} outlined.";
+            //tbl_Result.Text = $"Image {ImageFileName} outlined.";
         }
 
         private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)
@@ -181,7 +216,108 @@ namespace Contour
             bitmap.RestoreOriginalImage();
             bitmap.ImageData.Invalidate();
         }
-    }
 
-    
+        private async Task<MsgBoxButton> DisplayMessage(UserMessage message)
+        {
+            MsgBox.SetButtons(message.Buttons);
+            MsgBox.Message = message.Text;
+            MsgBox.InnerBoxHeight = message.BoxHeight;
+            MsgBox.InnerBoxWidth = message.BoxWidth;
+            return await MsgBox.Show();
+        }
+
+        private async void FunctionNotImplementerMessage()
+        {
+            UserMessage msg = new UserMessage(MsgBoxType.Info, "Function not imlemented");
+            MsgBoxButton mbb = await DisplayMessage(msg);
+        }
+
+        private void mfiOpen_Clicked(object sender, RoutedEventArgs e)
+        {
+            FunctionNotImplementerMessage();
+        }
+
+        private void mfiSave_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiSaveAs_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiPrint_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiExit_Clicked(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Exit();
+        }
+
+        private async  void mfiOptions_Clicked(object sender, RoutedEventArgs e)
+        {
+
+            Options.Restore();
+            await OptionsWindow.Show();
+   
+            
+            int i = 0;
+        }
+
+        private void mfiConvert_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiClean_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void mfiRectify_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiOutline_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiViewOriginal_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiViewConverted_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiViewCleaned_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiViewContours_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mfiAbout_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StackPanel_ActualThemeChanged(FrameworkElement sender, object args)
+        {
+
+        }
+    } // End of MainPage class definition
+
+
+
+
 }
