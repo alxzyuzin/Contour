@@ -25,86 +25,85 @@
             <Setter Property="FontWeight" Value="Bold"/>
 
         </Style>
-
+<!--
         <Style x:Key="MenuFlyoutAcrilickThemeResources" TargetType="MenuFlyoutPresenter">
             <Setter Property="CornerRadius" Value="0" />
             <Setter Property="Padding" Value="0,3" />
         </Style>
-
+-->
         <Style x:Key="StatusTextBlocksStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="15" />
             <Setter Property="Margin" Value="5,0,5,0" />
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </Page.Resources>
 
     <Grid Background="#FFA0A0A0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
             <!-- Menu row -->
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="40px"/>
             <!-- Image area row -->
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="*"/>
             <!-- View options and status row -->
+            <RowDefinition Height="60px"/>
+            <RowDefinition Height="50px"/>
             
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" >
-            <muxc:MenuBar x:Name="menuMain" Height="50"  Margin="0,-6,0,10" 
+        
+        <muxc:MenuBar x:Name="menuMain" Grid.Row="0" Height="50"  Margin="0,-6,0,10" 
                      Background="Transparent"  >
+            <muxc:MenuBarItem Title="File" FocusVisualMargin="2" CornerRadius="0" >
 
-                <muxc:MenuBarItem Title="File" FocusVisualMargin="2" CornerRadius="0" >
+                <MenuFlyoutItem x:Name="mfiOpen"        Text="Open"         Click="mfiOpen_Clicked" />
+                <MenuFlyoutItem x:Name="mfiSave"        Text="Save"         Click="mfiSave_Clicked" CornerRadius="0"/>
+                <MenuFlyoutItem x:Name="mfiSaveAs"      Text="Save as..."   Click="mfiSaveAs_Clicked" CornerRadius="0"/>
+                <MenuFlyoutItem x:Name="mfiPrint"       Text="Print"        Click="mfiPrint_Clicked" CornerRadius="0" />
+                <MenuFlyoutItem x:Name="mfiOptions"     Text="Options"      Click="mfiOptions_Clicked" CornerRadius="0" />
+                <MenuFlyoutItem x:Name="mfiExit"        Text="Exit"         Click="mfiExit_Clicked" CornerRadius="0"/>
+            </muxc:MenuBarItem>
 
-                    <MenuFlyoutItem x:Name="mfiOpen"        Text="Open"         Click="mfiOpen_Clicked" />
-                    <MenuFlyoutItem x:Name="mfiSave"        Text="Save"         Click="mfiSave_Clicked" CornerRadius="0"/>
-                    <MenuFlyoutItem x:Name="mfiSaveAs"      Text="Save as..."   Click="mfiSaveAs_Clicked" CornerRadius="0"/>
-                    <MenuFlyoutItem x:Name="mfiPrint"       Text="Print"        Click="mfiPrint_Clicked" CornerRadius="0" />
-                    <MenuFlyoutItem x:Name="mfiOptions"     Text="Options"      Click="mfiOptions_Clicked" CornerRadius="0" />
-                    <MenuFlyoutItem x:Name="mfiExit"        Text="Exit"         Click="mfiExit_Clicked" CornerRadius="0"/>
-                </muxc:MenuBarItem>
+            <muxc:MenuBarItem Title="Operation">
+                <MenuFlyoutItem x:Name="mfiConvert" Text="Convert" Click="mfiConvert_Clicked"/>
+                <MenuFlyoutItem x:Name="mfiClean" Text="Clean" Click="mfiClean_Clicked"/>
+                <MenuFlyoutItem x:Name="mfiOutline" Text="Outline" Click="mfiOutline_Clicked"/>
+            </muxc:MenuBarItem>
 
-                <muxc:MenuBarItem Title="Operation">
-                    <MenuFlyoutItem x:Name="mfiConvert" Text="Convert" Click="mfiConvert_Clicked"/>
-                    <MenuFlyoutItem x:Name="mfiClean" Text="Clean" Click="mfiClean_Clicked"/>
-                    <MenuFlyoutItem x:Name="mfiOutline" Text="Outline" Click="mfiOutline_Clicked"/>
-                </muxc:MenuBarItem>
+            <muxc:MenuBarItem Title="Help">
+                 <MenuFlyoutItem x:Name="mfiAbout" Text="About" Click="mfiAbout_Clicked"/>
+            </muxc:MenuBarItem>
+        </muxc:MenuBar>
 
-                <muxc:MenuBarItem Title="Help">
-                    <MenuFlyoutItem x:Name="mfiAbout" Text="About" Click="mfiAbout_Clicked"/>
-                </muxc:MenuBarItem>
-            </muxc:MenuBar>
-        </StackPanel>
-
-        <Image  x:Name="OutlineImage" Grid.Row="1"  Margin="25,26,25,25"/>
+        <Image  x:Name="ExposedImage" Grid.Row="1"  Margin="25,26,25,25"/>
+        
         <!-- View options and controls -->
-        <StackPanel x:Name="DisplayOptions" Grid.Row="2" Orientation="Vertical"  
-                    Margin="20,0,50,0"  >
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DataContext="{Binding ApplicationStatus}" >
-                <ToggleSwitch Header="Display image" Width="90" 
+        <StackPanel x:Name="DisplayOptions" Grid.Row="2" HorizontalAlignment="Right" 
+                    Orientation="Horizontal" Margin="20,0,20,0" DataContext="{Binding ApplicationStatus}">
+            <ToggleSwitch Header="Display image" Width="90" 
                           IsEnabled="{Binding ImageLoaded}" 
                           IsOn="{Binding DisplayImage, Mode=TwoWay}" />
-                <ToggleSwitch Header="Original/Converted" OnContent="Converted" OffContent="Original" Width="90"
+            <ToggleSwitch Header="Original/Converted" OnContent="Converted" OffContent="Original" Width="90"
                           IsEnabled="{Binding ImageConverted}"
                           IsOn="{Binding DisplayConverted, Mode=TwoWay}"/>
-                <ToggleSwitch Header="Display contours" Width="90"
+            <ToggleSwitch Header="Display contours" Width="90"
                           IsEnabled="{Binding ImageOutlined}"
                           IsOn="{Binding DisplayContour, Mode=TwoWay}" />
+        </StackPanel>
+
+        <!-- Status line -->
+        <Grid Grid.Row="3" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="500px"/>
+                <ColumnDefinition Width="*"/>
+             </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                <TextBlock Grid.Column="0" Text="File name:" Style="{StaticResource StatusTextBlocksStyle}"/>
+                <TextBlock x:Name="LoadedFileName"  Grid.Column="1" Text="{Binding ImageFileName}"        
+                           Style="{StaticResource StatusTextBlocksStyle}"/>
             </StackPanel>
-            <!--StackPanel Orientation="Horizontal"-->
-                <Grid HorizontalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="400px"/>
-                        <ColumnDefinition Width="*"/>
-                        <!--
-                        <ColumnDefinition Width="300px"/>
-                        -->
-                    </Grid.ColumnDefinitions>
-                    <!-- Status line -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBlock   Grid.Column="0" Text="File name" Style="{StaticResource StatusTextBlocksStyle}"/>
-                    <TextBlock   Grid.Column="1" Text="{Binding ImageFileName}" Style="{StaticResource StatusTextBlocksStyle}"/>
-                </StackPanel>
-                
-                    <ProgressBar Grid.Column="1" Margin="30,0,30,0"/>
-                    <!--
+
+            <ProgressBar Grid.Column="1" Margin="30,0,30,0"/>
+            <!--
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBlock   Grid.Column="3" Text="Mode" Style="{StaticResource StatusTextBlocksStyle}"/>
                     <TextBlock   Grid.Column="4" TextAlignment="Left" Text="Reduced colors" Style="{StaticResource StatusTextBlocksStyle}"/>
@@ -112,10 +111,7 @@
                     <TextBlock   Grid.Column="6" Text="16" Style="{StaticResource StatusTextBlocksStyle}"/>
                 </StackPanel>
                     -->
-            </Grid>
-            </StackPanel>
-        <!--/StackPanel -->
-        
+        </Grid>
 
         <local:MessageBox x:Name="MsgBox" Grid.Row="0" Grid.Column="0" 
                          Grid.RowSpan="4" Visibility="Collapsed" />

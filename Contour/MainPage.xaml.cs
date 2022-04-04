@@ -55,14 +55,15 @@ namespace Contour
             InitializeComponent();
             OptionsWindow.DataContext = Options;
             DisplayOptions.DataContext = ApplicationStatus;
-           
-            ApplicationStatus.ImageLoaded = true;
-            ApplicationStatus.ImageConverted = true;
-            ApplicationStatus.ImageOutlined = true;
+            //LoadedFileName.DataContext = this;
 
-            ApplicationStatus.DisplayImage = true;
-            ApplicationStatus.DisplayConverted = true;
-            ApplicationStatus.DisplayContour = true;
+            //ApplicationStatus.ImageLoaded = true;
+            //ApplicationStatus.ImageConverted = true;
+            //ApplicationStatus.ImageOutlined = true;
+
+            //ApplicationStatus.DisplayImage = true;
+            //ApplicationStatus.DisplayConverted = true;
+            //ApplicationStatus.DisplayContour = true;
         }
         /// <summary>
         /// Load JPG or BMP image to bitmap object
@@ -91,7 +92,7 @@ namespace Contour
 
                 IRandomAccessStream stream = await  file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);
-                OutlineImage.Source = bitmap.ImageData;
+                ExposedImage.Source = bitmap.ImageData;
 //                string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
 //                bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
 //                bitmap.ExtractLevels();
@@ -190,7 +191,7 @@ namespace Contour
         {
             if (bitmap == null)
                 return;
-            bitmap.ConvertToGrayscale(LevelsNumber);
+            bitmap.ConvertToGrayscale(2);
             bitmap.ExtractLevels();
             bitmap.OutlineImage();
 
@@ -232,9 +233,32 @@ namespace Contour
             MsgBoxButton mbb = await DisplayMessage(msg);
         }
 
-        private void mfiOpen_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiOpen_Clicked(object sender, RoutedEventArgs e)
         {
-            FunctionNotImplementerMessage();
+            FileOpenPicker openPicker = new FileOpenPicker
+            {
+                SuggestedStartLocation = PickerLocationId.PicturesLibrary,
+            };
+            openPicker.FileTypeFilter.Add(".jpg");
+            openPicker.FileTypeFilter.Add(".bmp");
+
+            StorageFile file = await openPicker.PickSingleFileAsync();
+
+            if (file != null)
+            {
+                ImageFileName = file.DisplayName + file.FileType;
+                ImageProperties props = await file.Properties.GetImagePropertiesAsync();
+
+                bitmap = new ContourBitmap((int)props.Width, (int)props.Height);
+
+                IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read);
+                bitmap.SetSource(stream);
+                ExposedImage.Source = bitmap.ImageData;
+            }
+            else
+            {
+                //ImageFileName = "No loaded files.";
+            }
         }
 
         private void mfiSave_Clicked(object sender, RoutedEventArgs e)
