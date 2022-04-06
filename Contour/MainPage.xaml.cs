@@ -32,6 +32,10 @@ namespace Contour
         private ContourBitmap bitmap = null;
         //public byte LevelsNumber { get; set; } = 2;
 
+
+        private string _imageFileDisplayName;
+        private string _imageFileNameExtention;
+        private string _imageFilePath;
         private string _imageFileName = string.Empty;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -55,57 +59,14 @@ namespace Contour
             InitializeComponent();
             OptionsWindow.DataContext = Options;
             DisplayOptions.DataContext = ApplicationStatus;
-            //LoadedFileName.DataContext = this;
 
-            //ApplicationStatus.ImageLoaded = true;
-            //ApplicationStatus.ImageConverted = true;
-            //ApplicationStatus.ImageOutlined = true;
-
-            //ApplicationStatus.DisplayImage = true;
-            //ApplicationStatus.DisplayConverted = true;
-            //ApplicationStatus.DisplayContour = true;
         }
         /// <summary>
         /// Load JPG or BMP image to bitmap object
         /// Convert color image to grayscale with defined levels of gray color
         /// Extract each gray color to separate layer in bitmap object
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void BtnLoadImage_TappedAsync(object sender, TappedRoutedEventArgs e)
-        {
-            FileOpenPicker openPicker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.PicturesLibrary,
-            };
-            openPicker.FileTypeFilter.Add(".jpg");
-            openPicker.FileTypeFilter.Add(".bmp");
-
-            StorageFile file = await openPicker.PickSingleFileAsync();
-
-            if (file != null)
-            {
-                ImageFileName = file.DisplayName;
-                ImageProperties props = await file.Properties.GetImagePropertiesAsync();
-
-                bitmap = new ContourBitmap((int)props.Width, (int)props.Height);
-
-                IRandomAccessStream stream = await  file.OpenAsync(FileAccessMode.Read);
-                bitmap.SetSource(stream);
-                ExposedImage.Source = bitmap.ImageData;
-//                string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
-//                bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
-//                bitmap.ExtractLevels();
-                // Create window with toggle controls
-                // Separate toggle for each level (gray color)
-//                BuildLayersWindow();
-                //tbl_Result.Text = $"Image loaded {ImageFileName}"; 
-            }
-            else
-            {
-                //tbl_Result.Text = "Operation canceled";
-            }
-        }
+ 
 
         private void BtnConvertToGrayScale_Tapped(object sender, TappedRoutedEventArgs e)
         {
@@ -119,30 +80,7 @@ namespace Contour
             BuildLayersWindow();
         }
 
-        /// <summary>
-        /// Save image with drowed contours to bmp file
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-         private async void BtnSaveImage_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-             FileSavePicker picker = new FileSavePicker();
-             picker.FileTypeChoices.Add("bmp File", new List<string>() { ".bmp" });
-            StorageFile savefile = await picker.PickSaveFileAsync();
-            if (savefile == null)
-                return;
-            IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
-            BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, stream);
-            // Get pixels of the WriteableBitmap object 
-
-            Stream pixelStream = bitmap.ImageData.PixelBuffer.AsStream();
-            byte[] pixels = new byte[pixelStream.Length];
-            await pixelStream.ReadAsync(pixels, 0, pixels.Length);
-            // Save the image file with jpg extension 
-            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)bitmap.ImageData.PixelWidth, (uint)bitmap.ImageData.PixelHeight, 96.0, 96.0, pixels);
-            await encoder.FlushAsync();
-        }
-
+        
         /// <summary>
         /// Create window with toggle controls to switch on(off) grayscale levels and contours associated with these levels
         /// </summary>
@@ -189,13 +127,11 @@ namespace Contour
 
         private void BtnOutlineImage_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            if (bitmap == null)
-                return;
+            if (bitmap == null) return;
             bitmap.ConvertToGrayscale(2);
             bitmap.ExtractLevels();
             bitmap.OutlineImage();
 
-            //tbl_Result.Text = $"Image {ImageFileName} outlined.";
         }
 
         private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)
@@ -232,7 +168,11 @@ namespace Contour
             UserMessage msg = new UserMessage(MsgBoxType.Info, "Function not imlemented");
             MsgBoxButton mbb = await DisplayMessage(msg);
         }
-
+        /// <summary>
+        /// Load JPG or BMP image to bitmap object
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void mfiOpen_Clicked(object sender, RoutedEventArgs e)
         {
             FileOpenPicker openPicker = new FileOpenPicker
@@ -246,7 +186,11 @@ namespace Contour
 
             if (file != null)
             {
-                ImageFileName = file.DisplayName + file.FileType;
+                
+                ImageFileName = file.Name;
+                _imageFilePath = file.Path.Replace(ImageFileName,"");
+                _imageFileNameExtention = file.FileType;
+                //_imageFileType
                 ImageProperties props = await file.Properties.GetImagePropertiesAsync();
 
                 bitmap = new ContourBitmap((int)props.Width, (int)props.Height);
@@ -261,14 +205,69 @@ namespace Contour
             }
         }
 
-        private void mfiSave_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiSave_Clicked(object sender, RoutedEventArgs e)
         {
+            if (bitmap == null) return;
+            try
+            {
+                StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(_imageFilePath);
+                StorageFile file = await folder.CreateFileAsync(ImageFileName, CreationCollisionOption.ReplaceExisting);
+
+                IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+                Guid EncoderID = GetEncoderIDFromFileType(_imageFileNameExtention);
+                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(EncoderID, stream);
+                // Get pixels of the WriteableBitmap object 
+                Stream pixelStream = bitmap.ImageData.PixelBuffer.AsStream();
+                byte[] pixels = new byte[pixelStream.Length];
+                await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)bitmap.ImageData.PixelWidth, (uint)bitmap.ImageData.PixelHeight, 96.0, 96.0, pixels);
+                await encoder.FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                int i = 0;
+            }
+        }
+
+        private Guid GetEncoderIDFromFileType(string filetype)
+        {
+            switch (filetype)
+            {
+                case ".bmp": return BitmapEncoder.BmpEncoderId;
+                case ".jpg": return BitmapEncoder.JpegEncoderId;
+
+            }
+            return BitmapEncoder.JpegEncoderId;
 
         }
 
-        private void mfiSaveAs_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiSaveAs_Clicked(object sender, RoutedEventArgs e)
         {
+            if (bitmap == null) return;
+            try
+            {
+                FileSavePicker picker = new FileSavePicker();
+                picker.FileTypeChoices.Add("bmp File", new List<string>() { ".bmp" });
+                picker.FileTypeChoices.Add("jpg File", new List<string>() { ".jpg" });
+                StorageFile file = await picker.PickSaveFileAsync();
+                if (file == null)
+                    return;
+                IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite);
 
+                Guid EncoderID = GetEncoderIDFromFileType(file.FileType);
+                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(EncoderID, stream);
+                // Get pixels of the WriteableBitmap object 
+                Stream pixelStream = bitmap.ImageData.PixelBuffer.AsStream();
+                byte[] pixels = new byte[pixelStream.Length];
+                await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+                
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)bitmap.ImageData.PixelWidth, (uint)bitmap.ImageData.PixelHeight, 96.0, 96.0, pixels);
+                await encoder.FlushAsync();
+            }
+            catch(Exception ex)
+            {
+                int i = 0;
+            }
         }
 
         private void mfiPrint_Clicked(object sender, RoutedEventArgs e)
