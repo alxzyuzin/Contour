@@ -12,61 +12,61 @@ using System.Collections.Generic;
 using Windows.Graphics.Imaging;
 using System.IO;
 using Windows.UI.Xaml;
-using MUXC = Microsoft.UI.Xaml.Controls;
 using System.Threading.Tasks;
-using System.ComponentModel;
+
 
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace Contour
+namespace ContourUI
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page, INotifyPropertyChanged
+    public sealed partial class MainPage : Page //, INotifyPropertyChanged
     {
         private GeneralOptions Options = new GeneralOptions();
         AppStatus ApplicationStatus = new AppStatus();
-
         private ContourBitmap bitmap = null;
-        //public byte LevelsNumber { get; set; } = 2;
-
-
-        private string _imageFileDisplayName;
+        
+        //private string _imageFileDisplayName;
         private string _imageFileNameExtention;
         private string _imageFilePath;
-        private string _imageFileName = string.Empty;
+        
+        //ContourExtractorWindowsRuntimeComponent.
+        //public event PropertyChangedEventHandler PropertyChanged;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public string ImageFileName
-        {
-            get => _imageFileName;
-            set
-            {
-                if (_imageFileName != value)
-                {
-                    _imageFileName = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ImageFileName)));
-                }
-               
-            }
-        }
+        
 
         public MainPage()
         {
             InitializeComponent();
             OptionsWindow.DataContext = Options;
-            DisplayOptions.DataContext = ApplicationStatus;
+            gridMain.DataContext = ApplicationStatus;
+            ApplicationStatus.PropertyChanged += ApplicationStatus_PropertyChanged;
+           
 
         }
+
+        private void ApplicationStatus_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+         
+            if (e.PropertyName== "DisplayImage" || e.PropertyName== "DisplayConverted" || e.PropertyName== "DisplayContour")
+            {
+                bitmap.DisplayAll(!ApplicationStatus.DisplayImage, !ApplicationStatus.DisplayConverted,
+                    ApplicationStatus.DisplayContour, Options.ContourColorValue);
+                bitmap.ImageData.Invalidate();
+            }
+            
+           // throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Load JPG or BMP image to bitmap object
         /// Convert color image to grayscale with defined levels of gray color
         /// Extract each gray color to separate layer in bitmap object
         /// </summary>
- 
+
 
         private void BtnConvertToGrayScale_Tapped(object sender, TappedRoutedEventArgs e)
         {
@@ -187,10 +187,10 @@ namespace Contour
             if (file != null)
             {
                 
-                ImageFileName = file.Name;
-                _imageFilePath = file.Path.Replace(ImageFileName,"");
+                ApplicationStatus.ImageFileName = file.Name;
+                _imageFilePath = file.Path.Replace(ApplicationStatus.ImageFileName,"");
                 _imageFileNameExtention = file.FileType;
-                //_imageFileType
+                
                 ImageProperties props = await file.Properties.GetImagePropertiesAsync();
 
                 bitmap = new ContourBitmap((int)props.Width, (int)props.Height);
@@ -198,6 +198,7 @@ namespace Contour
                 IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);
                 ExposedImage.Source = bitmap.ImageData;
+                ApplicationStatus.ImageLoaded = true;
             }
             else
             {
@@ -211,7 +212,7 @@ namespace Contour
             try
             {
                 StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(_imageFilePath);
-                StorageFile file = await folder.CreateFileAsync(ImageFileName, CreationCollisionOption.ReplaceExisting);
+                StorageFile file = await folder.CreateFileAsync(ApplicationStatus.ImageFileName, CreationCollisionOption.ReplaceExisting);
 
                 IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite);
                 Guid EncoderID = GetEncoderIDFromFileType(_imageFileNameExtention);
@@ -272,7 +273,7 @@ namespace Contour
 
         private void mfiPrint_Clicked(object sender, RoutedEventArgs e)
         {
-
+            throw new NotImplementedException();
         }
 
         private void mfiExit_Clicked(object sender, RoutedEventArgs e)
@@ -282,12 +283,8 @@ namespace Contour
 
         private async  void mfiOptions_Clicked(object sender, RoutedEventArgs e)
         {
-
             Options.Restore();
             await OptionsWindow.Show();
-   
-            
-            int i = 0;
         }
 
         private void mfiConvert_Clicked(object sender, RoutedEventArgs e)
@@ -309,25 +306,25 @@ namespace Contour
 
         }
 
-        private void mfiViewOriginal_Clicked(object sender, RoutedEventArgs e)
-        {
+        //private void mfiViewOriginal_Clicked(object sender, RoutedEventArgs e)
+        //{
 
-        }
+        //}
 
-        private void mfiViewConverted_Clicked(object sender, RoutedEventArgs e)
-        {
+        //private void mfiViewConverted_Clicked(object sender, RoutedEventArgs e)
+        //{
 
-        }
+        //}
 
-        private void mfiViewCleaned_Clicked(object sender, RoutedEventArgs e)
-        {
+        //private void mfiViewCleaned_Clicked(object sender, RoutedEventArgs e)
+        //{
 
-        }
+        //}
 
-        private void mfiViewContours_Clicked(object sender, RoutedEventArgs e)
-        {
+        //private void mfiViewContours_Clicked(object sender, RoutedEventArgs e)
+        //{
 
-        }
+        //}
 
         private void mfiAbout_Clicked(object sender, RoutedEventArgs e)
         {

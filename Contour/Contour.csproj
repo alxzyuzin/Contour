@@ -97,6 +97,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppStatus.cs" />
+    <Compile Include="Converters.cs" />
     <Compile Include="LayerDisplayParams.xaml.cs">
       <DependentUpon>LayerDisplayParams.xaml</DependentUpon>
     </Compile>

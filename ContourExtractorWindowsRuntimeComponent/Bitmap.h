@@ -4,9 +4,12 @@
 #include "Level.h"
 
 using namespace Platform;
+//using namespace ContourUI;
 
 namespace ContourExtractorWindowsRuntimeComponent
 {
+	public enum class ContourColors { Black, White, Red, Green, Blue };
+
 	public ref class DisplayParams sealed
 	{
 	public:
@@ -72,11 +75,13 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
 		void RestoreOriginalImage();
 		void DisplayContours();
+		void DisplayAll(bool displayImage, bool displayOriginal, bool displayContours, ContourColors color);
 		void Clear();
 
 	private:	//Methods
 		void	DisplayLevelShapes(unsigned char color);
 		void	DisplayLevelContours(unsigned char color);
+		void	DisplayAllContours(ContourColors color);
 		Level*	SelectLevel(unsigned char color);
 		void	SortColorMap(std::vector<unsigned char>* colormap);
 		void	ClearPixelBuffer();
@@ -86,8 +91,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		int m_Width;				// Ширина изображения в рикселях
 		int m_Height;				// Высота изображения в рикселях
 		int m_PixelBufferLength;	// Длина буфера изображения в байтах
-		unsigned char* m_pPixelBuffer;		// Указатель на буфер WriteableBitmap. Содержимое этого буфера является источником данных для объекта Image
-		unsigned char* m_pOriginalImageData; // Буфер хранит оригинальное изображение загруженное из файла
+		unsigned char* m_pPixelBuffer;		    // Pointer to WriteableBitmap buffer. Data from this buffer serves as data source for Image object to display
+		unsigned char* m_pOriginalImageData;	// Pointer to buffer to store original image data loaded from file
+		unsigned char* m_pConvertedImageData;	// Pointer to buffer to store converted image data 
 		Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ m_Bitmap = nullptr;
 		Windows::UI::Xaml::Controls::Page^ m_pMainPage;
 		bool m_Initialized = false;

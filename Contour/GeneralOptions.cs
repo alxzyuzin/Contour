@@ -2,14 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.Storage;
+using ContourExtractorWindowsRuntimeComponent;
 
-namespace Contour
+namespace ContourUI
 {
     public enum TypeOfConvertion { Grayscale = 0, ReducedColors = 1 }
+    
     class GeneralOptions : INotifyPropertyChanged
     {
         private readonly Dictionary<string, TypeOfConvertion> ConvertionTypeItems = new Dictionary<string, TypeOfConvertion>
@@ -19,13 +18,13 @@ namespace Contour
             };
 
         
-        private readonly Dictionary<string, UInt32> ContourColorItems = new Dictionary<string, uint>
+        private readonly Dictionary<string, ContourExtractorWindowsRuntimeComponent.ContourColors> ContourColorItems = new Dictionary<string, ContourColors>
         {
-            {"Black", 0xFF000000},
-            {"White", 0xFFFFFFFF },
-            {"Red", 0xFF0000FF },
-            {"Green", 0xFF00FF00 },
-            {"Blue", 0xFFFF0000 }
+            {"Black", ContourColors.Black},
+            {"White", ContourColors.White },
+            {"Red",   ContourColors.Red },
+            {"Green", ContourColors.Green },
+            {"Blue",  ContourColors.Blue}
         };
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -34,10 +33,10 @@ namespace Contour
             foreach (KeyValuePair<string, TypeOfConvertion> di in ConvertionTypeItems)
                 _convertionTypesList.Add(di.Key);
 
-            foreach (KeyValuePair<string, UInt32> di in ContourColorItems)
+            foreach (KeyValuePair<string, ContourColors> di in ContourColorItems)
                 _contourColorList.Add(di.Key);
 
-            ContourColorName = "Blue";
+            ContourColorName = "Red";
          }
  
         
@@ -133,7 +132,7 @@ namespace Contour
                 }
             }
         }
-        public UInt32 ContourColor { get => ContourColorItems[_contourColorName]; }
+        public ContourColors ContourColorValue { get => ContourColorItems[_contourColorName]; }
 
         public bool SaveData { get; set; }
         

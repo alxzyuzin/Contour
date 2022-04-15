@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Contour
+namespace ContourUI
 {
     class AppStatus: INotifyPropertyChanged
     {
@@ -91,6 +87,21 @@ namespace Contour
                     _displayContour = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayContour)));
                 }
+            }
+        }
+
+        private string _imageFileName = string.Empty;
+        public string ImageFileName
+        {
+            get => _imageFileName;
+            set
+            {
+                if (_imageFileName != value)
+                {
+                    _imageFileName = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ImageFileName)));
+                }
+
             }
         }
 

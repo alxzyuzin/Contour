@@ -23,6 +23,7 @@ Array<unsigned char>^ ContourBitmap::GrayScaleColorMap::get()
 	for (int i = 0; i < (int)m_Levels.size(); i++)
 		grayScaleColorMap->set(i, m_Levels[i]->m_Color);
 	return grayScaleColorMap;
+
 }
 
 
@@ -165,15 +166,39 @@ void ContourBitmap::RestoreOriginalImage()
 {
 	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
 }
-
+/// <summary>
+/// Отображает контуры наиденные в изображении в буфере дисплея
+/// </summary>
 void ContourBitmap::DisplayContours()
 {
 	for (Level* level : m_Levels)
 		DisplayLevelContours(level->m_Color);
-	
-
 }
 
+void DisplayAllContours(int color)
+{
+}
+
+void ContourBitmap::DisplayAll(bool displayImage, bool displayOriginal, bool displayContours, ContourColors color)
+{
+	
+	if (displayImage)
+	{
+		if (displayOriginal)
+			memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
+		else
+			memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
+		
+	}
+	else
+		ClearPixelBuffer();
+}
+
+
+
+/// <summary>
+/// Очистка объекта класса ContourBitmap и освобождение памяти занятой данными объекта
+/// </summary>
 void ContourBitmap::Clear()
 {
 	for (auto level : m_Levels)
@@ -202,7 +227,9 @@ void ContourBitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters
 			DisplayLevelContours(parameters[i]->Color);
 	}
 }
-
+/// <summary>
+/// Выполняет поиск всех контуров в изображении
+/// </summary>
 void ContourBitmap::OutlineImage()
 {
 	clock_t start = clock();
@@ -229,6 +256,15 @@ void ContourBitmap::OutlineImage()
 	// Изображение разделено на 4 слоя. Исходное время построения контуров 409 818 ms (760 контуров)
 }
 
+/// <summary>
+/// Удаляет из слоя группы пикселей которые вписываются в квадрат со стороной равной size пикселей
+/// </summary>
+/// <param name="color">
+/// Цвет слоя в котором нужно произвести очистку
+/// </param>
+/// <param name="size">
+/// Длина стороны квадрата в который должны вписываться группы пикселей подлежащие удалению
+/// </param>
 void ContourBitmap::RectifyLevel(unsigned char color, int size)
 {
 	Level* selectedLevel = SelectLevel(color);
@@ -249,7 +285,12 @@ void ContourBitmap::DisplayLevelShapes(unsigned char color)
 	if (!selectedLevel) return;
 	selectedLevel->GetLevelShapes(m_pPixelBuffer);
 }
-
+/// <summary>
+/// Отрисовывает в буфере дисплея контуры для слоя цвет которого задан во входном параметре
+/// </summary>
+/// <param name="color">
+/// Цвет слоя для которого требуется отрисовать контур
+/// </param>
 void ContourBitmap::DisplayLevelContours(unsigned char color)
 {
 	Level* selectedLevel = SelectLevel(color);
