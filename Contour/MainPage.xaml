@@ -76,7 +76,7 @@
         </muxc:MenuBar>
         
         <Rectangle Grid.Row="1" Fill="White" Margin="25,26,25,25" 
-                   Visibility="{Binding ImageLoaded}"/>
+                   Visibility="Visible"/>
         <Image  x:Name="ExposedImage" Grid.Row="1"  Margin="25,26,25,25"  />
         
         <!-- View options and controls -->
@@ -84,7 +84,7 @@
                     Orientation="Horizontal" Margin="20,0,20,0">
             <ToggleSwitch Header="Hide image" Width="90" 
                           IsEnabled="{Binding ImageLoaded}" 
-                          IsOn="{Binding DisplayImage, Mode=TwoWay}" />
+                          IsOn="{Binding HideImage, Mode=TwoWay}" />
             <ToggleSwitch Header="Original/Converted" OnContent="Converted" OffContent="Original" Width="90"
                           IsEnabled="{Binding ImageConverted}"
                           IsOn="{Binding DisplayConverted, Mode=TwoWay}"/>

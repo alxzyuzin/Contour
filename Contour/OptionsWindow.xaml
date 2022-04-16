@@ -14,11 +14,12 @@
 
         <Style x:Key="MsgBoxButtonStyle" TargetType="Button" >
             <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Height" Value="40" />
+            <Setter Property="Height" Value="35" />
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="#FF808080"/>
             <Setter Property="CornerRadius" Value="4"/>
@@ -57,7 +58,7 @@
         <Border x:Name="BoxBorder" Grid.Column="1" Grid.Row="1"     
                 BorderBrush="White" BorderThickness="1" Background="Gray"
                 Opacity="0" CornerRadius="8">
-            <Grid>
+            <Grid Background="#FFC0C0C0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="70"/>

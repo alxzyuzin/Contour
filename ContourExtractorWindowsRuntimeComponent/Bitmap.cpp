@@ -49,18 +49,11 @@ ContourBitmap::ContourBitmap(int width, int height)
 	m_Height = height;
 	m_PixelBufferLength = 4 * width * height;
 	m_Bitmap = ref new WriteableBitmap(width, height);
-	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Copy of original image data
+	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Create buffer for original image data
+	m_pConvertedImageData = new unsigned char[m_PixelBufferLength]; // Create buffer for converted image data
+
 }
 
-//ContourBitmap::ContourBitmap(int width, int height,unsigned char* pPixelBuffer)
-//{
-//	m_Width = width;
-//	m_Height = height;
-//	m_PixelBufferLength = 4 * width * height;
-//	m_pPixelBuffer = pPixelBuffer;
-//	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Copy of original image data
-//	memcpy(m_pOriginalImageData, m_pPixelBuffer, m_PixelBufferLength);
-//}
 
 // Функция получает указатель нв внутренний буфер WritableBitmap
 // В дальнейшем все манипуляции с изображением выполняются непосредственно
@@ -90,7 +83,10 @@ void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 {
 	// Убедимся что входной параметр нажодится в допустимом диапазоне
-	if (levels < 0 || levels > 255) throw ref new InvalidArgumentException();
+	if (levels < 2 || levels > 255) throw ref new InvalidArgumentException();
+
+	//Restore original image data
+	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
 
 	int range = 255 / levels;
 
@@ -110,6 +106,8 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 			m_pPixelBuffer[pos + 3] = 0xFF;
 		}
 	}
+	// Save converted image to the buffer for later use
+	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
 
 /*
@@ -162,9 +160,14 @@ void ContourBitmap::ExtractLevels()
 	return;
 }
 
-void ContourBitmap::RestoreOriginalImage()
+void ContourBitmap::SetOriginalImageDataToDisplayBuffer()
 {
 	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
+}
+
+void ContourBitmap::SetConvertedImageDataToDisplayBuffer()
+{
+	memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
 }
 /// <summary>
 /// Отображает контуры наиденные в изображении в буфере дисплея
@@ -179,19 +182,22 @@ void DisplayAllContours(int color)
 {
 }
 
-void ContourBitmap::DisplayAll(bool displayImage, bool displayOriginal, bool displayContours, ContourColors color)
+void ContourBitmap::DisplayAll(bool hideImage, bool displayConverted, bool displayContours, ContourColors color)
 {
 	
-	if (displayImage)
+	if (hideImage)
 	{
-		if (displayOriginal)
-			memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
-		else
-			memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
-		
+		ClearPixelBuffer();
 	}
 	else
-		ClearPixelBuffer();
+	{
+		if (displayConverted)
+			memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
+		else
+			memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
+			
+	}
+		
 }
 
 
@@ -206,8 +212,9 @@ void ContourBitmap::Clear()
 		level->Clear();
 		delete level;
 	}
-	//delete m_pPixelBuffer;
+	
 	delete[] m_pOriginalImageData;
+	delete[] m_pConvertedImageData;
 	delete m_Bitmap;
 	m_Width = 0;				// Ширина изображения в рикселях
 	m_Height = 0;				// Высота изображения в рикселях
@@ -233,19 +240,6 @@ void ContourBitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters
 void ContourBitmap::OutlineImage()
 {
 	clock_t start = clock();
-
-	/*for (Level* level : m_Levels)
-		while (true)
-		{
-			Contour* externalContour = level->FindExternalContour();
-			if (!externalContour)
-				break;
-			level->m_Contours.push_back(externalContour);
-			Contour* internalContour = level->FindInternalContour(externalContour);
-			if (internalContour)
-				level->m_Contours.push_back(internalContour);
-			level->EraseShape(externalContour, internalContour);
-		}*/
 
 	for (Level* level : m_Levels)
 		level->FindAllContours();

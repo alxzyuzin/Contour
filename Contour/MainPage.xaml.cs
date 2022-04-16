@@ -29,36 +29,26 @@ namespace ContourUI
         AppStatus ApplicationStatus = new AppStatus();
         private ContourBitmap bitmap = null;
         
-        //private string _imageFileDisplayName;
         private string _imageFileNameExtention;
         private string _imageFilePath;
         
-        //ContourExtractorWindowsRuntimeComponent.
-        //public event PropertyChangedEventHandler PropertyChanged;
-
-        
-
         public MainPage()
         {
             InitializeComponent();
+            Options.Restore();
             OptionsWindow.DataContext = Options;
             gridMain.DataContext = ApplicationStatus;
             ApplicationStatus.PropertyChanged += ApplicationStatus_PropertyChanged;
-           
-
-        }
+         }
 
         private void ApplicationStatus_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-         
-            if (e.PropertyName== "DisplayImage" || e.PropertyName== "DisplayConverted" || e.PropertyName== "DisplayContour")
+            if (e.PropertyName == "HideImage" || e.PropertyName == "DisplayConverted" || e.PropertyName == "DisplayContour")
             {
-                bitmap.DisplayAll(!ApplicationStatus.DisplayImage, !ApplicationStatus.DisplayConverted,
+                bitmap.DisplayAll(ApplicationStatus.HideImage, ApplicationStatus.DisplayConverted,
                     ApplicationStatus.DisplayContour, Options.ContourColorValue);
                 bitmap.ImageData.Invalidate();
             }
-            
-           // throw new NotImplementedException();
         }
 
         /// <summary>
@@ -68,13 +58,13 @@ namespace ContourUI
         /// </summary>
 
 
-        private void BtnConvertToGrayScale_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-//            string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
-//            bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
-//            bitmap.ExtractLevels();
-//            BuildLayersWindow();
-        }
+        //private void BtnConvertToGrayScale_Tapped(object sender, TappedRoutedEventArgs e)
+        //{
+        //    string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
+        //    bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
+        //    bitmap.ExtractLevels();
+        //    BuildLayersWindow();
+        //}
         private void BtnExtractLevels_Tapped(object sender, TappedRoutedEventArgs e)
         {
             BuildLayersWindow();
@@ -148,11 +138,7 @@ namespace ContourUI
             bitmap.ImageData.Invalidate();
         }
 
-        private void BtnRestoreOriginalImage_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            bitmap.RestoreOriginalImage();
-            bitmap.ImageData.Invalidate();
-        }
+      
 
         private async Task<MsgBoxButton> DisplayMessage(UserMessage message)
         {
@@ -271,9 +257,17 @@ namespace ContourUI
             }
         }
 
-        private void mfiPrint_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiPrint_Clicked(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            UserMessage message = new UserMessage()
+            {
+                Type = MsgBoxType.Error,
+                Text = "Function not implemented.",
+                BoxWidth = 350,
+                BoxHeight = 150
+
+            };
+            await DisplayMessage(message);
         }
 
         private void mfiExit_Clicked(object sender, RoutedEventArgs e)
@@ -281,60 +275,90 @@ namespace ContourUI
             Application.Current.Exit();
         }
 
-        private async  void mfiOptions_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiOptions_Clicked(object sender, RoutedEventArgs e)
         {
             Options.Restore();
             await OptionsWindow.Show();
         }
 
-        private void mfiConvert_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiConvert_Clicked(object sender, RoutedEventArgs e)
         {
+            if (ApplicationStatus.ImageLoaded)
+            {
+                if (Options.ConversionType == TypeOfConvertion.Grayscale)
+                {
+                    bitmap.ConvertToGrayscale(Options.NumberOfColors);
+                   
+                }
+                if (Options.ConversionType == TypeOfConvertion.ReducedColors)
+                {
+                    throw new NotImplementedException("Conversion to reduced colors image not implemented.");
+                    //bitmap.ConvertToReducedColors(Options.NumberOfColors);
+                    
+                }
+                ApplicationStatus.ImageConverted = true;
+                ApplicationStatus.DisplayConverted = true;
+                bitmap.ImageData.Invalidate();
 
+            }
+            else
+            {
+                UserMessage message = new UserMessage()
+                { 
+                    Type = MsgBoxType.Error,
+                    Text = "Image not loaded.",
+                    BoxWidth = 350,
+                    BoxHeight = 150
+                };
+                await DisplayMessage(message);
+            }
         }
 
-        private void mfiClean_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiClean_Clicked(object sender, RoutedEventArgs e)
         {
+            UserMessage message = new UserMessage()
+            {
+                Type = MsgBoxType.Error,
+                Text = "Image not loaded.",
+                BoxWidth = 350,
+                BoxHeight = 150
 
+            };
+            await DisplayMessage(message);
         }
-        private void mfiRectify_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiRectify_Clicked(object sender, RoutedEventArgs e)
         {
+            UserMessage message = new UserMessage()
+            {
+                Type = MsgBoxType.Error,
+                Text = "Function not implemented.",
+                BoxWidth = 350,
+                BoxHeight = 150
 
+            };
+            await DisplayMessage(message);
         }
 
-        private void mfiOutline_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiOutline_Clicked(object sender, RoutedEventArgs e)
         {
+            UserMessage message = new UserMessage()
+            {
+                Type = MsgBoxType.Error,
+                Text = "Function not implemented.",
+                BoxWidth = 350,
+                BoxHeight = 150
 
+            };
+            await DisplayMessage(message);
         }
 
-        //private void mfiViewOriginal_Clicked(object sender, RoutedEventArgs e)
-        //{
-
-        //}
-
-        //private void mfiViewConverted_Clicked(object sender, RoutedEventArgs e)
-        //{
-
-        //}
-
-        //private void mfiViewCleaned_Clicked(object sender, RoutedEventArgs e)
-        //{
-
-        //}
-
-        //private void mfiViewContours_Clicked(object sender, RoutedEventArgs e)
-        //{
-
-        //}
-
+       
         private void mfiAbout_Clicked(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void StackPanel_ActualThemeChanged(FrameworkElement sender, object args)
-        {
-
-        }
+       
     } // End of MainPage class definition
 
 

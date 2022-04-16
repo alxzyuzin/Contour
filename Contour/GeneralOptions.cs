@@ -46,8 +46,8 @@ namespace ContourUI
         private List<string> _convertionTypesList = new List<string>();
         public List<string> ConvertionTypesList { get => _convertionTypesList;  }
 
-        private int[] _arrNumberOfColors = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-        public int[] NumberOfColorsList { get => _arrNumberOfColors;  }
+        private byte[] _arrNumberOfColors = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+        public byte[] NumberOfColorsList { get => _arrNumberOfColors;  }
 
         private int[] _arrcbxCleanupValues = { 3, 4, 5, 6, 7, 8, 9, 10, 11 };
         public int[] cbxCleanupValuesList { get => _arrcbxCleanupValues; }
@@ -76,8 +76,8 @@ namespace ContourUI
 
         public TypeOfConvertion ConversionType { get => ConvertionTypeItems[_conversionTypeName]; }
 
-        private int _numberOfColors;
-        public int NumberOfColors
+        private byte _numberOfColors;
+        public byte NumberOfColors
         { 
             get =>_numberOfColors;
             set
@@ -161,7 +161,7 @@ namespace ContourUI
             ConversionTypeName = (value != null) ? (string)value : "Grayscale";
 
             value = LocalSettings.Values["NumberOfColors"];
-            NumberOfColors = (value != null) ? (int)value : 6; 
+            NumberOfColors = (value != null) ? (byte)value : (byte)6; 
 
             value = LocalSettings.Values["CleanupValue"];
             CleanupValue = (value != null) ? (int)value : 1; 

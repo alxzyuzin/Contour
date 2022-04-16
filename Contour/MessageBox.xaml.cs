@@ -58,7 +58,7 @@ namespace ContourUI
         #region Constructors
         public MessageBox()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         public MessageBox(int height) : this()

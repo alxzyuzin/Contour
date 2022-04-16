@@ -48,16 +48,16 @@ namespace ContourUI
                 }
             }
         }
-        private bool _displayImage = false;
-        public bool DisplayImage
+        private bool _hideImage = false;
+        public bool HideImage
         {
-            get { return _displayImage; }
+            get { return _hideImage; }
             set
             {
-                if (_displayImage != value)
+                if (_hideImage != value)
                 {
-                    _displayImage = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayImage)));
+                    _hideImage = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HideImage)));
                 }
             }
         }
@@ -110,8 +110,8 @@ namespace ContourUI
             ImageLoaded = false;
             ImageConverted = false;
             ImageOutlined = false;
-            DisplayConverted = true;
-            DisplayImage = false;
+            DisplayConverted = false;
+            HideImage = false;
             DisplayContour = false;
         }
     }

@@ -73,7 +73,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void OutlineImage();
 		void RectifyLevel(unsigned char color, int size);
 		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
-		void RestoreOriginalImage();
+		void SetOriginalImageDataToDisplayBuffer();
+		void SetConvertedImageDataToDisplayBuffer();
 		void DisplayContours();
 		void DisplayAll(bool displayImage, bool displayOriginal, bool displayContours, ContourColors color);
 		void Clear();

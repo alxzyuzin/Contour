@@ -8,6 +8,8 @@ namespace ContourUI
 {
     class UserMessage
     {
+        public UserMessage()
+        { }
         public UserMessage(MsgBoxType type, string text, MsgBoxButton buttons = MsgBoxButton.Close, double height = 200, double width = 500)
         {
             Type = type;
@@ -17,10 +19,10 @@ namespace ContourUI
             BoxWidth = width;
         }
 
-        public MsgBoxType Type { get; private set; }
-        public string Text { get; private set; }
-        public MsgBoxButton Buttons { get; private set; }
-        public double BoxHeight { get; private set; }
-        public double BoxWidth { get; private set; }
+        public MsgBoxType Type { get; set; } = MsgBoxType.Warning;
+        public string Text { get; set; }
+        public MsgBoxButton Buttons { get; set; } = MsgBoxButton.Close;
+        public double BoxHeight { get; set; } = 200;
+        public double BoxWidth { get; set; } = 500;
     }
 }

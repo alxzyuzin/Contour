@@ -14,12 +14,14 @@
 
         <Style x:Key="MsgBoxButtonStyle" TargetType="Button" >
             <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Height" Value="40" />
+            <Setter Property="Height" Value="35" />
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Normal"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="#FF606060"/>
+            <Setter Property="Background" Value="Gray"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderBrush" Value="Black"/>
         </Style>
 
         <Storyboard x:Name="ShowControl">
@@ -48,20 +50,20 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <!-- Deem main window -->
-        <Border  x:Name="PopUpBorder" BorderThickness="1" Background="Black" 
+        <Border  x:Name="PopUpBorder" BorderThickness="1" Background="#FF404040" 
                      Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Grid.ColumnSpan="3"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.7"/>
         <!-- MessageBox border -->
-        <Border x:Name="BoxBorder" Grid.Column="1" Grid.Row="1"     
+        <Border x:Name="BoxBorder" Grid.Column="1" Grid.Row="1" CornerRadius="6"
                     BorderBrush="White" BorderThickness="1" Background="Gray" Opacity="0">
-            <Grid MinWidth="500" MinHeight="100" >
+            <Grid Background="#FFC0C0C0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="80"/>
                 </Grid.RowDefinitions>
                 <TextBlock x:Name="MessageText" Grid.Row="0" Text="{Binding Message}" 
                            Margin="20,10,20,10" TextWrapping="WrapWholeWords" VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                           FontFamily="Segoe UI Light" FontSize="20"/>
+                           FontSize="16"/>
                 <Grid Grid.Row="2" >
                     <StackPanel x:Name="ButtonsPanel" Orientation="Horizontal"  
                                 VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
