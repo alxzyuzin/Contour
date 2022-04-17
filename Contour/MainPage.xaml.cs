@@ -319,18 +319,6 @@ namespace ContourUI
             UserMessage message = new UserMessage()
             {
                 Type = MsgBoxType.Error,
-                Text = "Image not loaded.",
-                BoxWidth = 350,
-                BoxHeight = 150
-
-            };
-            await DisplayMessage(message);
-        }
-        private async void mfiRectify_Clicked(object sender, RoutedEventArgs e)
-        {
-            UserMessage message = new UserMessage()
-            {
-                Type = MsgBoxType.Error,
                 Text = "Function not implemented.",
                 BoxWidth = 350,
                 BoxHeight = 150
@@ -338,18 +326,17 @@ namespace ContourUI
             };
             await DisplayMessage(message);
         }
+        
 
-        private async void mfiOutline_Clicked(object sender, RoutedEventArgs e)
+        private void mfiOutline_Clicked(object sender, RoutedEventArgs e)
         {
-            UserMessage message = new UserMessage()
+            if (!ApplicationStatus.ImageConverted)
             {
-                Type = MsgBoxType.Error,
-                Text = "Function not implemented.",
-                BoxWidth = 350,
-                BoxHeight = 150
-
-            };
-            await DisplayMessage(message);
+                return;
+            }
+            
+            bitmap.ExtractLevels();
+            bitmap.OutlineImage();
         }
 
        
