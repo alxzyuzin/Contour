@@ -115,14 +115,14 @@ namespace ContourUI
             return parameters;
         }
 
-        private void BtnOutlineImage_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            if (bitmap == null) return;
-            bitmap.ConvertToGrayscale(2);
-            bitmap.ExtractLevels();
-            bitmap.OutlineImage();
+        //private void BtnOutlineImage_Tapped(object sender, TappedRoutedEventArgs e)
+        //{
+        //    if (bitmap == null) return;
+        //    bitmap.ConvertToGrayscale(2);
+        //    bitmap.ExtractLevels();
+        //    bitmap.OutlineImage();
 
-        }
+        //}
 
         private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)
         {
@@ -330,13 +330,17 @@ namespace ContourUI
 
         private void mfiOutline_Clicked(object sender, RoutedEventArgs e)
         {
-            if (!ApplicationStatus.ImageConverted)
+            if (ApplicationStatus.ImageConverted)
             {
-                return;
+                bitmap.ExtractLevels(Options.ConversionType) ;
+                bitmap.OutlineImage();
+                //bitmap.DisplayAll(ApplicationStatus.HideImage, ApplicationStatus.DisplayConverted,
+                //    ApplicationStatus.DisplayContour, Options.ContourColorValue);
+                ApplicationStatus.ImageOutlined = true;
+                ApplicationStatus.DisplayContour = true;
             }
             
-            bitmap.ExtractLevels();
-            bitmap.OutlineImage();
+            
         }
 
        

@@ -7,7 +7,7 @@ using ContourExtractorWindowsRuntimeComponent;
 
 namespace ContourUI
 {
-    public enum TypeOfConvertion { Grayscale = 0, ReducedColors = 1 }
+   
     
     class GeneralOptions : INotifyPropertyChanged
     {

@@ -8,6 +8,7 @@ using namespace Platform;
 
 namespace ContourExtractorWindowsRuntimeComponent
 {
+	public enum class TypeOfConvertion { Grayscale = 0, ReducedColors = 1 };
 	public enum class ContourColors { Black, White, Red, Green, Blue };
 
 	public ref class DisplayParams sealed
@@ -69,7 +70,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		void ConvertToGrayscale(unsigned char levels);
-		void ExtractLevels();
+		void ExtractLevels(TypeOfConvertion conversionType);
 		void OutlineImage();
 		void RectifyLevel(unsigned char color, int size);
 		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
@@ -82,6 +83,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	private:	//Methods
 		void	DisplayLevelShapes(unsigned char color);
 		void	DisplayLevelContours(unsigned char color);
+		void	DisplayLevelContours(Level* level);
 		void	DisplayAllContours(ContourColors color);
 		Level*	SelectLevel(unsigned char color);
 		void	SortColorMap(std::vector<unsigned char>* colormap);

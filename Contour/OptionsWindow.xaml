@@ -104,10 +104,8 @@
                                 
                 <StackPanel x:Name="ButtonsPanel" Orientation="Horizontal"  Grid.Row="1"
                             VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
-                    <Button x:Name="btnSave" Content="Save" Click="btnSave_Click"
-                             FocusVisualSecondaryBrush="Aquamarine"
-                            Style="{StaticResource MsgBoxButtonStyle}"/>
-                    <Button x:Name="btnCancel" Content="Cancel" Click="btnCancel_Click" Style="{StaticResource MsgBoxButtonStyle}"/>
+                    <Button Content="Save" Click="btnSave_Click"  Style="{StaticResource MsgBoxButtonStyle}"/>
+                    <Button Content="Cancel" Click="btnCancel_Click" Style="{StaticResource MsgBoxButtonStyle}"/>
                 </StackPanel>
             </Grid>
 
