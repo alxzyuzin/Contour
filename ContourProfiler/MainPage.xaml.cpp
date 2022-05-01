@@ -35,7 +35,7 @@ void ContourProfiler::MainPage::ButtonLoadFile_Tapped(Platform::Object^ sender, 
 	openPicker->FileTypeFilter->Append(".bmp");
 	create_task(openPicker->PickSingleFileAsync()).then([this](StorageFile^ file)
 		{
-			if (file)
+			/*if (file)
 			{
 				create_task(file->Properties->GetImagePropertiesAsync()).then([this, file](ImageProperties^ props)
 				{
@@ -51,7 +51,7 @@ void ContourProfiler::MainPage::ButtonLoadFile_Tapped(Platform::Object^ sender, 
 			else
 			{
 				txtBlockStatus->Text = "Operation cancelled.";
-			}
+			}*/
 		});
 
 }
@@ -69,10 +69,10 @@ void ContourProfiler::MainPage::ButtonOutlineFile_Tapped(Platform::Object^ sende
 		return;
 	int i = 0;
 	bitmap->ConvertToGrayscale(8);
-	bitmap->ExtractLevels();
+	bitmap->ExtractLevels(TypeOfConvertion::Grayscale);
 	bitmap->OutlineImage();
 	
-	bitmap->DisplayContours();
+	bitmap->DisplayAllContours(ContourColors::Red);
 	bitmap->ImageData->Invalidate();
 	i = 1;
 }

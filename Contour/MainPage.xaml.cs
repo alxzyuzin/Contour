@@ -39,7 +39,7 @@ namespace ContourUI
             OptionsWindow.DataContext = Options;
             gridMain.DataContext = ApplicationStatus;
             ApplicationStatus.PropertyChanged += ApplicationStatus_PropertyChanged;
-         }
+        }
 
         private void ApplicationStatus_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -65,78 +65,69 @@ namespace ContourUI
         //    bitmap.ExtractLevels();
         //    BuildLayersWindow();
         //}
-        private void BtnExtractLevels_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            BuildLayersWindow();
-        }
+        //private void BtnExtractLevels_Tapped(object sender, TappedRoutedEventArgs e)
+        //{
+        //    BuildLayersWindow();
+        //}
 
         
         /// <summary>
         /// Create window with toggle controls to switch on(off) grayscale levels and contours associated with these levels
         /// </summary>
-        private void BuildLayersWindow()
-        {
-            //Button b = new Button();
-            //// Clear Layers window from controls created for previous convertion color image to grayscale
-            //int lcount = stp_Layers.Children.Count;
-            //for (int i = 0; i < lcount; i++)
-            //    stp_Layers.Children.RemoveAt(0);
-            //// Create new control for each gray color in bitmap
-            //foreach (byte color in bitmap.GrayScaleColorMap)
-            //{
-            //    LayerDisplayParams ldp =  new LayerDisplayParams(color);
-            //    ldp.ContourSwitchToggled += OnContourSwitchToggled;
-            //    ldp.ShapeSwitchToggled += OnShapeSwitchToggled;
-            //    stp_Layers.Children.Add(ldp);
-            //}
-        }
+        //private void BuildLayersWindow()
+        //{
+        //    //Button b = new Button();
+        //    //// Clear Layers window from controls created for previous convertion color image to grayscale
+        //    //int lcount = stp_Layers.Children.Count;
+        //    //for (int i = 0; i < lcount; i++)
+        //    //    stp_Layers.Children.RemoveAt(0);
+        //    //// Create new control for each gray color in bitmap
+        //    //foreach (byte color in bitmap.GrayScaleColorMap)
+        //    //{
+        //    //    LayerDisplayParams ldp =  new LayerDisplayParams(color);
+        //    //    ldp.ContourSwitchToggled += OnContourSwitchToggled;
+        //    //    ldp.ShapeSwitchToggled += OnShapeSwitchToggled;
+        //    //    stp_Layers.Children.Add(ldp);
+        //    //}
+        //}
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        private DisplayParams[] BuilDisplayParamsArray()
-        {
-            DisplayParams[] parameters = new DisplayParams[0];
-            //DisplayParams[] parameters = new DisplayParams[stp_Layers.Children.Count];
-
-            //for (int i = 0; i < stp_Layers.Children.Count; i++)
-            //{
-            //    DisplayParams displayParams = new DisplayParams();
-
-            //    LayerDisplayParams userParams = (LayerDisplayParams)stp_Layers.Children[i];
-
-            //    displayParams.Color = userParams.Color;
-            //    displayParams.DisplayShapes = userParams.DisplayShapes;
-            //    displayParams.DisplayContours = userParams.DisplayContours;
-
-            //    parameters.SetValue(displayParams, i);
-            //}
-            return parameters;
-        }
-
-        //private void BtnOutlineImage_Tapped(object sender, TappedRoutedEventArgs e)
+        //private DisplayParams[] BuilDisplayParamsArray()
         //{
-        //    if (bitmap == null) return;
-        //    bitmap.ConvertToGrayscale(2);
-        //    bitmap.ExtractLevels();
-        //    bitmap.OutlineImage();
+        //    DisplayParams[] parameters = new DisplayParams[0];
+        //    //DisplayParams[] parameters = new DisplayParams[stp_Layers.Children.Count];
 
+        //    //for (int i = 0; i < stp_Layers.Children.Count; i++)
+        //    //{
+        //    //    DisplayParams displayParams = new DisplayParams();
+
+        //    //    LayerDisplayParams userParams = (LayerDisplayParams)stp_Layers.Children[i];
+
+        //    //    displayParams.Color = userParams.Color;
+        //    //    displayParams.DisplayShapes = userParams.DisplayShapes;
+        //    //    displayParams.DisplayContours = userParams.DisplayContours;
+
+        //    //    parameters.SetValue(displayParams, i);
+        //    //}
+        //    return parameters;
         //}
 
-        private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)
-        {
-            DisplayParams[] parameters = BuilDisplayParamsArray();
-            bitmap.DisplayOutlinedImage(parameters);
-            bitmap.ImageData.Invalidate();
-        }
+        //private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)
+        //{
+        //    DisplayParams[] parameters = BuilDisplayParamsArray();
+        //    bitmap.DisplayOutlinedImage(parameters);
+        //    bitmap.ImageData.Invalidate();
+        //}
 
-        private void OnContourSwitchToggled(object obj, RoutedEventArgs e)
-        {
-            DisplayParams[] parameters = BuilDisplayParamsArray();
-            bitmap.DisplayOutlinedImage(parameters);
-            bitmap.ImageData.Invalidate();
-        }
+        //private void OnContourSwitchToggled(object obj, RoutedEventArgs e)
+        //{
+        //    DisplayParams[] parameters = BuilDisplayParamsArray();
+        //    bitmap.DisplayOutlinedImage(parameters);
+        //    bitmap.ImageData.Invalidate();
+        //}
 
       
 
@@ -334,13 +325,9 @@ namespace ContourUI
             {
                 bitmap.ExtractLevels(Options.ConversionType) ;
                 bitmap.OutlineImage();
-                //bitmap.DisplayAll(ApplicationStatus.HideImage, ApplicationStatus.DisplayConverted,
-                //    ApplicationStatus.DisplayContour, Options.ContourColorValue);
                 ApplicationStatus.ImageOutlined = true;
                 ApplicationStatus.DisplayContour = true;
             }
-            
-            
         }
 
        

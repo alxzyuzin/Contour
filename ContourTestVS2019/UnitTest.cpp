@@ -261,6 +261,8 @@ namespace ContourTestVS2019
 			}
 		}
 
+		
+
 
 		// 5x5 Square with black border and black point inside
 		unsigned char DataSet_06[25] =
@@ -484,7 +486,7 @@ namespace ContourTestVS2019
 			Contour* externalCountour = level->FindExternalContour();
 
 			Contour* internalContour = level->FindInternalContour(externalCountour);
-			Assert::AreEqual(8, internalContour->Size(), L"Contour size does not match expected");
+			Assert::AreEqual(8,  internalContour->Size(), L"Contour size does not match expected");
 
 			for (int i = 0; i < 8; i++)
 			{
