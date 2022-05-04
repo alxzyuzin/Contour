@@ -175,6 +175,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="MapEntryUnitTest.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="UnitTestApp.xaml.h">
       <DependentUpon>UnitTestApp.xaml</DependentUpon>
@@ -201,10 +202,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Contour.cpp" />
+    <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\MapEntry.cpp" />
+    <ClCompile Include="MapEntryUnitTest.cpp" />
     <ClCompile Include="UnitTestApp.xaml.cpp">
       <DependentUpon>UnitTestApp.xaml</DependentUpon>
     </ClCompile>
-    <ClCompile Include="UnitTest.cpp" />
+    <ClCompile Include="ContourUnitTest.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

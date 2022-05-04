@@ -11,11 +11,13 @@
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="Contour.cpp" />
+    <ClCompile Include="MapEntry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Contour.h" />
+    <ClInclude Include="MapEntry.h" />
   </ItemGroup>
 </Project>

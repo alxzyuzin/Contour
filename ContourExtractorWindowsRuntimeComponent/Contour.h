@@ -22,10 +22,12 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	};
 
+	
 	struct MapEntry
 	{
-		int PointNumber = 0;
+		int PointNumber = -1;
 		bool IsDuplicated = false;
+		
 	};
 
 	class Contour sealed
@@ -70,6 +72,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Point* operator[](unsigned int i);
 		bool ContainsPoint(int x, int y);
 		bool HasDuplicatedPoints();
+		bool Contour::HasPoint(int x, int y);
 
 	};
 

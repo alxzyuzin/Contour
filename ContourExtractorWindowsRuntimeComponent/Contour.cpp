@@ -322,60 +322,60 @@ namespace ContourExtractorWindowsRuntimeComponent
 		линии контура для каждой такой точки отдельно.
 
 	*/
-	// MODIFIED
-	bool Contour::ContainsPoint(int x, int y)
-	{
-		//  Если среди точек контура нет точек с координатой Y равной y - точка x, y лежит за пределами контура
-		if (m_newPointsMap.count(y) == 0)
-			return false;
-		// Проверим принадлежность точки контуру
-		if (m_newPointsMap[y]->count(x) != 0)
-			return false;
 	
-		int contourCrossingCount = 0;
-		// Для заданной координаты y переберём все координаты x содержащиеся в Map
-		for (auto v : *m_PointsMap[y])
-		{
-			// Найдём первую координату X в Map больше заданной x переберём все точки c кординатами y,X
-			if (v.first > x)  
-				for (int currentPointIndex : *v.second)			// Commented
-				{
-								//int currentPointIndex = v.second.PointNumber; // Added
-					// Получим индексы точек перед и после текущей точки 
-					int prevPointIndex = GetPrevContourPointIndex(currentPointIndex);
-					int nextPointIndex = GetNextContourPointIndex(currentPointIndex);
+	//bool Contour::ContainsPoint(int x, int y)
+	//{
+	//	//  Если среди точек контура нет точек с координатой Y равной y - точка x, y лежит за пределами контура
+	//	if (m_newPointsMap.count(y) == 0)
+	//		return false;
+	//	// Проверим принадлежность точки контуру
+	//	if (m_newPointsMap[y]->count(x) != 0)
+	//		return false;
+	//
+	//	int contourCrossingCount = 0;
+	//	// Для заданной координаты y переберём все координаты x содержащиеся в Map
+	//	for (auto v : *m_PointsMap[y])
+	//	{
+	//		// Найдём первую координату X в Map больше заданной x переберём все точки c кординатами y,X
+	//		if (v.first > x)  
+	//			for (int currentPointIndex : *v.second)			// Commented
+	//			{
+	//							//int currentPointIndex = v.second.PointNumber; // Added
+	//				// Получим индексы точек перед и после текущей точки 
+	//				int prevPointIndex = GetPrevContourPointIndex(currentPointIndex);
+	//				int nextPointIndex = GetNextContourPointIndex(currentPointIndex);
 
-					int currentPointY = m_Points[currentPointIndex].Y;
-					// Сравним координаты Y точек соседних с текущей 
-					if (m_Points[prevPointIndex].Y == currentPointY)
-					{
-						// Если предыдущая точка контура лежит на той же горизонтали что текущая точка, начинаем двигаться
-						// по контуру назад пока не найдётся точка лежащая выше или ниже текущей точки.
-						while (m_Points[prevPointIndex].Y == currentPointY)
-							prevPointIndex = GetPrevContourPointIndex(prevPointIndex);
-					}
+	//				int currentPointY = m_Points[currentPointIndex].Y;
+	//				// Сравним координаты Y точек соседних с текущей 
+	//				if (m_Points[prevPointIndex].Y == currentPointY)
+	//				{
+	//					// Если предыдущая точка контура лежит на той же горизонтали что текущая точка, начинаем двигаться
+	//					// по контуру назад пока не найдётся точка лежащая выше или ниже текущей точки.
+	//					while (m_Points[prevPointIndex].Y == currentPointY)
+	//						prevPointIndex = GetPrevContourPointIndex(prevPointIndex);
+	//				}
 
-					if (m_Points[nextPointIndex].Y == currentPointY)
-					{
-						// Если следующая точка контура лежит на той же горизонтали что текущая точка, начинаем двигаться
-						// по контуру вперёд пока не найдётся точка лежащая выше или ниже текущей точки.
-						while (m_Points[nextPointIndex].Y == currentPointY)
-						nextPointIndex = GetPrevContourPointIndex(nextPointIndex);
-					}
+	//				if (m_Points[nextPointIndex].Y == currentPointY)
+	//				{
+	//					// Если следующая точка контура лежит на той же горизонтали что текущая точка, начинаем двигаться
+	//					// по контуру вперёд пока не найдётся точка лежащая выше или ниже текущей точки.
+	//					while (m_Points[nextPointIndex].Y == currentPointY)
+	//					nextPointIndex = GetPrevContourPointIndex(nextPointIndex);
+	//				}
 
-					if (abs(m_Points[prevPointIndex].Y - m_Points[nextPointIndex].Y) == 2)
-					{
-						// Если разность координат Y предыдущей и последующей точки равна 2 , это означает, что
-						// предыдущая и следующая точка контура лежат по разные стороны горизонтали на которой лежит
-						// найденная ближайшая справа точка контура, то есть горизонталь проведённая через ближайшую
-						// справа точку пересекает контур в этой точке
-						//		увеличиваем счётчик пересечений контура на 1
-						++contourCrossingCount;
-					}
-				}
-		}
-		return contourCrossingCount % 2 == 1 ? true : false;
-	}
+	//				if (abs(m_Points[prevPointIndex].Y - m_Points[nextPointIndex].Y) == 2)
+	//				{
+	//					// Если разность координат Y предыдущей и последующей точки равна 2 , это означает, что
+	//					// предыдущая и следующая точка контура лежат по разные стороны горизонтали на которой лежит
+	//					// найденная ближайшая справа точка контура, то есть горизонталь проведённая через ближайшую
+	//					// справа точку пересекает контур в этой точке
+	//					//		увеличиваем счётчик пересечений контура на 1
+	//					++contourCrossingCount;
+	//				}
+	//			}
+	//	}
+	//	return contourCrossingCount % 2 == 1 ? true : false;
+	//}
 
 	bool Contour::HasDuplicatedPoints()
 	{
@@ -388,6 +388,84 @@ namespace ContourExtractorWindowsRuntimeComponent
 		return false;
 	}
 
+	bool Contour::HasPoint(int x, int y) { return false; }
+	
+	/// <summary>
+	/// Определяет расположение точки с координатами x,y относительно контура
+	/// 
+	/// </summary>
+	/// <param name="x">
+	/// Координата x точки
+	/// </param>
+	/// <param name="y">
+	/// Координаа у точки
+	/// </param>
+	/// <returns>
+	/// Возвращает true если точка лежит внутри контура и false если лежит снаружи или лежит на контуре
+	/// </returns>
+	bool Contour::ContainsPoint(int x, int y)
+	{
+		//  Если среди точек контура нет точек с координатой Y равной y - точка x, y лежит за пределами контура
+		if (m_newPointsMap.count(y) == 0)
+			return false;
+		// Проверим принадлежность точки контуру
+		if (m_newPointsMap[y]->count(x) != 0)
+			return false;
+		// Получим список значений координаты x точек контура для заданной координаты y 
+		std::map<int, MapEntry> yEntry = *m_newPointsMap[y];
+		// Для каждой кординаты X в списке выполним проверку на пересечение контура в этой 
+		// точке прямой проведённой из точки x,y вправо 
+		int contourCrossingCount = 0;
+		for (std::pair<int, MapEntry> xEntry : yEntry)
+		{
+			// Анализируем только те точки контура которые лежат правее проверяемой
+			if (xEntry.first <= x)
+				continue;
 
+			// Получим индексы точек перед и после текущей точки 
+			int currentPointNumber = xEntry.second.PointNumber;
+			int prevPointNumber = GetPrevContourPointIndex(currentPointNumber);
+			int nextPointNumber = GetNextContourPointIndex(currentPointNumber);
+			// Возможно что  у одной из точек (предыдущей или последующей) или обеих значение кординаты Y
+			// совпадает со значением координаты y текущей точки
+			// В этом случае начинаем двигаться по контуру в направлении в котором совпадают значения координаты Y
+			// Если координата Y текущей точки совпадает с координатой Y ПРЕДЫДУЩЕЙ 
+			// то в направлении УБЫВАНИЯ номеров точек контура
+			// Если координата Y текущей точки совпадает с координатой y СЛЕДУЮЩЕЙ 
+			// то в направлении ВОЗРАСТАНИЯ номеров точек контура
+			// Движение продолжаем до тех пор пока не обнаружится 
+			// несовпадение значений координат Y текущей и предыдущей точки  и 
+			// несовпадение значений координат Y текущей и следующей точки
+
+			bool a = m_Points[prevPointNumber].Y != m_Points[currentPointNumber].Y;
+			bool b = m_Points[nextPointNumber].Y != m_Points[currentPointNumber].Y;
+			bool c = a || b;
+
+			while ( (m_Points[prevPointNumber].Y == m_Points[currentPointNumber].Y) ||
+				    (m_Points[nextPointNumber].Y == m_Points[currentPointNumber].Y)  )
+			{ 
+				if (m_Points[prevPointNumber].Y == m_Points[currentPointNumber].Y)
+				{
+					// Смещаем предыдущую точку в сторону убывания номеров точек
+					prevPointNumber = GetPrevContourPointIndex(prevPointNumber);
+				}
+
+				if (m_Points[nextPointNumber].Y == m_Points[currentPointNumber].Y)
+				{
+					// Смещаем предыдущую точку в сторону возрастания номеров точек
+					nextPointNumber = GetNextContourPointIndex(nextPointNumber);
+				}
+			}
+			int dist = abs( m_Points[nextPointNumber].Y - m_Points[prevPointNumber].Y );
+			if (dist == 2)
+			{
+				contourCrossingCount++;
+				/*if (xEntry.second.IsDuplicated)
+					contourCrossingCount++;*/
+			}
+
+		}
+		return contourCrossingCount % 2 == 1 ? true : false;
+	}
 
 }  // namespace ContourHelpers

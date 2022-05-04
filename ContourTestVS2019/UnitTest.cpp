@@ -870,13 +870,7 @@ namespace ContourTestVS2019
 			Assert::IsFalse(contour->ContainsPoint(1, 2));
 		}
 
-		// Check function ContainsPoint return false if point resides on contour
-		// Expected result true
-		TEST_METHOD(ContourContainsPoint_Test_2)
-		{
-			Contour* contour = new Contour(Contour_1, 8);
-			Assert::IsFalse(contour->ContainsPoint(0, 1));
-		}
+		
 		// Check function ContainsPoint return false if point resides on contour
 		// Expected result true
 		TEST_METHOD(ContourContainsPoint_Test_3)

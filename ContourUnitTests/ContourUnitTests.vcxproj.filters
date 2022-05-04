@@ -13,12 +13,15 @@
     <ApplicationDefinition Include="UnitTestApp.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="UnitTest.cpp" />
+    <ClCompile Include="ContourUnitTest.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Contour.cpp" />
+    <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\MapEntry.cpp" />
+    <ClCompile Include="MapEntryUnitTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="MapEntryUnitTest.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="UnitTestApp.rd.xml" />
