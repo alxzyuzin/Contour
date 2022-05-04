@@ -30,8 +30,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 	// MODIFIED
 	Contour::~Contour()
 	{
-		for (unsigned int y = 0; y < m_PointsMap.size(); y++)
-			delete m_PointsMap[y];
+		/*for (unsigned int y = 0; y < m_PointsMap.size(); y++)
+			delete m_PointsMap[y];*/
 
 		for (unsigned int y = 0; y < m_newPointsMap.size(); y++)
 			delete m_newPointsMap[y];
@@ -49,7 +49,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	{
 		m_Points.push_back(point);
 
-		if (m_PointsMap.count(point.Y) == 0)
+		/*if (m_PointsMap.count(point.Y) == 0)
 		{
 			map<int, vector<int>*>* newXMap = new map<int, vector<int>*>();
 			vector<int>*  newXvector = new vector<int>();
@@ -71,7 +71,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 			{
 				XMap->at(point.X)->push_back(Length);
 			}
-		}
+		}*/
 
 		if (m_newPointsMap.count(point.Y) == 0)
 		{

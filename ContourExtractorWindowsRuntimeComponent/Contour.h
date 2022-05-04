@@ -44,7 +44,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		// второе значение с типом int - координата X точки контура
 		// третье значение с типом int - номер точки с координатами X,Y в векторе m_Points.
 		// Контур может содержать несколько точек с координатами X,Y.
-		std::map<int, std::map<int, std::vector<int>*>*> m_PointsMap;
+		
+		
+		//std::map<int, std::map<int, std::vector<int>*>*> m_PointsMap;
 
 		std::map<int, std::map<int, MapEntry>*> m_newPointsMap;
 
