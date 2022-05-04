@@ -31,8 +31,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 	Contour::~Contour()
 	{
 
-		for (unsigned int y = 0; y < m_newPointsMap.size(); y++)
-			delete m_newPointsMap[y];
+		for (unsigned int y = 0; y < m_PointsMap.size(); y++)
+			delete m_PointsMap[y];
 	}
 
 	Point* Contour::operator[](unsigned int i)
@@ -46,16 +46,16 @@ namespace ContourExtractorWindowsRuntimeComponent
 	{
 		m_Points.push_back(point);
 
-		if (m_newPointsMap.count(point.Y) == 0)
+		if (m_PointsMap.count(point.Y) == 0)
 		{
 			map<int, MapEntry>* xEntry = new map<int, MapEntry>();
 			MapEntry me { Length, false };
 			xEntry->insert(make_pair(point.X, me ));
-			m_newPointsMap.insert(make_pair(point.Y, xEntry));
+			m_PointsMap.insert(make_pair(point.Y, xEntry));
 		}
 		else
 		{
-			map<int, MapEntry>* xEntry = m_newPointsMap[point.Y];
+			map<int, MapEntry>* xEntry = m_PointsMap[point.Y];
 			if (xEntry->count(point.X) == 0)
 			{
 				MapEntry me { Length, false };
@@ -90,7 +90,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		int X = m_Points[pointnumber].X;
 
 		int LeftNearestPointIndex = -1;
-		for (std::pair<int, MapEntry> pointNumbers : *m_newPointsMap[Y])
+		for (std::pair<int, MapEntry> pointNumbers : *m_PointsMap[Y])
 		{
 			if (pointNumbers.first < X)
 				LeftNearestPointIndex = pointNumbers.second.PointNumber;
@@ -109,7 +109,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	Point* Contour::FindRightNearestPoint(int pointnumber)
 	{
-		for (std::pair<int, MapEntry> pointNumbers : *m_newPointsMap[m_Points[pointnumber].Y])
+		for (std::pair<int, MapEntry> pointNumbers : *m_PointsMap[m_Points[pointnumber].Y])
 		{
 			if (pointNumbers.first > m_Points[pointnumber].X)
 				return &m_Points[pointNumbers.second.PointNumber];
@@ -182,7 +182,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 			}
 		}
 		// XPoint содержит список номеров точек с координатами X,Y;
-		MapEntry XPoint = (m_newPointsMap[currY])->at(m_Points[pointIndex].X);
+		MapEntry XPoint = (m_PointsMap[currY])->at(m_Points[pointIndex].X);
 		if (XPoint.IsDuplicated)
 		{
 			return &m_Points[XPoint.PointNumber];
@@ -225,7 +225,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	bool Contour::PointLaysOnContour(int x, int y)
 	{
 		//return (m_PointsMap.count(y) != 0) && (m_PointsMap[y]->count(x) != 0);
-		return (m_newPointsMap.count(y) != 0) && (m_newPointsMap[y]->count(x) != 0);
+		return (m_PointsMap.count(y) != 0) && (m_PointsMap[y]->count(x) != 0);
 	}
 
 	/*
@@ -274,7 +274,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	bool Contour::HasDuplicatedPoints()
 	{
-		for (auto yEntry : m_newPointsMap)
+		for (auto yEntry : m_PointsMap)
 		{
 			for (std::pair<int, MapEntry> xEntry : *yEntry.second)
 				if (xEntry.second.IsDuplicated)
@@ -301,13 +301,13 @@ namespace ContourExtractorWindowsRuntimeComponent
 	bool Contour::ContainsPoint(int x, int y)
 	{
 		//  Если среди точек контура нет точек с координатой Y равной y - точка x, y лежит за пределами контура
-		if (m_newPointsMap.count(y) == 0)
+		if (m_PointsMap.count(y) == 0)
 			return false;
 		// Проверим принадлежность точки контуру
-		if (m_newPointsMap[y]->count(x) != 0)
+		if (m_PointsMap[y]->count(x) != 0)
 			return false;
 		// Получим список значений координаты x точек контура для заданной координаты y 
-		std::map<int, MapEntry> yEntry = *m_newPointsMap[y];
+		std::map<int, MapEntry> yEntry = *m_PointsMap[y];
 		// Для каждой кординаты X в списке выполним проверку на пересечение контура в этой 
 		// точке прямой проведённой из точки x,y вправо 
 		int contourCrossingCount = 0;
