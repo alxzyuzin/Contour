@@ -175,6 +175,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="LevelUnitTest.h" />
     <ClInclude Include="MapEntryUnitTest.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="UnitTestApp.xaml.h">
@@ -203,6 +204,7 @@
   <ItemGroup>
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Contour.cpp" />
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\MapEntry.cpp" />
+    <ClCompile Include="LevelUnitTest.cpp" />
     <ClCompile Include="MapEntryUnitTest.cpp" />
     <ClCompile Include="UnitTestApp.xaml.cpp">
       <DependentUpon>UnitTestApp.xaml</DependentUpon>

@@ -18,10 +18,12 @@
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Contour.cpp" />
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\MapEntry.cpp" />
     <ClCompile Include="MapEntryUnitTest.cpp" />
+    <ClCompile Include="LevelUnitTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="MapEntryUnitTest.h" />
+    <ClInclude Include="LevelUnitTest.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="UnitTestApp.rd.xml" />

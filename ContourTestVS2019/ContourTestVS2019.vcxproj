@@ -206,6 +206,7 @@
   <ItemGroup>
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Contour.cpp" />
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Level.cpp" />
+    <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\MapEntry.cpp" />
     <ClCompile Include="TestUtils.cpp" />
     <ClCompile Include="UnitTestApp.xaml.cpp">
       <DependentUpon>UnitTestApp.xaml</DependentUpon>

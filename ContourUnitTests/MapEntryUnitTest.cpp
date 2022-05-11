@@ -17,17 +17,17 @@ namespace ContourUnitTests
     {
         TEST_METHOD(MapEntry_AddPoint)
         {
-            MapEntry_ me;
-            me.AddPoint(100);
+            MapEntry me;
+            me.AddPointNumber(100);
             Assert::IsTrue(me.Size() == 1, L"");
         }
 
         TEST_METHOD(MapEntry_ForLoop_PointsExist)
         {
-            MapEntry_ me;
-            me.AddPoint(100);
-            me.AddPoint(200);
-            me.AddPoint(300);
+            MapEntry me;
+            me.AddPointNumber(100);
+            me.AddPointNumber(200);
+            me.AddPointNumber(300);
             int k = 0;
             for (int pointnumber : me)
                 k += pointnumber;
@@ -36,7 +36,7 @@ namespace ContourUnitTests
 
         TEST_METHOD(MapEntry_ForLoop_NoPoints)
         {
-            MapEntry_ me;
+            MapEntry me;
            
             int k = 0;
             for (int pointnumber : me)
@@ -46,10 +46,10 @@ namespace ContourUnitTests
 
         TEST_METHOD(MapEntry_ForLoop_TestIndexer)
         {
-            MapEntry_ me;
-            me.AddPoint(100);
-            me.AddPoint(200);
-            me.AddPoint(300);
+            MapEntry me;
+            me.AddPointNumber(100);
+            me.AddPointNumber(200);
+            me.AddPointNumber(300);
 
             Assert::AreEqual(me[1], 200, L"");
         }

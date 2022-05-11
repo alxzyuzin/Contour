@@ -303,7 +303,8 @@ namespace ContourTestVS2019
 		}
 
 		unsigned char DataSet_07[231] =
-		{ E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+		{ 
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
 			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, E, E, B, B, B, E,
 			E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, E,
 			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
@@ -325,6 +326,41 @@ namespace ContourTestVS2019
 			Contour* contour = level->FindExternalContour();
 			swprintf(Message, 100, L"Contour length should be %i", 16);
 			Assert::AreEqual(64, contour->Length, Message);
+		}
+
+
+		unsigned char DataSet_14[361] =
+		{
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, E, E,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, B, E, E,
+			B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, E, E, E,
+			B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, E, E, E, E,
+			B, B, B, B, B, B, B, B, B, B, E, E, B, E, E, E, E, E, E,
+			B, B, B, B, B, B, B, B, B, B, E, B, E, E, E, E, E, E, E,
+			B, B, E, B, B, E, B, B, E, B, E, B, E, E, E, E, E, E, E,
+			B, B, B, E, E, E, E, B, B, B, B, E, E, E, E, E, E, E, E,
+			B, B, B, E, E, B, E, E, B, B, E, E, E, E, E, E, E, E, E,
+			B, B, B, E, B, B, E, B, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, E, B, B, E, B, B, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, E, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, E, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
+		};
+
+		TEST_METHOD(Test_08_FindExternalContour)
+		{
+			wchar_t Message[100];
+			unsigned char DataSetExpanded[1444];
+			Level::ExpandLevelData(19, 19, B, DataSet_14, DataSetExpanded);
+			Level* level = new Level(19, 19, B, DataSetExpanded);
+			Contour* contour = level->FindExternalContour();
+			swprintf(Message, 100, L"Contour length should be %i", 16);
+			Assert::AreEqual(62, contour->Length, Message);
 		}
 
 
@@ -744,6 +780,74 @@ namespace ContourTestVS2019
 			Assert::AreEqual(1, internalContour->Length, L"Invalid internal contour length");
 		}
 
+
+		unsigned char DataSet_14[361] =
+		{
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, B,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E,
+			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E,
+			B, B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, E, E, E,
+			B, B, B, B, B, B, B, B, B, B, B, E, E, B, B, E, E, E, E,
+			B, B, B, B, B, B, B, B, B, B, E, E, B, E, E, E, E, E, E,
+			B, B, B, B, B, B, B, B, B, B, E, B, E, E, E, E, E, E, E,
+			B, B, E, B, B, E, B, B, E, B, E, B, E, E, E, E, E, E, E,
+			B, B, B, E, E, E, E, B, B, B, B, E, E, E, E, E, E, E, E,
+			B, B, B, E, E, B, E, E, B, B, E, E, E, E, E, E, E, E, E,
+			B, B, B, E, B, B, E, B, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, E, B, B, E, B, B, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, E, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, E, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			B, B, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
+		};
+
+		TEST_METHOD(Test_14_FindInternalContour)
+		{
+			unsigned char DataSetExpanded[1444];
+			Level::ExpandLevelData(19, 19, B, DataSet_14, DataSetExpanded);
+			Level* level = new Level(19, 19, B, DataSetExpanded);
+			Contour* externalCountour = level->FindExternalContour();
+			Contour* internalContour = level->FindInternalContour(externalCountour);
+			Assert::AreEqual(9, internalContour->Length, L"Invalid internal contour length");
+		}
+
+		unsigned char DataSet_15[361] =
+		{
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, B, B,
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, B, E, B, B,
+			E, E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, B, B, E,
+			E, E, E, E, E, E, E, E, E, E, E, B, B, E, E, B, B, E, E,
+			E, E, E, E, E, E, E, E, E, E, B, B, B, B, B, B, E, E, B,
+			E, E, E, E, E, E, E, E, E, E, B, B, B, B, E, E, E, E, E,
+			E, E, B, E, E, B, E, E, B, E, B, B, B, B, E, E, B, E, E,
+			E, E, E, B, B, B, B, E, E, E, E, B, B, E, E, E, E, E, E,
+			E, E, E, B, B, E, B, B, E, E, B, B, E, E, E, E, E, E, E,
+			E, E, E, B, E, E, B, E, B, B, E, E, E, B, E, E, E, E, E,
+			E, E, B, E, E, B, E, E, B, E, E, E, E, E, E, E, E, E, E,
+			E, E, B, E, E, E, B, B, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, B, B, B, B, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, B, E, B, B, E, E, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, E, B, B, E, E, B, E, E, E, E, E, E, E, E, E, E, E,
+			E, E, B, B, E, E, B, E, E, E, E, E, E, E, E, E, E, E, E
+		};
+
+		TEST_METHOD(Test_15_FindInternalContour)
+		{
+			unsigned char DataSetExpanded[1444];
+			Level::ExpandLevelData(19, 19, B, DataSet_15, DataSetExpanded);
+			Level* level = new Level(19, 19, B, DataSetExpanded);
+			Contour* externalCountour = level->FindExternalContour();
+			Contour* internalContour = level->FindInternalContour(externalCountour);
+			Assert::AreEqual(9, internalContour->Length, L"Invalid internal contour length");
+		}
+
+
 	}; // class LevelTest_InternalContour
 
 	TEST_CLASS(LevelTest_FindAllContours)
@@ -949,7 +1053,7 @@ namespace ContourTestVS2019
 			Point(379, 176), Point(380, 175), Point(380, 174)
 		};
 
-		TEST_METHOD(Test_06_ContourContainsPoint)
+		TEST_METHOD(ContourContainsPoint_Test_6)
 		{
 			Contour* contour = new Contour(Contour_06, 263);
 			Assert::IsFalse(contour->ContainsPoint(377, 189));
@@ -970,7 +1074,7 @@ namespace ContourTestVS2019
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
 		};
 
-		TEST_METHOD(Test_07_ContourContainsPoint)
+		TEST_METHOD(ContourContainsPoint_Test_7)
 		{
 			unsigned char DataSetExpanded[924];
 			Level::ExpandLevelData(21, 11, B, DataSet_07, DataSetExpanded);

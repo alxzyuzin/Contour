@@ -178,7 +178,10 @@ void ContourBitmap::SetConvertedImageDataToDisplayBuffer()
 void ContourBitmap::DisplayContours()
 {
 	for (Level* level : m_Levels)
+	{
 		DisplayLevelContours(level->m_Color);
+		break;
+	}
 }
 
 void DisplayAllContours(int color)

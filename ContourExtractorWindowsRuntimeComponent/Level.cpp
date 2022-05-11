@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Level.h"
+#include "MapEntry.h"
 
 using namespace ContourExtractorWindowsRuntimeComponent;
 
@@ -298,6 +299,8 @@ bool Level::CheckNextInternalContourPoint(Contour* parentContour, Point& point, 
 	case NW: --x; --y;	break;
 	}
 
+	unsigned char pcolor = GetPixel(x, y);
+	bool cp = parentContour->ContainsPoint(x, y);
 	if (GetPixel(x, y) == 0xFF && parentContour->ContainsPoint(x, y))
 	{
 		point.X = x;
@@ -339,8 +342,16 @@ Contour* Level::FindInternalContour(Contour* parentContour)
 
 	while (pointFound)
 	{
+		int contourSize = contour->Size();
 		contour->AddPoint(point);
-		pointFound = FindNextInternalContourPoint(parentContour, point, direction);
+		try
+		{
+			pointFound = FindNextInternalContourPoint(parentContour, point, direction);
+		}
+		catch (exception ex)
+		{
+			int i = 0;
+		}
 		if (point == *contour->GetPoint(0))
 			break;
 	}

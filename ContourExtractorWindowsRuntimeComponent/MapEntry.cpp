@@ -3,21 +3,24 @@
 
 namespace ContourExtractorWindowsRuntimeComponent
 {
-	int MapEntry_::operator[](int index)
+	MapEntry::MapEntry()
+	{}
+
+	int MapEntry::operator[](int index)
 	{
 		return m_PointNumbers[index];
 	}
-	bool MapEntry_::IsDuplicated()
+	bool MapEntry::IsDuplicated()
 	{
 		return (m_numberOfPoints > 1);
 	}
-	int MapEntry_::Size()
+	int MapEntry::Size()
 	{
 		return m_numberOfPoints;
 	}
 	
 
-	void MapEntry_::AddPoint(int pointnumber)
+	void MapEntry::AddPointNumber(int pointnumber)
 	{
 		m_PointNumbers[m_numberOfPoints] = pointnumber;
 		m_numberOfPoints++;

@@ -15,18 +15,85 @@ namespace ContourUnitTests
     private:
         Point Contour_1[8] =
         {
-            Point(1,1), Point(2,1), Point(3,1), Point(3,2),
-            Point(3,3), Point(2,3), Point(1,3),	Point(1,2)
+            Point(1,1), Point(2,1), Point(3,1),
+                                    Point(3,2),
+            Point(3,3), Point(2,3), Point(1,3),
+            Point(1,2)
         };
 
     public:
+        TEST_METHOD(Contour_AddPoint_1)
+        {
+            Contour contour;
+            PopulateContour_1(&contour);
+            Assert::AreEqual(contour.Size(), 8);
+        }
+
+        TEST_METHOD(Contour_AddPoint_2)
+        {
+            Contour contour;
+            PopulateContour_1(&contour);
+            int* i = contour.GetPointNumbersListByCoords(3, 2);
+            Assert::AreEqual(*i, 3);
+        }
+
+        TEST_METHOD(Contour_PointLaysOnContour_1)
+        {
+            Contour contour;
+            PopulateContour_1(&contour);
+            bool p = contour.PointLaysOnContour(3, 1);
+            Assert::IsTrue(p);
+        }
+
+        TEST_METHOD(Contour_PointLaysOnContour_2)
+        {
+            Contour contour;
+            PopulateContour_1(&contour);
+            bool p = contour.PointLaysOnContour(2, 2);
+            Assert::IsFalse(p);
+        }
+
+        TEST_METHOD(Contour_FindLeftNearestPoint_1)
+        {
+            Contour contour;
+            PopulateContour_1(&contour);
+            Point* p = contour.FindLeftNearestPoint(3);
+            Assert::IsTrue(*p == Point(1,2));
+        }
+        
+        TEST_METHOD(Contour_FindLeftNearestPoint_2)
+        {
+            Contour contour;
+            PopulateContour_1(&contour);
+            Point* p = contour.FindLeftNearestPoint(7);
+            Assert::IsNull(p);
+        }
+
+        TEST_METHOD(Contour_FindRightNearestPoint_1)
+        {
+            Contour contour;
+            PopulateContour_1(&contour);
+            Point* p = contour.FindRightNearestPoint(3);
+            Assert::IsNull(p);
+        }
+
+
+
+        TEST_METHOD(Contour_FindRightNearestPoint_2)
+        {
+            Contour contour;
+            PopulateContour_1(&contour);
+            Point* p = contour.FindRightNearestPoint(7);
+            Assert::IsTrue(*p == Point(3, 2));
+        }
 
         // Check function ContainsPoint return false if point resides left from contour
          // Expected result true
-        TEST_METHOD(ContourContainsPoint_Test_2)
+        TEST_METHOD(Contour_ContainsPoint_3)
         {
-            Contour* contour = new Contour(Contour_1, 8);
-            Assert::IsFalse(contour->ContainsPoint(0, 1));
+            Contour contour;
+            PopulateContour_1(&contour); 
+            Assert::IsFalse(contour.ContainsPoint(0, 1));
         }
 
         /// <summary>
@@ -35,7 +102,7 @@ namespace ContourUnitTests
         TEST_METHOD(Contour_HasDuplicatedPoints_1)
         {
             Contour* contour = new Contour(ContourExtractorWindowsRuntimeComponent::Contour::ContourType::External);
-           Point point_1( 20,30 );
+            Point point_1( 20,30 );
             Point point_2( 20,30 );
             contour->AddPoint(point_1);
             contour->AddPoint(point_2);
@@ -58,19 +125,14 @@ namespace ContourUnitTests
         }
 
 
-        Point ContourData_1[8]{ Point(1, 1) ,Point(2, 1) ,Point(3, 1) ,
-                                Point(3, 2) ,Point(3, 3) ,Point(2, 3) ,
-                                Point(1, 3) ,Point(1, 2) };
-
         /// <summary>
         /// Поиск ближайшей точки контура справа (точка существует)
         /// </summary>
-        TEST_METHOD(Contour_GetNearestContourPointNumber_1)
+        TEST_METHOD(Contour_GetNearestContourPoint_1)
         {
         
             Contour contour;
-            PopulateContour(&contour, ContourData_1, 8);
-
+            PopulateContour_1(&contour);
             Point* point_1 = contour.GetPoint(1);
             Point* point_2 = contour.GetNearestContourPoint(0, Contour::SearchNearestPointDirection::Right);
             
@@ -82,65 +144,95 @@ namespace ContourUnitTests
         /// </summary>
         TEST_METHOD(Contour_GetNearestContourPoint_2)
         {
-
             Contour contour;
-            PopulateContour(&contour, ContourData_1, 8);
-           
+            PopulateContour_1(&contour);
             Point* point_1 = contour.GetPoint(3);
             Point* point_2 = contour.GetNearestContourPoint(3, Contour::SearchNearestPointDirection::Right);
-
             Assert::IsTrue(nullptr == point_2, L"");
         }
-
-
-
-        Point ContourData_2[8]{ Point(1, 1) ,Point(2, 2) ,Point(3, 1) ,
-                              Point(2, 2) ,Point(3, 3) ,Point(2, 2) ,
-                              Point(1, 3) ,Point(2, 2) };
-
 
 
         TEST_METHOD(Contour_GetNearestContourPoint_3)
         {
             Contour contour;
-            PopulateContour(&contour, ContourData_2, 8);
-
+            PopulateContour_2(&contour);
             Point* point_1 = contour.GetPoint(3);
             Point* point_2 = contour.GetNearestContourPoint(3, Contour::SearchNearestPointDirection::Right);
-
             Assert::IsTrue(*point_1 == *point_2, L"");
         }
        
                
-
-        Point ContourData_3[27]
-        {
-            Point(1, 1), Point(2, 1),Point (3, 1), Point(4, 2), Point(5, 2), Point(6, 1), Point(7, 1), Point(8, 1), Point(8, 2), Point(8, 3),
-            Point(7, 3), Point(7, 4),Point (8, 5), Point(8, 6), Point(8, 7), Point(7, 7), Point(6, 6), Point(5, 6), Point(4, 6),
-            Point(3, 7), Point(2, 7),Point (1, 7), Point(1, 6), Point(2, 5), Point(2, 4), Point(1, 3), Point(1, 2)
-        };
-
-
         TEST_METHOD(Contour_ContainsPoint_1)
         {
             Contour contour;
-            PopulateContour(&contour, ContourData_3, 27);
+            PopulateContour_3(&contour);
             Assert::IsFalse(contour.HasPoint(0, 0), L"");
         }
 
         TEST_METHOD(Contour_ContainsPoint_2)
         {
             Contour contour;
-            PopulateContour(&contour, ContourData_3, 27);
+            PopulateContour_3(&contour);
             Assert::IsTrue(contour.ContainsPoint(2, 2), L"");
         }
         //=======================================================================
 
         //=======================================================================
-        void PopulateContour(Contour* contour, Point points[], int numberOfPoints)
+        void PopulateContour_1(Contour* contour)
         {
-            for (int i=0; i< numberOfPoints; i++)
-                contour->AddPoint(points[i]);
+            contour->AddPoint(Point(1, 1));
+            contour->AddPoint(Point(2, 1));
+            contour->AddPoint(Point(3, 1));
+            contour->AddPoint(Point(3, 2));
+            contour->AddPoint(Point(3, 3));
+            contour->AddPoint(Point(2, 3));
+            contour->AddPoint(Point(1, 3));
+            contour->AddPoint(Point(1, 2));
+        }
+
+        void PopulateContour_2(Contour* contour)
+        {
+            contour->AddPoint(Point(1, 1));
+            contour->AddPoint(Point(2, 2));
+            contour->AddPoint(Point(3, 1));
+            contour->AddPoint(Point(2, 2));
+            contour->AddPoint(Point(3, 3));
+            contour->AddPoint(Point(2, 2));
+            contour->AddPoint(Point(1, 3));
+            contour->AddPoint(Point(2, 2));
+        }
+
+
+       
+        void PopulateContour_3(Contour* contour)
+        {
+            contour->AddPoint(Point(1, 1));
+            contour->AddPoint(Point(2, 1));
+            contour->AddPoint(Point(3, 1));
+            contour->AddPoint(Point(4, 2));
+            contour->AddPoint(Point(5, 2));
+            contour->AddPoint(Point(6, 1));
+            contour->AddPoint(Point(7, 1));
+            contour->AddPoint(Point(8, 1));
+            contour->AddPoint(Point(8, 2));
+            contour->AddPoint(Point(8, 3));
+            contour->AddPoint(Point(7, 3));
+            contour->AddPoint(Point(7, 4));
+            contour->AddPoint(Point(8, 5));
+            contour->AddPoint(Point(8, 6));
+            contour->AddPoint(Point(8, 7));
+            contour->AddPoint(Point(7, 7));
+            contour->AddPoint(Point(6, 6));
+            contour->AddPoint(Point(5, 6));
+            contour->AddPoint(Point(4, 6));
+            contour->AddPoint(Point(3, 7));
+            contour->AddPoint(Point(2, 7));
+            contour->AddPoint(Point(1, 7));
+            contour->AddPoint(Point(1, 6));
+            contour->AddPoint(Point(2, 5));
+            contour->AddPoint(Point(2, 4));
+            contour->AddPoint(Point(1, 3));
+            contour->AddPoint(Point(1, 2));
         }
     };
 

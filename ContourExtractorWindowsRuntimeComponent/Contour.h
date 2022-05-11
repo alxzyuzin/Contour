@@ -1,7 +1,7 @@
 ﻿#pragma once
-#pragma once
 #include <vector>
 #include <set>
+#include "MapEntry.h"
 
 
 
@@ -23,12 +23,12 @@ namespace ContourExtractorWindowsRuntimeComponent
 	};
 
 	
-	struct MapEntry
+	/*struct MapEntry
 	{
 		int PointNumber = -1;
 		bool IsDuplicated = false;
 		
-	};
+	};*/
 
 	class Contour sealed
 	{
@@ -45,7 +45,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		// третье значение с типом int - номер точки с координатами X,Y в векторе m_Points.
 		// Контур может содержать несколько точек с координатами X,Y.
 		
-		std::map<int, std::map<int, MapEntry>*> m_PointsMap;
+		std::map<int, std::map<int, MapEntry*>*> m_PointsMap;
 
 	public:
 
@@ -57,6 +57,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void AddPoint(Point point);
 		int Size();
 		Point* GetPoint(int i);
+		int* GetPointNumbersListByCoords(int x, int y);
 
 		Point* FindLeftNearestPoint(int pointnumber);
 		Point* FindRightNearestPoint(int pointnumber);
