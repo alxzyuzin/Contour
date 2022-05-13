@@ -38,11 +38,16 @@ ContourBitmap::ContourBitmap()
 	m_PixelBufferLength = 0;
 }
 
-/*
-  Input parameters
-	width  - image width
-	height - image height
-*/
+
+/// <summary>
+/// ContourBitmap constructor
+/// </summary>
+/// <param name="width">
+/// Image width
+/// </param>
+/// <param name="height">
+/// Image height
+/// </param>
 ContourBitmap::ContourBitmap(int width, int height)
 {
 	m_Width = width;   
@@ -55,9 +60,12 @@ ContourBitmap::ContourBitmap(int width, int height)
 }
 
 
-// Функция получает указатель нв внутренний буфер WritableBitmap
-// В дальнейшем все манипуляции с изображением выполняются непосредственно
-// во внутреннем буфере WritableBitmap
+
+/// <summary>
+/// Extract pointer to  WritableBitmap internal buffer
+/// All image conversions handle right in WritableBitmap internal buffer
+/// </summary>
+/// <param name="stream"></param>
 void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 {
 	m_Bitmap->SetSource(stream);  // m_Bitmap - WritableBitmap^
@@ -75,11 +83,13 @@ void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 	memcpy(m_pOriginalImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
 
-/*
-	Convert original color image into grayscale with defined number of gray tints
-	Input parameters
-		levels - number of desirable gray tints
-*/
+
+/// <summary>
+/// Convert original color image into grayscale with defined number of gray tints
+/// </summary>
+/// <param name="levels">
+/// Number of desirable gray tints
+/// </param>
 void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 {
 	// Убедимся что входной параметр нажодится в допустимом диапазоне
@@ -110,14 +120,17 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
 
-/*
-	Разбивает изображение на слои. Каждый слой содержит пиксели одного из оттенков
-	серого присутствующих в изображении.
-	Для каждого оттенка серого в исходном изображении создаётся отдельный слой (Level)
-	Размер слоя соответствует размеру исходного изображения.
-	В слой переносятся пиксели оттенка серого для котороко создан слой,
-	остальные пиксели в слое закрашиваются цветом 0xFF (сооьветствует пустому цвету)
-*/
+
+
+/// <summary>
+/// Разбивает изображение на слои. Каждый слой содержит пиксели одного из оттенков
+/// серого присутствующих в изображении.
+/// Для каждого оттенка серого в исходном изображении создаётся отдельный слой(Level)
+/// Размер слоя соответствует размеру исходного изображения.
+/// В слой переносятся пиксели оттенка серого для которого создан слой,
+/// остальные пиксели в слое закрашиваются цветом 0xFF (сооьветствует пустому цвету)
+/// </summary>
+/// <param name="conversionType"></param>
 void ContourBitmap::ExtractLevels(TypeOfConvertion conversionType)
 {
 	if (conversionType == TypeOfConvertion::Grayscale)
@@ -158,7 +171,7 @@ void ContourBitmap::ExtractLevels(TypeOfConvertion conversionType)
 		// Конструктор класса Level извлекает пиксели с цветом заданным параметром levelColor из буфера m_pPixelBuffer
 		// и создаёт срез исходного изображения по цвету levelColor
 		for (unsigned char levelColor : colormap)
-			m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer)); // std::vector<Level*>
+			m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer)); 
 	}
 	return;
 }
@@ -175,36 +188,30 @@ void ContourBitmap::SetConvertedImageDataToDisplayBuffer()
 /// <summary>
 /// Отображает контуры наиденные в изображении в буфере дисплея
 /// </summary>
-void ContourBitmap::DisplayContours()
+void ContourBitmap::DisplayContours(ContourColors contourcolor)
 {
 	for (Level* level : m_Levels)
-		DisplayLevelContours(level->m_Color);
+		DisplayLevelContours(level->m_Color, contourcolor);
 }
 
-void DisplayAllContours(int color)
-{
-}
+//void DisplayAllContours(int color)
+//{
+//}
 
 void ContourBitmap::DisplayAll(bool hideImage, bool displayConverted, bool displayContours, ContourColors color)
 {
-	
-	if (hideImage)
-	{
-		ClearPixelBuffer();
-	}
-	else
+	ClearPixelBuffer();
+	if (!hideImage)
 	{
 		if (displayConverted)
 			memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
 		else
 			memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
-		if (displayContours)
-		{
-			DisplayContours();
-		}
-			
 	}
-		
+	if (displayContours)
+	{
+		DisplayContours(color);
+	}
 }
 
 
@@ -232,14 +239,14 @@ void ContourBitmap::Clear()
 void ContourBitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
 {
 	ClearPixelBuffer();
-	for (unsigned int i = 0; i < parameters->Length; i++)
+	/*for (unsigned int i = 0; i < parameters->Length; i++)
 	{
 		if (parameters[i]->DisplayShapes)
 			DisplayLevelShapes(parameters[i]->Color);
 
 		if (parameters[i]->DisplayContours)
-			DisplayLevelContours(parameters[i]->Color);
-	}
+			DisplayLevelContours(parameters[i]->Color,);
+	}*/
 }
 /// <summary>
 /// Выполняет поиск всех контуров в изображении
@@ -286,47 +293,57 @@ void ContourBitmap::DisplayLevelShapes(unsigned char color)
 	if (!selectedLevel) return;
 	selectedLevel->GetLevelShapes(m_pPixelBuffer);
 }
+
 /// <summary>
 /// Отрисовывает в буфере дисплея контуры для слоя цвет которого задан во входном параметре
 /// </summary>
 /// <param name="color">
 /// Цвет слоя для которого требуется отрисовать контур
 /// </param>
-void ContourBitmap::DisplayLevelContours(unsigned char color)
+void ContourBitmap::DisplayLevelContours(unsigned char levelcolor, ContourColors contourcolor)
 {
-	Level* selectedLevel = SelectLevel(color);
+	Level* selectedLevel = SelectLevel(levelcolor);
 	Point* point;
 
 	for (Contour* contour : selectedLevel->m_Contours)
 		for (int i = 0; i < contour->Size(); i++)
 		{
 			point = contour->GetPoint(i);
-			if (contour->Type == Contour::ContourType::External)
+
+			switch (contourcolor)
+			{
+			case ContourColors::Black	: SetPixel(point->X, point->Y, 0x00, 0x00, 0x00, 0xFF); break;
+			case ContourColors::Blue	: SetPixel(point->X, point->Y, 0xFF, 0x00, 0x00, 0xFF); break;
+			case ContourColors::Green	: SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF); break;
+			case ContourColors::Red		: SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF); break;
+			case ContourColors::White	: SetPixel(point->X, point->Y, 0xFF, 0xFF, 0xFF, 0xFF); break;
+			}
+			/*if (contour->Type == Contour::ContourType::External)
 				SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF);
 			else
-				SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF);
+				SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF);*/
 		}
 }
 
 
-/// <summary>
-/// Отрисовывает в буфере дисплея контуры для слоя цвет которого задан во входном параметре
-/// </summary>
-/// <param name="color">
-/// Цвет слоя для которого требуется отрисовать контур
-/// </param>
-void ContourBitmap::DisplayLevelContours(Level* level)
-{
-	for (Contour* contour : level->m_Contours)
-		for (int i = 0; i < contour->Size(); i++)
-		{
-			Point* point = contour->GetPoint(i);
-			if (contour->Type == Contour::ContourType::External)
-				SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF);
-			else
-				SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF);
-		}
-}
+///// <summary>
+///// Отрисовывает в буфере дисплея контуры для слоя цвет которого задан во входном параметре
+///// </summary>
+///// <param name="color">
+///// Цвет слоя для которого требуется отрисовать контур
+///// </param>
+//void ContourBitmap::DisplayLevelContours(Level* level)
+//{
+//	for (Contour* contour : level->m_Contours)
+//		for (int i = 0; i < contour->Size(); i++)
+//		{
+//			Point* point = contour->GetPoint(i);
+//			if (contour->Type == Contour::ContourType::External)
+//				SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF);
+//			else
+//				SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF);
+//		}
+//}
 
 // Возвращает указатель на уровень заданного цвета
 Level* ContourBitmap::SelectLevel(unsigned char color)

@@ -45,8 +45,11 @@ namespace ContourUI
         {
             if (e.PropertyName == "HideImage" || e.PropertyName == "DisplayConverted" || e.PropertyName == "DisplayContour")
             {
+                // Disable Display Converted/Original toggle switch if image hided 
+                ApplicationStatus.ImageConverted = !ApplicationStatus.HideImage;
+                    
                 bitmap.DisplayAll(ApplicationStatus.HideImage, ApplicationStatus.DisplayConverted,
-                    ApplicationStatus.DisplayContour, Options.ContourColorValue);
+                                    ApplicationStatus.DisplayContour, Options.ContourColorValue);
                 bitmap.ImageData.Invalidate();
             }
         }
@@ -58,13 +61,7 @@ namespace ContourUI
         /// </summary>
 
 
-        //private void BtnConvertToGrayScale_Tapped(object sender, TappedRoutedEventArgs e)
-        //{
-        //    string NumberOfLevels = ((ComboBoxItem)cbx_levels.SelectedValue).Content.ToString();
-        //    bitmap.ConvertToGrayscale(byte.Parse(NumberOfLevels));
-        //    bitmap.ExtractLevels();
-        //    BuildLayersWindow();
-        //}
+        
         private void BtnExtractLevels_Tapped(object sender, TappedRoutedEventArgs e)
         {
             BuildLayersWindow();
@@ -115,15 +112,7 @@ namespace ContourUI
             return parameters;
         }
 
-        //private void BtnOutlineImage_Tapped(object sender, TappedRoutedEventArgs e)
-        //{
-        //    if (bitmap == null) return;
-        //    bitmap.ConvertToGrayscale(2);
-        //    bitmap.ExtractLevels();
-        //    bitmap.OutlineImage();
-
-        //}
-
+        
         private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)
         {
             DisplayParams[] parameters = BuilDisplayParamsArray();

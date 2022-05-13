@@ -76,13 +76,13 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
 		void SetOriginalImageDataToDisplayBuffer();
 		void SetConvertedImageDataToDisplayBuffer();
-		void DisplayContours();
+		void DisplayContours(ContourColors color);
 		void DisplayAll(bool displayImage, bool displayOriginal, bool displayContours, ContourColors color);
 		void Clear();
 
 	private:	//Methods
 		void	DisplayLevelShapes(unsigned char color);
-		void	DisplayLevelContours(unsigned char color);
+		void	DisplayLevelContours(unsigned char color, ContourColors contourColor);
 		void	DisplayLevelContours(Level* level);
 		void	DisplayAllContours(ContourColors color);
 		Level*	SelectLevel(unsigned char color);
