@@ -39,6 +39,8 @@ namespace ContourUI
             OptionsWindow.DataContext = Options;
             gridMain.DataContext = ApplicationStatus;
             ApplicationStatus.PropertyChanged += ApplicationStatus_PropertyChanged;
+            ApplicationStatus.ProgressValue = 0;
+            ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
          }
 
         private void ApplicationStatus_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -317,14 +319,32 @@ namespace ContourUI
         }
         
 
-        private void mfiOutline_Clicked(object sender, RoutedEventArgs e)
+        private async  void mfiOutline_Clicked(object sender, RoutedEventArgs e)
         {
             if (ApplicationStatus.ImageConverted)
             {
-                bitmap.ExtractLevels(Options.ConversionType) ;
-                bitmap.OutlineImage();
-                //bitmap.DisplayAll(ApplicationStatus.HideImage, ApplicationStatus.DisplayConverted,
-                //    ApplicationStatus.DisplayContour, Options.ContourColorValue);
+                ApplicationStatus.ProgressValue = 0;
+                int numberOfLevels = bitmap.ExtractLevels(Options.ConversionType) ;
+                ApplicationStatus.NumberOfLevels = numberOfLevels;
+                for (int i = 0; i < numberOfLevels; i++)
+                {
+                    ApplicationStatus.NumberOfContours += bitmap.FindLevelContours(i);
+                    ApplicationStatus.ProgressValue = i;
+                }
+
+                //Task<int>[] task = new Task<int>[18];
+          
+                //Task k = FindLevelContours(0); ;
+                //for (int i = 0; i < numberOfLevels; i++)
+                //    task[0] = FindLevelContours(i);
+
+                //for (int i = 0; i < numberOfLevels; i++)
+                //{
+                //    if (task[i] != null)
+                //        await task[i];
+                //}
+                ////bitmap.OutlineImage();
+
                 ApplicationStatus.ImageOutlined = true;
                 ApplicationStatus.DisplayContour = true;
             }
@@ -338,6 +358,15 @@ namespace ContourUI
 
         }
 
+        private async Task<int> FindLevelContours(int levelnumber)
+        {
+            int numberOfContours = 0;
+            await Task.Run(() =>
+            {
+            numberOfContours = bitmap.FindLevelContours(levelnumber);
+            });
+            return numberOfContours;
+        }
        
     } // End of MainPage class definition
 

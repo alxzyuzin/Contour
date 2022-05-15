@@ -347,7 +347,7 @@ Contour* Level::FindInternalContour(Contour* parentContour)
 	return contour;
 }
 
-void Level::FindAllContours()
+int Level::FindAllContours()
 {
 	Contour* externalContour = nullptr;
 	do
@@ -369,6 +369,7 @@ void Level::FindAllContours()
 			FillContour(externalContour, EMPTY_COLOR);
 		}
 	} while (externalContour);
+	return m_Contours.size();
 }
 
 /*

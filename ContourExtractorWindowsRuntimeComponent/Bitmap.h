@@ -70,7 +70,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		void ConvertToGrayscale(unsigned char levels);
-		void ExtractLevels(TypeOfConvertion conversionType);
+		int  ExtractLevels(TypeOfConvertion conversionType);
+		int  FindLevelContours(int contournumber);
 		void OutlineImage();
 		void RectifyLevel(unsigned char color, int size);
 		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
@@ -83,8 +84,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 	private:	//Methods
 		void	DisplayLevelShapes(unsigned char color);
 		void	DisplayLevelContours(unsigned char color, ContourColors contourColor);
-		void	DisplayLevelContours(Level* level);
-		void	DisplayAllContours(ContourColors color);
+//		void	DisplayLevelContours(Level* level);
+//		void	DisplayAllContours(ContourColors color);
 		Level*	SelectLevel(unsigned char color);
 		void	SortColorMap(std::vector<unsigned char>* colormap);
 		void	ClearPixelBuffer();

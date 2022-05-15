@@ -51,7 +51,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Contour* FindExternalContour();
 		Contour* FindInternalContour(Contour* parentContour);
 		void EraseShape(Contour* externalContour, Contour*  internalContour);
-		void FindAllContours();
+		int FindAllContours();
 
 		void FillContour(Contour* contour, unsigned char color);
 		void RestoreContourContent(Contour* contour);

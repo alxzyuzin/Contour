@@ -131,7 +131,7 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 /// остальные пиксели в слое закрашиваются цветом 0xFF (сооьветствует пустому цвету)
 /// </summary>
 /// <param name="conversionType"></param>
-void ContourBitmap::ExtractLevels(TypeOfConvertion conversionType)
+int ContourBitmap::ExtractLevels(TypeOfConvertion conversionType)
 {
 	if (conversionType == TypeOfConvertion::Grayscale)
 	{
@@ -173,7 +173,21 @@ void ContourBitmap::ExtractLevels(TypeOfConvertion conversionType)
 		for (unsigned char levelColor : colormap)
 			m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer)); 
 	}
-	return;
+	return m_Levels.size();
+}
+
+/// <summary>
+///  Look for contours in difined level
+/// </summary>
+/// <param name="levelnumber">
+///  Level number in the list of levels in bitmap 
+/// </param>
+/// <returns>
+/// Number of contours found
+/// </returns>
+int ContourExtractorWindowsRuntimeComponent::ContourBitmap::FindLevelContours(int levelnumber)
+{
+	return m_Levels[levelnumber]->FindAllContours();
 }
 
 void ContourBitmap::SetOriginalImageDataToDisplayBuffer()

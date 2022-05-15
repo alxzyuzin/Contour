@@ -105,6 +105,52 @@ namespace ContourUI
             }
         }
 
+        private int _numberOfContours = 0;
+        public int NumberOfContours
+        {
+            get => _numberOfContours;
+            set
+            {
+                if (_numberOfContours != value)
+                {
+                    _numberOfContours = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NumberOfContours)));
+                }
+
+            }
+        }
+
+
+        private int _numberOfLevels = 0;
+        public int NumberOfLevels
+        {
+            get => _numberOfLevels;
+            set
+            {
+                if (_numberOfLevels != value)
+                {
+                    _numberOfLevels = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NumberOfLevels)));
+                }
+
+            }
+        }
+
+        private int _progressValue = 0;
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set
+            {
+                if (_progressValue != value)
+                {
+                    _progressValue = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressValue)));
+                }
+
+            }
+        }
+
         public void Reset()
         {
             ImageLoaded = false;
