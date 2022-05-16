@@ -40,6 +40,7 @@ namespace ContourUI
             gridMain.DataContext = ApplicationStatus;
             ApplicationStatus.PropertyChanged += ApplicationStatus_PropertyChanged;
             ApplicationStatus.ProgressValue = 0;
+            ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
          }
 
@@ -129,9 +130,7 @@ namespace ContourUI
             bitmap.ImageData.Invalidate();
         }
 
-      
-
-        private async Task<MsgBoxButton> DisplayMessage(UserMessage message)
+         private async Task<MsgBoxButton> DisplayMessage(UserMessage message)
         {
             MsgBox.SetButtons(message.Buttons);
             MsgBox.Message = message.Text;
@@ -164,6 +163,8 @@ namespace ContourUI
             if (file != null)
             {
                 
+                ApplicationStatus.Reset();
+
                 ApplicationStatus.ImageFileName = file.Name;
                 _imageFilePath = file.Path.Replace(ApplicationStatus.ImageFileName,"");
                 _imageFileNameExtention = file.FileType;
@@ -186,25 +187,18 @@ namespace ContourUI
         private async void mfiSave_Clicked(object sender, RoutedEventArgs e)
         {
             if (bitmap == null) return;
-            try
-            {
-                StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(_imageFilePath);
-                StorageFile file = await folder.CreateFileAsync(ApplicationStatus.ImageFileName, CreationCollisionOption.ReplaceExisting);
+            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(_imageFilePath);
+            StorageFile file = await folder.CreateFileAsync(ApplicationStatus.ImageFileName, CreationCollisionOption.ReplaceExisting);
 
-                IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite);
-                Guid EncoderID = GetEncoderIDFromFileType(_imageFileNameExtention);
-                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(EncoderID, stream);
-                // Get pixels of the WriteableBitmap object 
-                Stream pixelStream = bitmap.ImageData.PixelBuffer.AsStream();
-                byte[] pixels = new byte[pixelStream.Length];
-                await pixelStream.ReadAsync(pixels, 0, pixels.Length);
-                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)bitmap.ImageData.PixelWidth, (uint)bitmap.ImageData.PixelHeight, 96.0, 96.0, pixels);
-                await encoder.FlushAsync();
-            }
-            catch (Exception ex)
-            {
-                int i = 0;
-            }
+            IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+            Guid EncoderID = GetEncoderIDFromFileType(_imageFileNameExtention);
+            BitmapEncoder encoder = await BitmapEncoder.CreateAsync(EncoderID, stream);
+            // Get pixels of the WriteableBitmap object 
+            Stream pixelStream = bitmap.ImageData.PixelBuffer.AsStream();
+            byte[] pixels = new byte[pixelStream.Length];
+            await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)bitmap.ImageData.PixelWidth, (uint)bitmap.ImageData.PixelHeight, 96.0, 96.0, pixels);
+            await encoder.FlushAsync();
         }
 
         private Guid GetEncoderIDFromFileType(string filetype)
@@ -222,30 +216,22 @@ namespace ContourUI
         private async void mfiSaveAs_Clicked(object sender, RoutedEventArgs e)
         {
             if (bitmap == null) return;
-            try
-            {
-                FileSavePicker picker = new FileSavePicker();
-                picker.FileTypeChoices.Add("bmp File", new List<string>() { ".bmp" });
-                picker.FileTypeChoices.Add("jpg File", new List<string>() { ".jpg" });
-                StorageFile file = await picker.PickSaveFileAsync();
-                if (file == null)
-                    return;
-                IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+            FileSavePicker picker = new FileSavePicker();
+            picker.FileTypeChoices.Add("bmp File", new List<string>() { ".bmp" });
+            picker.FileTypeChoices.Add("jpg File", new List<string>() { ".jpg" });
+            StorageFile file = await picker.PickSaveFileAsync();
+            if (file == null)
+                return;
+            IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite);
 
-                Guid EncoderID = GetEncoderIDFromFileType(file.FileType);
-                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(EncoderID, stream);
-                // Get pixels of the WriteableBitmap object 
-                Stream pixelStream = bitmap.ImageData.PixelBuffer.AsStream();
-                byte[] pixels = new byte[pixelStream.Length];
-                await pixelStream.ReadAsync(pixels, 0, pixels.Length);
-                
-                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)bitmap.ImageData.PixelWidth, (uint)bitmap.ImageData.PixelHeight, 96.0, 96.0, pixels);
-                await encoder.FlushAsync();
-            }
-            catch(Exception ex)
-            {
-                int i = 0;
-            }
+            Guid EncoderID = GetEncoderIDFromFileType(file.FileType);
+            BitmapEncoder encoder = await BitmapEncoder.CreateAsync(EncoderID, stream);
+            // Get pixels of the WriteableBitmap object 
+            Stream pixelStream = bitmap.ImageData.PixelBuffer.AsStream();
+            byte[] pixels = new byte[pixelStream.Length];
+            await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)bitmap.ImageData.PixelWidth, (uint)bitmap.ImageData.PixelHeight, 96.0, 96.0, pixels);
+            await encoder.FlushAsync();
         }
 
         private async void mfiPrint_Clicked(object sender, RoutedEventArgs e)
@@ -256,7 +242,6 @@ namespace ContourUI
                 Text = "Function not implemented.",
                 BoxWidth = 350,
                 BoxHeight = 150
-
             };
             await DisplayMessage(message);
         }
@@ -321,30 +306,30 @@ namespace ContourUI
 
         private async  void mfiOutline_Clicked(object sender, RoutedEventArgs e)
         {
+            
             if (ApplicationStatus.ImageConverted)
             {
                 ApplicationStatus.ProgressValue = 0;
+                ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
                 int numberOfLevels = bitmap.ExtractLevels(Options.ConversionType) ;
                 ApplicationStatus.NumberOfLevels = numberOfLevels;
+
+                List<Windows.Foundation.IAsyncOperation<int>> taskList = new List<Windows.Foundation.IAsyncOperation<int>>();
+                var starttime = DateTime.Now;
                 for (int i = 0; i < numberOfLevels; i++)
                 {
-                    ApplicationStatus.NumberOfContours += bitmap.FindLevelContours(i);
-                    ApplicationStatus.ProgressValue = i;
+                    taskList.Add(bitmap.FindLevelContoursAsync(i));
                 }
 
-                //Task<int>[] task = new Task<int>[18];
-          
-                //Task k = FindLevelContours(0); ;
-                //for (int i = 0; i < numberOfLevels; i++)
-                //    task[0] = FindLevelContours(i);
+                foreach (var task in taskList)
+                {
+                    await task;
+                    ApplicationStatus.ProgressValue++;
+                }
 
-                //for (int i = 0; i < numberOfLevels; i++)
-                //{
-                //    if (task[i] != null)
-                //        await task[i];
-                //}
-                ////bitmap.OutlineImage();
-
+                DateTime endtime = DateTime.Now;
+                TimeSpan lll = endtime - starttime;
+                ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
                 ApplicationStatus.ImageOutlined = true;
                 ApplicationStatus.DisplayContour = true;
             }
@@ -358,15 +343,7 @@ namespace ContourUI
 
         }
 
-        private async Task<int> FindLevelContours(int levelnumber)
-        {
-            int numberOfContours = 0;
-            await Task.Run(() =>
-            {
-            numberOfContours = bitmap.FindLevelContours(levelnumber);
-            });
-            return numberOfContours;
-        }
+       
        
     } // End of MainPage class definition
 

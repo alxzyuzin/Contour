@@ -4,7 +4,8 @@
 #include "Level.h"
 
 using namespace Platform;
-//using namespace ContourUI;
+using namespace Windows::Foundation;
+
 
 namespace ContourExtractorWindowsRuntimeComponent
 {
@@ -66,12 +67,12 @@ namespace ContourExtractorWindowsRuntimeComponent
 	public:
 		ContourBitmap();
 		ContourBitmap(int width, int height);
-		//ContourBitmap(int width, int height, unsigned char* pPixelBuffer);
-
+		
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		void ConvertToGrayscale(unsigned char levels);
 		int  ExtractLevels(TypeOfConvertion conversionType);
 		int  FindLevelContours(int contournumber);
+		IAsyncOperation<int>^  FindLevelContoursAsync(int contournumber);
 		void OutlineImage();
 		void RectifyLevel(unsigned char color, int size);
 		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
@@ -84,8 +85,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 	private:	//Methods
 		void	DisplayLevelShapes(unsigned char color);
 		void	DisplayLevelContours(unsigned char color, ContourColors contourColor);
-//		void	DisplayLevelContours(Level* level);
-//		void	DisplayAllContours(ContourColors color);
 		Level*	SelectLevel(unsigned char color);
 		void	SortColorMap(std::vector<unsigned char>* colormap);
 		void	ClearPixelBuffer();

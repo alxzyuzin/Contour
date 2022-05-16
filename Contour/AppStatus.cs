@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel;
+using Windows.UI.Xaml;
 
 namespace ContourUI
 {
@@ -120,7 +121,6 @@ namespace ContourUI
             }
         }
 
-
         private int _numberOfLevels = 0;
         public int NumberOfLevels
         {
@@ -151,6 +151,21 @@ namespace ContourUI
             }
         }
 
+        private Visibility _progressBarVisibility = 0;
+        public Visibility ProgressBarVisibility
+        {
+            get => _progressBarVisibility;
+            set
+            {
+                if (_progressBarVisibility != value)
+                {
+                    _progressBarVisibility = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressBarVisibility)));
+                }
+
+            }
+        }
+
         public void Reset()
         {
             ImageLoaded = false;
@@ -159,6 +174,11 @@ namespace ContourUI
             DisplayConverted = false;
             HideImage = false;
             DisplayContour = false;
+            ImageFileName = string.Empty;
+            NumberOfContours = 0;
+            NumberOfLevels = 0;
+            ProgressValue = 0;
+            ProgressBarVisibility = Visibility.Collapsed;
         }
     }
 }

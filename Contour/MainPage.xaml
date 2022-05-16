@@ -142,7 +142,10 @@
                            Style="{StaticResource StatusTextBlocksStyle}"/>
             </StackPanel>
 
-            <ProgressBar Grid.Column="1" Margin="30,0,30,0" Minimum="0" Maximum="{Binding NumberOfLevels}" Value="{Binding ProgressValue}"/>
+            <ProgressBar Grid.Column="1" Margin="30,0,30,0" Minimum="0" Maximum="{Binding NumberOfLevels}" 
+                         Value="{Binding ProgressValue}"
+                         Visibility="{Binding ProgressBarVisibility}"/>
+            <!--TextBlock-->
             <!--
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBlock   Grid.Column="3" Text="Mode" Style="{StaticResource StatusTextBlocksStyle}"/>

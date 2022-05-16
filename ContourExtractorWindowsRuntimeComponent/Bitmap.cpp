@@ -2,11 +2,13 @@
 #include "Bitmap.h"
 #include <ppltasks.h>
 
+using namespace concurrency;
 using namespace std;
 using namespace Windows::UI::Xaml::Media::Imaging;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::Storage::Streams;
 using namespace Platform;
+using namespace Windows::Foundation;
 
 using namespace ContourExtractorWindowsRuntimeComponent;
 
@@ -185,9 +187,19 @@ int ContourBitmap::ExtractLevels(TypeOfConvertion conversionType)
 /// <returns>
 /// Number of contours found
 /// </returns>
-int ContourExtractorWindowsRuntimeComponent::ContourBitmap::FindLevelContours(int levelnumber)
+int ContourBitmap::FindLevelContours(int levelnumber)
 {
 	return m_Levels[levelnumber]->FindAllContours();
+}
+
+IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(int levelnumber)
+{
+	return create_async([this, levelnumber]()->int
+		{
+			return m_Levels[levelnumber]->FindAllContours();
+		}
+	);
+	//return m_Levels[levelnumber]->FindAllContours();
 }
 
 void ContourBitmap::SetOriginalImageDataToDisplayBuffer()
@@ -208,10 +220,22 @@ void ContourBitmap::DisplayContours(ContourColors contourcolor)
 		DisplayLevelContours(level->m_Color, contourcolor);
 }
 
-//void DisplayAllContours(int color)
-//{
-//}
-
+/// <summary>
+/// Set image (Original or Converted) and (or) contours to display buffer
+/// </summary>
+/// <param name="hideImage">
+///  true - Disable to display image
+///  false - Enable to display image
+/// </param>
+/// <param name="displayConverted">
+/// true  - Display conerted image
+/// false - Display original image
+/// </param>
+/// <param name="displayContours">
+/// true - Display contours
+/// false -Hide contours
+/// </param>
+/// <param name="color"></param>
 void ContourBitmap::DisplayAll(bool hideImage, bool displayConverted, bool displayContours, ContourColors color)
 {
 	ClearPixelBuffer();
