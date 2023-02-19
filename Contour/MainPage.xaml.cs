@@ -268,8 +268,8 @@ namespace ContourUI
                 }
                 if (Options.ConversionType == TypeOfConvertion.ReducedColors)
                 {
-                    throw new NotImplementedException("Conversion to reduced colors image not implemented.");
-                    //bitmap.ConvertToReducedColors(Options.NumberOfColors);
+                    //throw new NotImplementedException("Conversion to reduced colors image not implemented.");
+                    bitmap.ConvertToReducedColors2(Options.NumberOfColors);
                     
                 }
                 ApplicationStatus.ImageConverted = true;

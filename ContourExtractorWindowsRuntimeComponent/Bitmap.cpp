@@ -1,6 +1,9 @@
 ﻿#include "pch.h"
 #include "Bitmap.h"
 #include <ppltasks.h>
+//#include <ColorLimiter.h>
+#include <ColorGroup.h>
+#include <ColorRegion.h>
 
 using namespace concurrency;
 using namespace std;
@@ -122,7 +125,136 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
 
+void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
+{
+	//numberOfColors = 128;
+	std::vector<ColorRegion*> m_ColorRegions;
 
+	// Убедимся что входной параметр нажодится в допустимом диапазоне
+	if (numberOfColors < 2 || numberOfColors > 255) throw ref new InvalidArgumentException();
+	//Restore original image data
+	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
+	
+	ColorRegion* cr = new ColorRegion(m_pPixelBuffer, m_PixelBufferLength);
+	m_ColorRegions.push_back(cr);
+
+	for (int k = 1; k < numberOfColors; k++)
+	{
+		// Find in color regions region with max base color range
+		int CRIndex = 0;
+		for (int i = 0; i < m_ColorRegions.size(); i++)
+		{
+			if (m_ColorRegions[CRIndex]->getBaseMaxColorRange() < m_ColorRegions[i]->getBaseMaxColorRange())
+			{
+				CRIndex = i;
+			}
+		}
+
+		// Split found color region with maxbase color range to two color regions
+		ColorRegion* a = new ColorRegion();
+		ColorRegion* b = new ColorRegion();
+		m_ColorRegions[CRIndex]->Split(a, b);
+		// Remove pointer to splitted color region from color regions list and delete object
+		ColorRegion* cr = m_ColorRegions[CRIndex];
+		delete cr;
+		m_ColorRegions.erase(m_ColorRegions.begin() + CRIndex);
+		// Add two new color regions to color regions list
+		m_ColorRegions.push_back(a);
+		m_ColorRegions.push_back(b);
+	}
+		
+	for (ColorRegion* cr : m_ColorRegions)
+	{
+		//Color cc = cr->getMidledRegionColor();
+		//Color cc = cr->getMediandRegionColor();
+		Color cc = cr->getAverageRegionColor();
+
+
+		for (int pos = 0; pos < m_PixelBufferLength; pos += 4)
+		{
+			if (cr->Contain(m_pPixelBuffer[pos], m_pPixelBuffer[pos + 1], m_pPixelBuffer[pos + 2]))
+			{
+				m_pPixelBuffer[pos] = cc.red;
+				m_pPixelBuffer[pos + 1] = cc.green;
+				m_pPixelBuffer[pos + 2] = cc.blue;
+				m_pPixelBuffer[pos + 3] = 0xFF;
+			}
+
+		}
+	}
+	
+
+	// Save converted image to the buffer for later use
+	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
+}
+
+void ContourBitmap::ConvertToReducedColors2(unsigned char numberOfColors)
+{
+	//numberOfColors = 128;
+	std::vector<ColorGroup*> m_ColorGroups;
+
+	// Убедимся что входной параметр нажодится в допустимом диапазоне
+	if (numberOfColors < 2 || numberOfColors > 255) throw ref new InvalidArgumentException();
+	//Restore original image data
+	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
+
+	// Create first color group contanes all image colors based on data from pixel buffer 
+	ColorGroup* colorGroup = new ColorGroup(m_pPixelBuffer, m_PixelBufferLength);
+	m_ColorGroups.push_back(colorGroup);
+
+	// Split first color group according number of desired colors in image
+	for (int k = 1; k < numberOfColors; k++)
+	{
+		// Look through list of color groups and find index of color group with max base color range
+		int CGIndex = 0, current_index = 0;
+		for (ColorGroup* group : m_ColorGroups)
+		{
+			if (m_ColorGroups[CGIndex]->getBaseMaxColorRange() < group->getBaseMaxColorRange())
+			{
+				CGIndex = current_index;;
+				
+			}
+			++current_index;
+		}
+
+		// Split found color group with maxbase color range to two color groups
+		ColorGroup* cg = m_ColorGroups[CGIndex];
+		ColorGroup* a = new ColorGroup();
+		ColorGroup* b = new ColorGroup();
+		cg->Split(a, b);
+		// Remove pointer to splitted color region from color regions list and delete object
+		m_ColorGroups.erase(m_ColorGroups.begin() + CGIndex);
+		delete cg;
+		
+		// Add two new color regions to color groups list
+		m_ColorGroups.push_back(a);
+		m_ColorGroups.push_back(b);
+	}
+
+	for (ColorGroup* group : m_ColorGroups)
+	{
+		//CrColor cc = cr->getMidledGroupColor();
+		//CrColor cc = cr->getMediandGroupColor();
+		Color cc = group->getAverageGroupColor();
+
+
+		for (int pos = 0; pos < m_PixelBufferLength; pos += 4)
+		{
+			if (group->Contain(m_pPixelBuffer[pos], m_pPixelBuffer[pos + 1], m_pPixelBuffer[pos + 2]))
+			{
+				m_pPixelBuffer[pos] = cc.red;
+				m_pPixelBuffer[pos + 1] = cc.green;
+				m_pPixelBuffer[pos + 2] = cc.blue;
+				m_pPixelBuffer[pos + 3] = 0xFF;
+			}
+
+		}
+	}
+
+
+	// Save converted image to the buffer for later use
+	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
+}
 
 /// <summary>
 /// Разбивает изображение на слои. Каждый слой содержит пиксели одного из оттенков
@@ -175,7 +307,7 @@ int ContourBitmap::ExtractLevels(TypeOfConvertion conversionType)
 		for (unsigned char levelColor : colormap)
 			m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer)); 
 	}
-	return m_Levels.size();
+	return (int)m_Levels.size();
 }
 
 /// <summary>

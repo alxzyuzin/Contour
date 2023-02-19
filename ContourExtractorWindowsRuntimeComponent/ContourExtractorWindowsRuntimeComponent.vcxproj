@@ -267,12 +267,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Color.h" />
+    <ClInclude Include="ColorRegion.h" />
+    <ClInclude Include="ColorGroup.h" />
     <ClInclude Include="Contour.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Bitmap.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Color.cpp" />
+    <ClCompile Include="ColorRegion.cpp" />
+    <ClCompile Include="ColorGroup.cpp" />
     <ClCompile Include="Contour.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="pch.cpp">

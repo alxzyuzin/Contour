@@ -369,7 +369,7 @@ int Level::FindAllContours()
 			FillContour(externalContour, EMPTY_COLOR);
 		}
 	} while (externalContour);
-	return m_Contours.size();
+	return (int)m_Contours.size();
 }
 
 /*
