@@ -82,7 +82,7 @@
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Image conversion type:"/>
                         <ComboBox x:Name="cbxConvType" Grid.Row="1" Grid.Column="2" 
                                   ItemsSource="{Binding ConvertionTypesList}"
-                                  SelectedValue="{Binding ConversionTypeName , Mode=TwoWay}"/>
+                                  SelectedValue="{Binding ConversionTypeName , Mode=TwoWay}" SelectionChanged="cbxConvType_SelectionChanged"/>
                         <TextBlock  Grid.Row="2" Grid.Column="0" Text="Number of colors:"/>
                         <ComboBox x:Name="cbxNumOfColors" Grid.Row="2" Grid.Column="2"
                                   ItemsSource="{Binding NumberOfColorsList}"

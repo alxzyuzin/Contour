@@ -1,4 +1,13 @@
-﻿using System;
+﻿/*---------------------------------------------------------------------------------
+ * Copyright(c) 2023 Alexandr Ziuzin.
+ *
+ * This file is part of Contour project.
+ *
+ * This class presents main application window
+ *
+ ---------------------------------------------------------------------------------*/
+
+using System;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;

@@ -1,6 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿/*---------------------------------------------------------------------------------
+ * Copyright(c) 2023 Alexandr Ziuzin.
+ *
+ * This file is part of Contour project.
+ *
+ * This class presents window for setting conversion options
+ *
+ ---------------------------------------------------------------------------------*/
+
+
+using System;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -10,10 +18,10 @@ using Windows.UI.Xaml.Controls;
 
 namespace ContourUI
 {
-    
+
     public sealed partial class OptionsWindow : UserControl
     {
-        private string[] arrConversionTypesNames = { "Grayscale", "Reduced colors" };
+        //private string[] arrConversionTypesNames = { "Grayscale", "Reduced colors" };
         
 
 
@@ -136,6 +144,17 @@ namespace ContourUI
             ((GeneralOptions)this.DataContext).Restore();
         }
         #endregion Methods
+        /// <summary>
+        ///  Set default number of colors for conversion depends of conversion mode
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cbxConvType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+             ((GeneralOptions)this.DataContext).NumberOfColors = 8;
+            if (((GeneralOptions)this.DataContext).ConversionType == ContourExtractorWindowsRuntimeComponent.TypeOfConvertion.ReducedColors)
+                ((GeneralOptions)this.DataContext).NumberOfColors = 16;      
+        }
     }
 
 
