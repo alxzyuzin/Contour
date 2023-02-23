@@ -5,6 +5,7 @@
 using namespace ContourExtractorWindowsRuntimeComponent;
 
 Level::Level() {};
+/*
 Level::Level(int width, int height, unsigned char levelColor, unsigned char pPixelBuffer[])
 {
 	if (width <= 0)
@@ -49,6 +50,9 @@ Level::Level(int width, int height, unsigned char levelColor, unsigned char pPix
 }
 Level::Level(pair<unsigned int, unsigned char> colorPair,  PixelBuffer imageData)
 {}
+
+*/
+
 Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair, PixelBuffer imageData)
 {
 	if (width <= 0)
@@ -63,31 +67,17 @@ Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair,
 	m_Color = colorPair.second;
 	m_OriginalColor = colorPair.first;
 	m_BufferLength = width * height;
-	m_pBuffer = new unsigned char[m_BufferLength];
-	m_pShapesBuffer = new unsigned char[m_BufferLength];
-	// Закрасим слой белым цветом
-	// При преобразовании исходного изображения к оттенкам серого
-	// в полученном изображении не будет точек белого цвета
-	// (определяется алгоритмом преобразования) 
-	for (int i = 0; i < m_BufferLength; i++)
-		m_pBuffer[i] = 0xFF;
-
+	m_Buffer = new unsigned char[m_BufferLength]; 
+	m_BufferCopy = new unsigned char[m_BufferLength];
 	// Сожмём данные исходного изображения
 	// 4 байта исходного изображения в оттенках серого сохраняем в буфере слоя в одном байте
 	// поскольку байты RGB исходного изображения содержат одинаковые значения 
-	for (int y = 0; y < m_Height; y++)
-	{
-		for (int x = 0; x < m_Width; x++)
-		{
-			unsigned int bitmapPixelColor = imageData.intBuffer[y * m_Width + x];
-			m_pBuffer[y * m_Width + x] = (bitmapPixelColor == colorPair.first) ? colorPair.second : 0xFF;
-		}
-	}
-	// Сделаем копию сформированных данных в m_pShapesBuffer.
-	// Данные из этого буфера будем использовать для рисования слоя на экране
 	for (int i = 0; i < m_BufferLength; i++)
-		m_pShapesBuffer[i] = m_pBuffer[i];
+		m_Buffer[i] = (imageData.intBuffer[i] == colorPair.first) ? colorPair.second : 0xFF;
 
+	// Make copy built data to m_BufferCopy.
+	// We will use data from this buffer to to draw level on the screen
+	memcpy(m_BufferCopy, m_Buffer, m_BufferLength);
 }
 
 Level::~Level()
@@ -95,8 +85,8 @@ Level::~Level()
 	for (auto contour : m_Contours)
 		delete contour;
 
-	delete[] m_pShapesBuffer;
-	delete[] m_pBuffer;
+	delete[] m_BufferCopy;
+	delete[] m_Buffer;
 }
 
 void Level::Clear()
@@ -104,7 +94,7 @@ void Level::Clear()
 	for (auto contour : m_Contours)
 		delete contour;
 
-	delete[] m_pBuffer;
+	delete[] m_Buffer;
 	m_BufferLength = 0;
 	m_Width = 0;
 	m_Height = 0;
@@ -142,7 +132,7 @@ void Level::GetLevelShapes(unsigned char* pPixelBuffer)
 		for (int x = 0; x < m_Width; x++)
 		{
 			int PixelBufferOffset = (y * m_Width + x) * 4;
-			unsigned char pixelColor = m_pShapesBuffer[y * m_Width + x];
+			unsigned char pixelColor = m_BufferCopy[y * m_Width + x];
 			if (pixelColor == m_Color)
 			{
 				pPixelBuffer[PixelBufferOffset] = m_Color;
@@ -156,19 +146,19 @@ void Level::GetLevelShapes(unsigned char* pPixelBuffer)
 
 void Level::SetPixel(Point* point, unsigned char color)
 {
-	m_pBuffer[point->Y * m_Width + point->X] = color;
+	m_Buffer[point->Y * m_Width + point->X] = color;
 }
 
 void Level::SetPixel(int x, int y, unsigned char color)
 {
-	m_pBuffer[y * m_Width + x] = color;
+	m_Buffer[y * m_Width + x] = color;
 }
 
 unsigned char Level::GetPixel(int x, int y)
 {
 	int pos = y * m_Width + x;
-	unsigned char c = m_pBuffer[y * m_Width + x];
-	return m_pBuffer[y * m_Width + x];
+	unsigned char c = m_Buffer[y * m_Width + x];
+	return m_Buffer[y * m_Width + x];
 }
 
 /*
@@ -184,8 +174,8 @@ bool Level::FindFirstExternalContourPoint(Point& point)
 	for (int y = 0; y < m_Height; y++)
 		for (int x = 0; x < m_Width; x++)
 		{
-			unsigned char c = m_pBuffer[y * m_Width + x]; //
-			if (m_pBuffer[y * m_Width + x] == m_Color)
+			unsigned char c = m_Buffer[y * m_Width + x]; //
+			if (m_Buffer[y * m_Width + x] == m_Color)
 			{
 				point.X = x;
 				point.Y = y;
@@ -309,7 +299,7 @@ bool Level::FindFirstInternalContourPoint(Contour* contour, Point& point)
 				continue;
 			for (int x = StartPoint->X + 1; x < EndPoint->X; x++)
 			{
-				if (m_pBuffer[StartPoint->Y * m_Width + x] == EMPTY_COLOR)
+				if (m_Buffer[StartPoint->Y * m_Width + x] == EMPTY_COLOR)
 				{
 					point.X = x;
 					point.Y = StartPoint->Y;
@@ -421,7 +411,7 @@ int Level::FindAllContours()
 void Level::EraseBuffer()
 {
 	for (int i = 0; i < m_BufferLength; i++)
-		m_pBuffer[i] = EMPTY_COLOR;
+		m_Buffer[i] = EMPTY_COLOR;
 }
 
 /*
@@ -594,7 +584,7 @@ void Level::FillLine(Contour* externalContour, int startPointNumber, Contour::Se
 			endX = startPoint->X;
 		}
 		for (int x = startX; x <= endX; x++)
-			m_pBuffer[startPoint->Y * m_Width + x] = color;
+			m_Buffer[startPoint->Y * m_Width + x] = color;
 	}
 }
 
@@ -628,7 +618,7 @@ void Level::RestoreLine(Contour* externalContour, int startPointNumber, Contour:
 void Level::RestorePixel(int x, int y)
 {
 	int offset = y * m_Width + x;
-	m_pBuffer[offset] = m_pShapesBuffer[offset];
+	m_Buffer[offset] = m_BufferCopy[offset];
 }
 
 /* Проверяет пиксели лежащие на границе отстоящей от центрального пикселя
@@ -705,10 +695,10 @@ void Level::ExpandLevelData(int width, int height, unsigned char color, unsigned
 bool Level::CompareLevelDataWithReferenceData(unsigned char* pReferenceData, wchar_t* message, int messageLength)
 {
 	for (int i = 0; i < m_BufferLength; i++)
-		if (m_pBuffer[i] != pReferenceData[i])
+		if (m_Buffer[i] != pReferenceData[i])
 		{
 			swprintf(message, messageLength, L"Data at offset %i isn't equal to reference. Data value is %i. Should be %i",
-				i, m_pBuffer[i], pReferenceData[i]);
+				i, m_Buffer[i], pReferenceData[i]);
 			return false;
 		}
 	return true;

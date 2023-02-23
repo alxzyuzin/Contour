@@ -23,8 +23,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 	private:	 // Members
 		int m_Width;
 		int m_Height;
-		unsigned char* m_pBuffer;
-		unsigned char* m_pShapesBuffer;
+		unsigned char* m_Buffer;
+		unsigned char* m_BufferCopy;
 		int m_BufferLength;
 
 		map<Direction, vector<Direction>*> m_ClockwiseDirectionMap =
@@ -44,12 +44,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	public:
 		Level();
-		Level(int width, int height, unsigned char color, unsigned char pixeldata[]);
 		Level(int width, int height, pair<unsigned int, unsigned char> colorPair, PixelBuffer ImageData);
-		
-		Level(pair<unsigned int, unsigned char> colorPairб, PixelBuffer ImageData);
-		
-		
+				
 		~Level();
 		void Clear();
 		void Rectify(int size);
@@ -89,15 +85,14 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Direction StartDirection(Direction direction);
 		Direction NextDirection(Direction direction);
 
-		//		Point* Level::GetCorrespondingContourPoint(Contour* externalContour, Contour* internalContour, Point* startPoint, Contour::SearchNearestPointDirection searchDirection);
-
-				/*----------------------------------*/
-				/* Debug functions section start    */
+		
+	/*----------------------------------*/
+	/* Debug functions section start    */
 	public:
 		static void ExpandLevelData(int width, int height, unsigned char color, unsigned char* inBuffer, unsigned char* outBuffer);
 		bool CompareLevelDataWithReferenceData(unsigned char* pReferenceData, wchar_t* message, int messageLength);
-		/* Debug functions section end      */
-		/*----------------------------------*/
+	/* Debug functions section end      */
+	/*----------------------------------*/
 
 
 	};

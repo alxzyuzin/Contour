@@ -12,14 +12,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 {
 	public enum class TypeOfConvertion { Grayscale = 0, ReducedColors = 1 };
 	public enum class ContourColors { Black, White, Red, Green, Blue };
-	/*
-	union PixelBuffer
-	{
-		unsigned char* charBuffer;
-		unsigned int* intBuffer;
-
-	};
-	*/
+	
 	public ref class DisplayParams sealed
 	{
 	public:

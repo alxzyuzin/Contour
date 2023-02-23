@@ -3,6 +3,7 @@
 #include "TestUtils.h"
 #include <..\ContourExtractorWindowsRuntimeComponent\Contour.h>
 #include <..\ContourExtractorWindowsRuntimeComponent\Level.h>
+#include <..\ContourExtractorWindowsRuntimeComponent\Color.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
@@ -88,8 +89,8 @@ namespace ContourTestVS2019
 	{
 		TEST_METHOD(Constructor_Test_1)
 		{
-			unsigned char pixelBuffer[100];
-			Level* level = new Level(5, 5, W, pixelBuffer);
+			PixelBuffer pixelBuffer[100];
+			Level* level = new Level(5, 5, pair<unsigned int, unsigned char>(W,W), pixelBuffer);
 			Assert::IsNotNull(level);
 		}
 
@@ -97,7 +98,7 @@ namespace ContourTestVS2019
 		{
 			Assert::ExpectException< std::invalid_argument, Level*>([]()
 				{
-					unsigned char pixelBuffer[100];
+					PixelBuffer pixelBuffer[100];
 					return new Level(0, 5, W, pixelBuffer);
 				}, L"Parametr width == 0 and exception not thrown.");
 		}
