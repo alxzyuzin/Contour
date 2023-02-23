@@ -1,4 +1,14 @@
-﻿using System;
+﻿/*---------------------------------------------------------------------------------
+ * Copyright(c) 2023 Alexandr Ziuzin.
+ *
+ * This file is part of Contour project.
+ *
+ * This class presents conversion options
+ *
+ ---------------------------------------------------------------------------------*/
+
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;

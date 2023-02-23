@@ -1,7 +1,9 @@
-#pragma once
+﻿#pragma once
 #include <ctime>
 #include <map>
 #include "Contour.h"
+#include "Color.h"
+
 
 using namespace std;
 
@@ -15,6 +17,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	{
 	public:
 		unsigned char	 m_Color;
+		unsigned int     m_OriginalColor;
 		vector<Contour*> m_Contours;
 
 	private:	 // Members
@@ -42,6 +45,11 @@ namespace ContourExtractorWindowsRuntimeComponent
 	public:
 		Level();
 		Level(int width, int height, unsigned char color, unsigned char pixeldata[]);
+		Level(int width, int height, pair<unsigned int, unsigned char> colorPair, PixelBuffer ImageData);
+		
+		Level(pair<unsigned int, unsigned char> colorPairб, PixelBuffer ImageData);
+		
+		
 		~Level();
 		void Clear();
 		void Rectify(int size);

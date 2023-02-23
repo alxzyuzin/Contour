@@ -20,5 +20,13 @@ namespace ContourExtractorWindowsRuntimeComponent
 		unsigned char blue = 0;
 		unsigned char alfa = 0xFF;
 	};
+
+
+	union PixelBuffer
+	{
+		unsigned char* charBuffer;
+		unsigned int* intBuffer;
+
+	};
 }
 

@@ -320,7 +320,8 @@ namespace ContourUI
             {
                 ApplicationStatus.ProgressValue = 0;
                 ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
-                int numberOfLevels = bitmap.ExtractLevels(Options.ConversionType) ;
+                int numberOfLevels = bitmap.ExtractLevels();
+                               
                 ApplicationStatus.NumberOfLevels = numberOfLevels;
 
                 List<Windows.Foundation.IAsyncOperation<int>> taskList = new List<Windows.Foundation.IAsyncOperation<int>>();

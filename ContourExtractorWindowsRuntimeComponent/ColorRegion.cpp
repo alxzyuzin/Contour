@@ -101,7 +101,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		switch (m_MaxRangeColor)
 		{
 		case BaseColor::Red:
-			vectorMedian = m_r_values.size() / 2;
+			vectorMedian = int(m_r_values.size() / 2);
 
 			for (int i = 0; i < vectorMedian; i++)
 				s1_values.push_back(m_r_values[i]);
@@ -113,7 +113,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		
 			break;
 		case BaseColor::Green:
-			vectorMedian = m_g_values.size() / 2;
+			vectorMedian = int(m_g_values.size() / 2);
 
 			for (int i = 0; i < vectorMedian; i++)
 				s1_values.push_back(m_g_values[i]);
@@ -124,7 +124,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 			reg2->setColorValues(&m_r_values, &s2_values, &m_b_values);
 			break;
 		case BaseColor::Blue:
-			vectorMedian = m_b_values.size() / 2;
+			vectorMedian = int(m_b_values.size() / 2);
 
 			for (int i = 0; i < vectorMedian; i++)
 				s1_values.push_back(m_b_values[i]);
@@ -140,7 +140,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	BaseColor ColorRegion::SplitColor(std::vector<unsigned char> *range1, std::vector<unsigned char>* range2)
 	{
 
-		int vectorMedian;
+		//int vectorMedian;
 		/*
 		switch (m_MaxRangeColor)
 		{

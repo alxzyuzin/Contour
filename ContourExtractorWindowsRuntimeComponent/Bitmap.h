@@ -2,6 +2,7 @@
 #include <robuffer.h>
 #include <ppltasks.h>
 #include "Level.h"
+#include "Color.h"
 
 using namespace Platform;
 using namespace Windows::Foundation;
@@ -11,7 +12,14 @@ namespace ContourExtractorWindowsRuntimeComponent
 {
 	public enum class TypeOfConvertion { Grayscale = 0, ReducedColors = 1 };
 	public enum class ContourColors { Black, White, Red, Green, Blue };
+	/*
+	union PixelBuffer
+	{
+		unsigned char* charBuffer;
+		unsigned int* intBuffer;
 
+	};
+	*/
 	public ref class DisplayParams sealed
 	{
 	public:
@@ -72,7 +80,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void ConvertToGrayscale(unsigned char levels);
 		void ConvertToReducedColors(unsigned char numberOfColors);
 		void ConvertToReducedColors2(unsigned char numberOfColors);
-		int  ExtractLevels(TypeOfConvertion conversionType);
+		int  ExtractLevels();
 		int  FindLevelContours(int contournumber);
 		IAsyncOperation<int>^  FindLevelContoursAsync(int contournumber);
 		void OutlineImage();
@@ -87,6 +95,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	private:	//Methods
 		void	DisplayLevelShapes(unsigned char color);
 		void	DisplayLevelContours(unsigned char color, ContourColors contourColor);
+
 		Level*	SelectLevel(unsigned char color);
 		void	SortColorMap(std::vector<unsigned char>* colormap);
 		void	ClearPixelBuffer();
@@ -96,7 +105,12 @@ namespace ContourExtractorWindowsRuntimeComponent
 		int m_Width;				// Ширина изображения в рикселях
 		int m_Height;				// Высота изображения в рикселях
 		int m_PixelBufferLength;	// Длина буфера изображения в байтах
+		
 		unsigned char* m_pPixelBuffer;		    // Pointer to WriteableBitmap buffer. Data from this buffer serves as data source for Image object to display
+		
+		PixelBuffer m_ImageData;
+		unsigned int m_uintImageDataLength;
+		
 		unsigned char* m_pOriginalImageData;	// Pointer to buffer to store original image data loaded from file
 		unsigned char* m_pConvertedImageData;	// Pointer to buffer to store converted image data 
 		Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ m_Bitmap = nullptr;

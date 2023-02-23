@@ -4,6 +4,7 @@
 //#include <ColorLimiter.h>
 #include <ColorGroup.h>
 #include <ColorRegion.h>
+#include "Color.h"
 
 using namespace concurrency;
 using namespace std;
@@ -41,6 +42,7 @@ ContourBitmap::ContourBitmap()
 	m_Width = 0;
 	m_Height = 0;
 	m_PixelBufferLength = 0;
+	m_uintImageDataLength = 0;
 }
 
 
@@ -58,6 +60,7 @@ ContourBitmap::ContourBitmap(int width, int height)
 	m_Width = width;   
 	m_Height = height;
 	m_PixelBufferLength = 4 * width * height;
+	m_uintImageDataLength = width * height;
 	m_Bitmap = ref new WriteableBitmap(width, height);
 	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Create buffer for original image data
 	m_pConvertedImageData = new unsigned char[m_PixelBufferLength]; // Create buffer for converted image data
@@ -83,9 +86,13 @@ void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 	ComPtr<IUnknown> pBuffer((IUnknown*)pIBuffer);
 	pBuffer.As(&pBufferByteAccess);
 	// Get pointer to pixel bytes
-	pBufferByteAccess->Buffer(&m_pPixelBuffer); // Теперь m_pPixelBuffer содержит адрес даных изображения во внутреннем буфере WritableBitmap
-	// До начала всех менипуляций сделаем копию данных изображения в m_pOriginalImageData
+	pBufferByteAccess->Buffer(&m_pPixelBuffer); // Now m_pPixelBuffer contains address of image data in the internal WritableBitmap buffer
+	// Make copy image data to m_pOriginalImageData before any manipulations
 	memcpy(m_pOriginalImageData, m_pPixelBuffer, m_PixelBufferLength);
+	// Make possible work with image data in two ways (as byte array and as unsigned int array
+	m_ImageData.charBuffer = m_pPixelBuffer;
+
+
 }
 
 
@@ -190,7 +197,7 @@ void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
 
 void ContourBitmap::ConvertToReducedColors2(unsigned char numberOfColors)
 {
-	//numberOfColors = 128;
+	
 	std::vector<ColorGroup*> m_ColorGroups;
 
 	// Убедимся что входной параметр нажодится в допустимом диапазоне
@@ -255,7 +262,7 @@ void ContourBitmap::ConvertToReducedColors2(unsigned char numberOfColors)
 	// Save converted image to the buffer for later use
 	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
-
+/*
 /// <summary>
 /// Разбивает изображение на слои. Каждый слой содержит пиксели одного из оттенков
 /// серого присутствующих в изображении.
@@ -306,6 +313,38 @@ int ContourBitmap::ExtractLevels(TypeOfConvertion conversionType)
 		// и создаёт срез исходного изображения по цвету levelColor
 		for (unsigned char levelColor : colormap)
 			m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer)); 
+	}
+	return (int)m_Levels.size();
+}
+*/
+/// <summary>
+/// Split color image to levels. Every level contains pixels of one color.
+/// For each color in original image function create separate level.
+/// The level size fits to size of original image.
+/// Function moves to level only pixels with color for wihich this level been created,
+/// other pixels set to color 0xFF (mean empty color)
+/// </summary>
+/// <param name="conversionType"></param>
+int ContourBitmap::ExtractLevels()
+{
+	map<unsigned int, unsigned char> colormap;
+		
+	// Build list of color in image
+	unsigned char levelValue = 1;
+	for (unsigned int i = 0; i < m_uintImageDataLength; i++)
+	{
+		unsigned int c = m_ImageData.intBuffer[i];
+		
+		if (colormap.count(c) == 0)
+		{
+			colormap.insert(pair<unsigned int, unsigned char>(c, levelValue));
+			levelValue+=2;
+		}
+	}
+	
+	for (pair<unsigned int, unsigned char> colorPair : colormap)
+	{
+		m_Levels.push_back(new Level(m_Width, m_Height, colorPair, m_ImageData));
 	}
 	return (int)m_Levels.size();
 }
@@ -445,8 +484,8 @@ void ContourBitmap::OutlineImage()
 /// </param>
 void ContourBitmap::RectifyLevel(unsigned char color, int size)
 {
-	Level* selectedLevel = SelectLevel(color);
-	selectedLevel->Rectify(size);
+	//Level* selectedLevel = SelectLevel(color);
+	//selectedLevel->Rectify(size);
 }
 
 //-----------------------------------------------------------------------------
@@ -516,6 +555,7 @@ void ContourBitmap::DisplayLevelContours(unsigned char levelcolor, ContourColors
 //}
 
 // Возвращает указатель на уровень заданного цвета
+
 Level* ContourBitmap::SelectLevel(unsigned char color)
 {
 	for (Level* level : m_Levels)
@@ -528,6 +568,7 @@ Level* ContourBitmap::SelectLevel(unsigned char color)
 	}
 	return nullptr;
 }
+
 
 void ContourBitmap::SortColorMap(std::vector<unsigned char>* colormap)
 {
