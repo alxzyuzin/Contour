@@ -5,53 +5,7 @@
 using namespace ContourExtractorWindowsRuntimeComponent;
 
 Level::Level() {};
-/*
-Level::Level(int width, int height, unsigned char levelColor, unsigned char pPixelBuffer[])
-{
-	if (width <= 0)
-		throw std::invalid_argument("parameter width <= 0");
-	if (height <= 0)
-		throw std::invalid_argument("parameter width <= 0");
-	if (levelColor == 0xFF)
-		throw std::invalid_argument("Received levelColor value 0xFF");
-	if (!pPixelBuffer)
-		throw std::invalid_argument("Pointer to pPixelBuffer is null");
 
-	m_Width = width;
-	m_Height = height;
-	m_Color = levelColor;
-	m_BufferLength = width * height;
-	m_pBuffer = new unsigned char[m_BufferLength];
-	m_pShapesBuffer = new unsigned char[m_BufferLength];
-	// Закрасим слой белым цветом
-	// При преобразовании исходного изображения к оттенкам серого
-	// в полученном изображении не будет точек белого цвета
-	// (определяется алгоритмом преобразования) 
-	for (int i = 0; i < m_BufferLength; i++)
-		m_pBuffer[i] = 0xFF;
-
-	// Сожмём данные исходного изображения
-	// 4 байта исходного изображения в оттенках серого сохраняем в буфере слоя в одном байте
-	// поскольку байты RGB исходного изображения содержат одинаковые значения 
-	for (int y = 0; y < m_Height; y++)
-	{
-		for (int x = 0, k = 0; x < (m_Width * 4); x += 4, k++)
-		{
-			unsigned char bitmapPixelColor = pPixelBuffer[y * (m_Width * 4) + x];
-			int levelOffset = y * m_Width + k;
-			m_pBuffer[y * m_Width + k] = (bitmapPixelColor == levelColor) ? levelColor : 0xFF;
-		}
-	}
-	// Сделаем копию сформированных данных в m_pShapesBuffer.
-	// Данные из этого буфера будем использовать для рисования слоя на экране
-	for (int i = 0; i < m_BufferLength; i++)
-		m_pShapesBuffer[i] = m_pBuffer[i];
-
-}
-Level::Level(pair<unsigned int, unsigned char> colorPair,  PixelBuffer imageData)
-{}
-
-*/
 
 Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair, PixelBuffer imageData)
 {

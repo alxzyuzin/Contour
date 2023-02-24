@@ -48,7 +48,7 @@
             <RowDefinition Height="*"/>
             <!-- View options and status row -->
             <RowDefinition Height="60px"/>
-            <RowDefinition Height="50px"/>
+            <RowDefinition Height="25px"/>
             
         </Grid.RowDefinitions>
         
@@ -110,11 +110,16 @@
                  <MenuFlyoutItem x:Name="mfiAbout" Text="About" Click="mfiAbout_Clicked"/>
             </muxc:MenuBarItem>
         </muxc:MenuBar>
-        
-        <Rectangle Grid.Row="1" Fill="White" Margin="25,26,25,25" 
-                   Visibility="Visible"/>
-        <Image  x:Name="ExposedImage" Grid.Row="1"  Margin="25,26,25,25"  />
-        
+        <Grid Grid.Row="1" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200px"/>
+            </Grid.ColumnDefinitions>
+            <!--Rectangle Grid.Column="0" Fill="White" Margin="25,0,25,15" 
+                   Visibility="Visible"/-->
+            <Image  x:Name="ExposedImage" Grid.Column="0"  Margin="25,0,25,15"  />
+            <Rectangle Grid.Column="1" Fill="#FFA0A0A0" Margin="25,25,25,15" />
+        </Grid>
         <!-- View options and controls -->
         <StackPanel x:Name="DisplayOptions" Grid.Row="2" HorizontalAlignment="Right" 
                     Orientation="Horizontal" Margin="20,0,20,0">

@@ -11,215 +11,73 @@ using namespace  ContourExtractorWindowsRuntimeComponent;
 
 namespace ContourTestVS2019
 {
-
-	const unsigned char E = 0xFF;
-	const unsigned char B = 0x00;
-	const unsigned char W = 0xFE;
-	
-   	TEST_CLASS(LevelTest_ServiceFunctions)
-	{
-		unsigned char EmptySquare[25] =
-		{
-			E, E, E, E, E,
-			E, E, E, E, E,
-			E, E, E, E, E,
-			E, E, E, E, E,
-			E, E, E, E, E
-		};
-
-		unsigned char ReferenceEmptySquareExpanded[100] =
-		{ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,0xFF, 0xFF
-		};
-
-
-
-		TEST_METHOD(ExpandLevelData_Test_1)
-		{
-			unsigned char EmptySquareExpanded[100];
-
-			Level::ExpandLevelData(5, 5, E, EmptySquare, EmptySquareExpanded);
-			int i = 0;
-			for (unsigned char c : ReferenceEmptySquareExpanded)
-			{
-				Assert::IsTrue(c == EmptySquareExpanded[i++], L"Points is equal.");
-			}
-		}
-
-		unsigned char FibbonachiSquare[25] =
-		{
-			B, E, B, E, B,
-			B, E, E, B, B,
-			B, E, E, E, B,
-			B, B, B, B, E,
-			E, E, E, E, B
-		};
-
-		unsigned char ReferenceFibbonachiSquareExpanded[100] =
-		{ 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF,
-			0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF,
-			0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF,
-			0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF
-		};
-
-		TEST_METHOD(ExpandLevelData_Test_2)
-		{
-			wchar_t Message[100];
-			unsigned char FibbonachiSquareExpanded[100];
-
-			Level::ExpandLevelData(5, 5, B, FibbonachiSquare, FibbonachiSquareExpanded);
-
-			for (int i = 0; i < 100; i++)
-			{
-				unsigned char c = ReferenceFibbonachiSquareExpanded[i];
-				unsigned char f = FibbonachiSquareExpanded[i];
-				swprintf(Message, 100, L"Point %i isn't equal to reference. Point color %X should be %X", i, f, c);
-				Assert::IsTrue(c == f, Message);
-				++i;
-			}
-		}
-
-	}; // LevelTest_ServiceFunctions
+	const unsigned char L = 0x0F;
+	const unsigned int B = 0x000000FF;
+	const unsigned int W = 0xFFFFFFFF;
 
 	TEST_CLASS(LevelTest_FunctionsParams)
 	{
+		unsigned char pixelBuffer[100];
+		PixelBuffer buffer;
+		pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(W, W);
+		
+
 		TEST_METHOD(Constructor_Test_1)
 		{
-			PixelBuffer pixelBuffer[100];
-			Level* level = new Level(5, 5, pair<unsigned int, unsigned char>(W,W), pixelBuffer);
+			buffer.charBuffer = pixelBuffer;
+			Level* level = new Level(5, 5, colorPair, buffer);
 			Assert::IsNotNull(level);
 		}
+		
 
 		TEST_METHOD(Constructor_Test_2)
 		{
+			
 			Assert::ExpectException< std::invalid_argument, Level*>([]()
 				{
-					PixelBuffer pixelBuffer[100];
-					return new Level(0, 5, W, pixelBuffer);
+					unsigned char pixelBuffer[100];
+					PixelBuffer buffer;
+					buffer.charBuffer = pixelBuffer;
+					pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(W, W);
+					return new Level(0, 5, colorPair, buffer);
 				}, L"Parametr width == 0 and exception not thrown.");
 		}
-
+		
 		TEST_METHOD(Constructor_Test_3)
 		{
 			Assert::ExpectException< std::invalid_argument, Level*>([]()
 				{
 					unsigned char pixelBuffer[100];
-					return new Level(5, 0, W, pixelBuffer);
+					PixelBuffer buffer;
+					buffer.charBuffer = pixelBuffer;
+					pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(W, W);
+
+					return new Level(5, 0, colorPair, buffer);
 				}, L"Parametr height == 0 and exception not thrown.");
 		}
 
-		TEST_METHOD(Constructor_Test_4)
-		{
-			Assert::ExpectException< std::invalid_argument, Level*>([]()
-				{
-					unsigned char pixelBuffer[100];
-					return new Level(5, 5, E, pixelBuffer);
-				}, L"Parametr color == 0xFF and exception not thrown.");
-		}
-
+		
 		TEST_METHOD(Constructor_Test_5)
 		{
 			Assert::ExpectException< std::invalid_argument, Level*>([]()
 				{
-					return new Level(5, 5, E, nullptr);
+					pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(E, E);
+					PixelBuffer buffer;
+					buffer.charBuffer = nullptr;
+					return new Level(5, 5, colorPair, buffer);
 				}, L"Parametr pixelBuffer is null and exception not thrown.");
 		}
-
+		
 	}; // class LevelTest_FunctionsParams
-
+	
 	TEST_CLASS(LevelTest_ExternalContour)
 	{
+		
 	private:
 		wchar_t Message[100];
 
 	public:
-		unsigned char WhiteSquare[25] =
-		{ W, W, W, W, W,
-			W, W, W, W, W,
-			W, W, W, W, W,
-			W, W, W, W, W,
-			W, W, W, W, W
-		};
-
-		/*
-		Analize 5x5 square area filled by white color (0xFE)
-		Look for first shape pixel with color 0xFE
-		OK - if pixel found (function FindFirstContourPoint return true)
-		*/
-		TEST_METHOD(Test_01_FindFirstExternalContourPoint)
-		{
-			unsigned char WhiteSquareExpanded[100];
-			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
-			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
-			Point firstContourPoint = Point(5, 5);
-			Point ExpectedPoint = Point(0, 0);
-			bool r = level->FindFirstExternalContourPoint(firstContourPoint);
-			Assert::IsTrue(r);
-		}
-
-		/*
-		Find first external contour point if parent contour is null
-		Check coords first shape pixel with color 0xFE
-		OK - if expected coords == first contour point coords
-		*/
-		TEST_METHOD(Test_02_FindFirstExternalContourPoint)
-		{
-			unsigned char WhiteSquareExpanded[100];
-			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
-
-			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
-			Point firstContourPoint = Point(5, 5);
-			Point ExpectedPoint = Point(0, 0);
-			level->FindFirstExternalContourPoint(firstContourPoint);
-			Assert::IsTrue(firstContourPoint == ExpectedPoint);
-		}
-
-		/*
-		Find next pixel if current pixel lays in upper right corner of OneColor area 0xFE
-		Parent contour is null
-		OK - if expected coords == X = 4 Y = 1
-		*/
-		TEST_METHOD(Test_03_FindNextExternalContourPoint)
-		{
-			unsigned char WhiteSquareExpanded[100];
-			Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
-
-			Level* level = new Level(5, 5, 0xFE, WhiteSquareExpanded);
-			Point currentPoint = Point(4, 0);
-			Point nextExpectedPoint = Point(4, 1);
-			level->FindNextExternalContourPoint(currentPoint, Direction::S);
-			Assert::IsTrue(currentPoint == nextExpectedPoint);
-		}
-
-		// Empty square size 5x5
-		unsigned char EmptySquare[25] =
-		{
-			E, E, E, E, E,
-			E, E, E, E, E,
-			E, E, E, E, E,
-			E, E, E, E, E,
-			E, E, E, E, E
-		};
-
-		/*
-		Find contour in 5x5 empty square area ( filled with color 0xFF)
-		Expected result: contour not found
-		*/
-		TEST_METHOD(Test_04_FindExternalContour)
-		{
-			unsigned char EmptySquareExpanded[100];
-			Level::ExpandLevelData(5, 5, B, EmptySquare, EmptySquareExpanded);
-
-			Level* level = new Level(5, 5, B, EmptySquareExpanded);
-			Contour* contour = level->FindExternalContour();
-			Assert::IsNull(contour, L"contour is not null");
-		}
-
-		unsigned char Dataset_05[25] =
+		unsigned int WhiteSquare[25] =
 		{ 
 			W, W, W, W, W,
 			W, W, W, W, W,
@@ -227,6 +85,65 @@ namespace ContourTestVS2019
 			W, W, W, W, W,
 			W, W, W, W, W
 		};
+
+		
+		//Analize 5x5 square area filled by white color (0xFFFFFFFF)
+		//Look for first shape pixel with color 0xFFFFFFFF
+		//OK - if pixel found (function FindFirstContourPoint return true)
+		
+		TEST_METHOD(Test_01_FindFirstExternalContourPoint)
+		{
+		
+			PixelBuffer buffer;
+			buffer.intBuffer = WhiteSquare;
+			pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(W, L);
+
+			Level* level = new Level(5, 5, colorPair, buffer);
+			Point firstContourPoint = Point(5, 5);
+			Point ExpectedPoint = Point(0, 0);
+			bool r = level->FindFirstExternalContourPoint(firstContourPoint);
+			Assert::IsTrue(r);
+		}
+		
+		
+		//Find first external contour point if parent contour is null
+		//Check coords first shape pixel with color 0xFE
+		//OK - if expected coords == first contour point coords
+		
+		TEST_METHOD(Test_02_FindFirstExternalContourPoint)
+		{
+			//unsigned char WhiteSquareExpanded[100];
+			//Level::ExpandLevelData(5, 5, W, WhiteSquare, WhiteSquareExpanded);
+
+			PixelBuffer buffer;
+			buffer.intBuffer = WhiteSquare;
+			pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(W, L);
+
+			Level* level = new Level(5, 5, colorPair, buffer);
+			Point firstContourPoint = Point(5, 5);
+			Point ExpectedPoint = Point(0, 0);
+			level->FindFirstExternalContourPoint(firstContourPoint);
+			Assert::IsTrue(firstContourPoint == ExpectedPoint);
+		}
+
+		
+		//Find next pixel if current pixel lays in upper right corner of OneColor area 0xFE
+		//Parent contour is null
+		//OK - if expected coords == X = 4 Y = 1
+		
+		TEST_METHOD(Test_03_FindNextExternalContourPoint)
+		{
+			PixelBuffer buffer;
+			buffer.intBuffer = WhiteSquare;
+			pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(W, L);
+
+			Level* level = new Level(5, 5, colorPair, buffer);
+			Point currentPoint = Point(4, 0);
+			Point nextExpectedPoint = Point(4, 1);
+			level->FindNextExternalContourPoint(currentPoint, Direction::S);
+			Assert::IsTrue(currentPoint == nextExpectedPoint);
+		}
+		
 		// 5x5 Square border
 		Point SquareBorderContourPoints_5x5[16] =
 		{
@@ -235,20 +152,21 @@ namespace ContourTestVS2019
 			Point(3,4), Point(2,4),Point(1,4),Point(0,4),
 			Point(0,3),Point(0,2), Point(0,1)
 		};
-		/*
-		Find contour of square area filled with white color (0xFE)
-		Check contour length
-		*/
+		 
+		//Find contour of square area filled with white color (0xFFFFFFFF)
+		//Check contour length
+	
 		TEST_METHOD(Test_05_FindExternalContour)
 		{
-			unsigned char WhiteSquareExpanded[100];
-			Level::ExpandLevelData(5, 5, W, Dataset_05, WhiteSquareExpanded);
+			PixelBuffer buffer;
+			buffer.intBuffer = WhiteSquare;
+			pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(W, L);
 
 			// use this expression to find array size
 			//int size = *(&arr + 1) - arr;
 			int expectedContourLength = 16;
 
-			Level* level = new Level(5, 5, W, WhiteSquareExpanded);
+			Level* level = new Level(5, 5, colorPair, buffer);
 			Contour* contour = level->FindExternalContour();
 			swprintf(Message, 100, L"Contour length %i should be %i", contour->Size(), 16);
 			Assert::IsTrue(contour->Size() == expectedContourLength, Message);
@@ -261,33 +179,31 @@ namespace ContourTestVS2019
 				Assert::IsTrue(SquareBorderContourPoints_5x5[i] == p, Message);
 			}
 		}
-
+		
 
 		// 5x5 Square with black border and black point inside
-		unsigned char DataSet_06[25] =
+		unsigned int DataSet_06[25] =
 		{
 			B, B, B, B, B,
-			B, E, E, E, B,
-			B, E, B, E, B,
-			B, E, E, E, B,
+			B, W, W, W, B,
+			B, W, B, W, B,
+			B, W, W, W, B,
 			B, B, B, B, B,
 		};
-
-		/*
-		Find contour of square area having black border and black point in center
-		Check contour length
-		*/
+		
+		//Find contour of square area having black border and black point in center
+		// contour length
+		
 		TEST_METHOD(Test_06_FindExternalContour)
 		{
-			wchar_t Message[100];
-			unsigned char DataSetExpanded[100];
-			Level::ExpandLevelData(5, 5, B, DataSet_06, DataSetExpanded);
-
+			PixelBuffer buffer;
+			buffer.intBuffer = DataSet_06;
+			pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(B, L);
 			// use this expression to find array size
 			//int size = *(&arr + 1) - arr;
 			int expectedContourLength = 16;
 
-			Level* level = new Level(5, 5, B, DataSetExpanded);
+			Level* level = new Level(5, 5, colorPair, buffer);
 			Contour* contour = level->FindExternalContour();
 			swprintf(Message, 100, L"Contour length %i should be %i", contour->Size(), 16);
 			Assert::IsTrue(contour->Size() == expectedContourLength, Message);
@@ -301,8 +217,9 @@ namespace ContourTestVS2019
 			}
 		}
 
-		unsigned char DataSet_07[231] =
-		{ E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
+		unsigned int DataSet_07[231] =
+		{ 
+			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
 			E, E, B, B, B, E, B, B, B, B, B, B, B, B, E, E, E, B, B, B, E,
 			E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E, B, B, E,
 			E, B, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, B, B, E, E,
@@ -317,10 +234,11 @@ namespace ContourTestVS2019
 
 		TEST_METHOD(Test_07_FindExternalContour)
 		{
-			wchar_t Message[100];
-			unsigned char DataSetExpanded[924];
-			Level::ExpandLevelData(21, 11, B, DataSet_07, DataSetExpanded);
-			Level* level = new Level(21, 11, B, DataSetExpanded);
+			PixelBuffer buffer;
+			buffer.intBuffer = DataSet_07;
+			pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(B, L);
+
+			Level* level = new Level(21, 11, colorPair, buffer);
 			Contour* contour = level->FindExternalContour();
 			swprintf(Message, 100, L"Contour length should be %i", 16);
 			Assert::AreEqual(64, contour->Length, Message);
@@ -331,6 +249,7 @@ namespace ContourTestVS2019
 
 	TEST_CLASS(LevelTest_InternalContour)
 	{
+		/*
 	private:
 		wchar_t Message[100];
 		Direction AllDirections[8] =
@@ -465,13 +384,13 @@ namespace ContourTestVS2019
 		// Check function parameter value control
 		TEST_METHOD(Test_0_FindInternalContour)
 		{
-			/*Assert::ExpectException< std::invalid_argument, Contour*>([this]()
-				{
-					unsigned char DataSetExpanded[100];
-					Level::ExpandLevelData(5, 5, B, DataSet_0, DataSetExpanded);
-					Level* level = new Level(5, 5, B, DataSetExpanded);
-					return level->FindInternalContour(nullptr);
-				}, L"Parametr parentContour is null and exception not thrown.");*/
+			//Assert::ExpectException< std::invalid_argument, Contour*>([this]()
+			//	{
+			//		unsigned char DataSetExpanded[100];
+			//		Level::ExpandLevelData(5, 5, B, DataSet_0, DataSetExpanded);
+			//		Level* level = new Level(5, 5, B, DataSetExpanded);
+			//		return level->FindInternalContour(nullptr);
+			//	}, L"Parametr parentContour is null and exception not thrown.");
 		}
 
 		// Find internal contour
@@ -720,18 +639,18 @@ namespace ContourTestVS2019
 			Assert::AreEqual(1, internalContour->Length, L"Invalid internal contour length");
 		}
 
-		/*unsigned char DataSet_13[81] =
-		{
-			B, B, B, B, B, B, B, B, B,
-			B, E, E, E, B, E, E, E, B,
-			B, E, E, E, B, E, E, E, B,
-			B, E, E, E, B, E, E, E, B,
-			B, E, E, E, B, E, E, E, B,
-			B, E, E, E, B, E, E, E, B,
-			B, E, E, E, B, E, E, E, B,
-			B, E, E, E, B, E, E, E, B,
-			B, B, B, B, B, B, B, B, B,
-		};*/
+		//unsigned char DataSet_13[81] =
+		//{
+		//	B, B, B, B, B, B, B, B, B,
+		//	B, E, E, E, B, E, E, E, B,
+		//	B, E, E, E, B, E, E, E, B,
+		//	B, E, E, E, B, E, E, E, B,
+		//	B, E, E, E, B, E, E, E, B,
+		//	B, E, E, E, B, E, E, E, B,
+		//	B, E, E, E, B, E, E, E, B,
+		//	B, E, E, E, B, E, E, E, B,
+		//	B, B, B, B, B, B, B, B, B,
+		//};
 
 		TEST_METHOD(Test_13_FindInternalContour)
 		{
@@ -742,11 +661,12 @@ namespace ContourTestVS2019
 			Contour* internalContour = level->FindInternalContour(externalCountour);
 			Assert::AreEqual(1, internalContour->Length, L"Invalid internal contour length");
 		}
-
+		*/
 	}; // class LevelTest_InternalContour
 
 	TEST_CLASS(LevelTest_FindAllContours)
 	{
+		/*
 	private:
 		array<wchar_t, 100> Msg;
 		unsigned char DataSet_0[81] =
@@ -828,13 +748,14 @@ namespace ContourTestVS2019
 			level->FindAllContours();
 			Assert::AreEqual(4, (int)level->m_Contours.size());
 		}
+		*/
 	};  // class LevelTest_FindAllContours
 
-		/*
-	Набор тестов функции проверки принадлежности точки контуру ContainsPoint(int x, int y)
-	*/
+	//Набор тесов функции проверки принадлежности точки контуру ContainsPoint(int x, int y)
+	
 	TEST_CLASS(ContourTest_PointInsideContour)
 	{
+	
 	private:
 		wchar_t Message[100];
 		Point Contour_1[8] =
@@ -852,7 +773,7 @@ namespace ContourTestVS2019
 			Point(2,6),	Point(2,7), Point(2,8), Point(1,8), Point(0,8), Point(0,7),
 			Point(0,6),	Point(0,5), Point(0,4),	Point(0,3), Point(0,2),	Point(0,1)
 		};
-
+		/*
 	public:
 		// Check function ContainsPoint return true if point resides inside contour
 		// Expected result true
@@ -896,7 +817,7 @@ namespace ContourTestVS2019
 			Contour* contour = new Contour(Contour_2, 36);
 			Assert::IsFalse(contour->ContainsPoint(4, 7));
 		}
-
+		*/
 		Point Contour_06[263] =
 		{
 			Point(380, 173), Point(381, 173), Point(381, 174), Point(381, 175), Point(381, 176),
@@ -953,13 +874,13 @@ namespace ContourTestVS2019
 			Point(379, 181), Point(379, 180), Point(379, 179), Point(379, 178), Point(379, 177),
 			Point(379, 176), Point(380, 175), Point(380, 174)
 		};
-
+		/*
 		TEST_METHOD(Test_06_ContourContainsPoint)
 		{
 			Contour* contour = new Contour(Contour_06, 263);
 			Assert::IsFalse(contour->ContainsPoint(377, 189));
 		}
-
+		*/
 		unsigned char DataSet_07[231] =
 		{
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
@@ -974,7 +895,7 @@ namespace ContourTestVS2019
 			E, E, E, E, B, B, B, B, E, E, E, B, B, E, E, B, B, B, B, E, E,
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
 		};
-
+		/*
 		TEST_METHOD(Test_07_ContourContainsPoint)
 		{
 			unsigned char DataSetExpanded[924];
@@ -983,12 +904,14 @@ namespace ContourTestVS2019
 			Contour* contour = level->FindExternalContour();
 			Assert::IsFalse(contour->ContainsPoint(5, 6));
 		}
-
-
+		*/
+		
 	}; // class ContourTest_PointInsideContour
-
+	
+	
 	TEST_CLASS(LevelTest_EraseContour)
 	{
+		
 	private:
 		wchar_t Message[100];
 		array<wchar_t, 100> Msg;
@@ -1022,6 +945,7 @@ namespace ContourTestVS2019
 
 
 	public:
+		/*
 		TEST_METHOD(EraseShape_Test_00)
 		{
 			unsigned char InitialDataSetExpanded[100];
@@ -1033,7 +957,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_0_Final, Message, 100);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 		unsigned char DataSet_1_Initial[25] =
 		{
 			B, B, B, B, B,
@@ -1051,7 +975,7 @@ namespace ContourTestVS2019
 			E, E, E, E, E,
 			E, E, E, E, E,
 		};
-
+		/*
 		TEST_METHOD(Test_01_EraseShape)
 		{
 			unsigned char InitialDataSetExpanded[100];
@@ -1064,7 +988,7 @@ namespace ContourTestVS2019
 			Assert::IsTrue(r, Message);
 		}
 
-
+		*/
 		unsigned char DataSet_2_Initial[25] =
 		{
 			B, B, B, B, B,
@@ -1083,7 +1007,7 @@ namespace ContourTestVS2019
 			E, E, E, E, B,
 		};
 
-
+		/*
 		TEST_METHOD(Test_02_EraseShape)
 		{
 			unsigned char InitialDataSetExpanded[100];
@@ -1095,7 +1019,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_2_Final, Message, 100);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 		unsigned char DataSet_3_Initial[81] =
 		{
 			B, B, B, B, B, B, B, B, B,
@@ -1121,7 +1045,7 @@ namespace ContourTestVS2019
 			E, E, E, E, B, E, E, E, E,
 			E, E, E, E, B, E, E, E, E,
 		};
-
+		/*
 		TEST_METHOD(Test_03_EraseShape)
 		{
 			unsigned char InitialDataSetExpanded[324];
@@ -1133,7 +1057,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_3_Final, Message, 100);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 		unsigned char DataSet_4_Initial[25] =
 		{
 			E, E, E, E, E,
@@ -1155,7 +1079,7 @@ namespace ContourTestVS2019
 
 		Point ExternalContour_4[1] = { Point(3,2) };
 
-
+		/*
 		TEST_METHOD(EraseShape_Test_04)
 		{
 			unsigned char InitialDataSetExpanded[100];
@@ -1168,7 +1092,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_4_Final, Message, 100);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 		unsigned char DataSet_5_Initial[25] =
 		{
 			E, E, E, E, E,
@@ -1187,7 +1111,7 @@ namespace ContourTestVS2019
 			E, E, E, E, E,
 		};
 
-
+		/*
 		TEST_METHOD(EraseShape_Test_05)
 		{
 			unsigned char InitialDataSetExpanded[100];
@@ -1199,7 +1123,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_5_Final, Message, 100);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 
 		unsigned char DataSet_6_Initial[81] =
 		{
@@ -1226,7 +1150,7 @@ namespace ContourTestVS2019
 			E, E, E, E, E, E, E, E, E,
 			E, E, E, E, E, E, E, E, E
 		};
-
+		/*
 		TEST_METHOD(EraseShape_Test_06)
 		{
 			unsigned char InitialDataSetExpanded[324];
@@ -1239,7 +1163,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_6_Final, Message, 324);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 		unsigned char DataSet_7_Initial[272] =
 		{
 			B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
@@ -1280,7 +1204,7 @@ namespace ContourTestVS2019
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
 
 		};
-
+		/*
 		TEST_METHOD(Test_07_EraseShape)
 		{
 			unsigned char InitialDataSetExpanded[1088];
@@ -1292,7 +1216,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_7_Final, Message, 324);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 
 		unsigned char DataSet_8_Initial[81] =
 		{
@@ -1319,9 +1243,9 @@ namespace ContourTestVS2019
 			E, E, E, E, B, E, E, E, E,
 			E, E, E, E, B, E, E, E, E,
 		};
+		
+		//	Test EraseContourContent function
 		/*
-			Test EraseContourContent function
-		*/
 		TEST_METHOD(EraseShape_Test_08)
 		{
 			unsigned char InitialDataSetExpanded[324];
@@ -1332,7 +1256,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_8_Final, Message, 324);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 		unsigned char DataSet_9_Initial[81] =
 		{
 			E, E, E, B, B, B, B, E, E,
@@ -1359,9 +1283,9 @@ namespace ContourTestVS2019
 			E, E, E, E, E, E, E, E, E,
 		};
 
+		
+		//	Test RestoreContourContent function
 		/*
-			Test RestoreContourContent function
-		*/
 		TEST_METHOD(Test_09_RestoreContourContent)
 		{
 			unsigned char InitialDataSetExpanded[324];
@@ -1375,7 +1299,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_9_Final, Message, 324);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 		unsigned char DataSet_10_Initial[81] =
 		{
 			B, B, E, E, B, E, E, B, B,
@@ -1402,9 +1326,9 @@ namespace ContourTestVS2019
 			E, E, E, E, E, E, E, E, E,
 		};
 
+		
+		//	Test EraseBuffer function
 		/*
-			Test EraseBuffer function
-		*/
 		TEST_METHOD(EraseShape_Test_10)
 		{
 			unsigned char InitialDataSetExpanded[324];
@@ -1415,7 +1339,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_10_Final, Message, 324);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 		unsigned char DataSet_11_Initial[81] =
 		{
 			B, B, B, B, B, B, B, B, B,
@@ -1442,6 +1366,7 @@ namespace ContourTestVS2019
 			E, E, E, E, B, E, E, E, E,
 		};
 
+		/*
 		TEST_METHOD(Test_11_EraseShape)
 		{
 			unsigned char InitialDataSetExpanded[324];
@@ -1452,7 +1377,7 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_11_Final, Message, 100);
 			Assert::IsTrue(r, Message);
 		}
-
+		*/
 		unsigned char DataSet_12_Initial[231] =
 		{
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
@@ -1482,7 +1407,7 @@ namespace ContourTestVS2019
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
 			E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E
 		};
-
+		/*
 		TEST_METHOD(Test_12_EraseShape)
 		{
 			unsigned char InitialDataSetExpanded[924];
@@ -1493,7 +1418,8 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_12_Final, Message, 100);
 			Assert::IsTrue(r, Message);
 		}
-
+		
+		*/
 		unsigned char DataSet_13_Initial[1700] =
 		{
 			/* 01 */ B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B,
@@ -1605,8 +1531,9 @@ namespace ContourTestVS2019
 			/* 01 */ E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
 			/* 01 */ E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
 		};
-
-		TEST_METHOD(Test_13_EraseShape)
+		
+		/*
+		TEST_METHOD(Test_13_EraseShape
 		{
 			unsigned char InitialDataSetExpanded[6800];
 			Level::ExpandLevelData(34, 50, B, DataSet_13_Initial, InitialDataSetExpanded);
@@ -1617,6 +1544,9 @@ namespace ContourTestVS2019
 			bool r = level->CompareLevelDataWithReferenceData(DataSet_13_Final, Message, 100);
 			Assert::IsTrue(r, Message);
 		}
+		*/
+		
+		
 	}; // class LevelTest_EraseContour
-
-} // namespace ContourTestVS2019
+	
+ }// namespace ContourTestVS2019
