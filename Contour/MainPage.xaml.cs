@@ -44,14 +44,17 @@ namespace ContourUI
         public MainPage()
         {
             InitializeComponent();
-            Options.Restore();
             OptionsWindow.DataContext = Options;
+            Options.Restore();
             gridMain.DataContext = ApplicationStatus;
             ApplicationStatus.PropertyChanged += ApplicationStatus_PropertyChanged;
             ApplicationStatus.ProgressValue = 0;
             ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
-         }
+
+            
+
+        }
 
         private void ApplicationStatus_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -186,6 +189,8 @@ namespace ContourUI
                 bitmap.SetSource(stream);
                 ExposedImage.Source = bitmap.ImageData;
                 ApplicationStatus.ImageLoaded = true;
+
+                
             }
             else
             {
@@ -270,6 +275,7 @@ namespace ContourUI
         {
             if (ApplicationStatus.ImageLoaded)
             {
+                
                 if (Options.ConversionType == TypeOfConvertion.Grayscale)
                 {
                     bitmap.ConvertToGrayscale(Options.NumberOfColors);
@@ -277,14 +283,19 @@ namespace ContourUI
                 }
                 if (Options.ConversionType == TypeOfConvertion.ReducedColors)
                 {
-                    //throw new NotImplementedException("Conversion to reduced colors image not implemented.");
                     bitmap.ConvertToReducedColors2(Options.NumberOfColors);
                     
                 }
+
+                int numberOfLevels = bitmap.ExtractLevels();
+
+                this.Palette.Build(bitmap.Colors);
+
                 ApplicationStatus.ImageConverted = true;
                 ApplicationStatus.DisplayConverted = true;
                 bitmap.ImageData.Invalidate();
 
+               
             }
             else
             {
@@ -320,15 +331,16 @@ namespace ContourUI
             {
                 ApplicationStatus.ProgressValue = 0;
                 ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
-                int numberOfLevels = bitmap.ExtractLevels();
-                               
+                
+                int numberOfLevels = bitmap.LevelsCount;
+
                 ApplicationStatus.NumberOfLevels = numberOfLevels;
 
                 List<Windows.Foundation.IAsyncOperation<int>> taskList = new List<Windows.Foundation.IAsyncOperation<int>>();
                 var starttime = DateTime.Now;
-                for (int i = 0; i < numberOfLevels; i++)
+                for (int levelNumber = 0; levelNumber < numberOfLevels; levelNumber++)
                 {
-                    taskList.Add(bitmap.FindLevelContoursAsync(i));
+                    taskList.Add(bitmap.FindLevelContoursAsync(levelNumber));
                 }
 
                 foreach (var task in taskList)
@@ -342,6 +354,8 @@ namespace ContourUI
                 ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
                 ApplicationStatus.ImageOutlined = true;
                 ApplicationStatus.DisplayContour = true;
+
+ 
             }
             
             

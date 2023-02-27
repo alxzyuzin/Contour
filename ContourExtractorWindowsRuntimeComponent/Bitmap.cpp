@@ -32,6 +32,22 @@ Array<unsigned char>^ ContourBitmap::GrayScaleColorMap::get()
 
 }
 
+// Array of image colors
+Array<unsigned int>^ ContourBitmap::Colors::get()
+{
+	Array<unsigned int>^ ColorMap = ref new Array<unsigned int>((int)m_Levels.size());
+	for (int i = 0; i < (int)m_Levels.size(); i++)
+		ColorMap->set(i, m_Levels[i]->m_OriginalColor);
+
+	return ColorMap;
+
+}
+
+// Number of levels in converted image  
+int ContourBitmap::LevelsCount::get()
+{
+	return (int) m_Levels.size();
+}
 
 //-----------------------------------------------------------------------------
 // public members
@@ -205,7 +221,7 @@ void ContourBitmap::ConvertToReducedColors2(unsigned char numberOfColors)
 	//Restore original image data
 	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
 
-	// Create first color group contanes all image colors based on data from pixel buffer 
+	// Create first color group containes all image colors based on data from pixel buffer 
 	ColorGroup* colorGroup = new ColorGroup(m_pPixelBuffer, m_PixelBufferLength);
 	m_ColorGroups.push_back(colorGroup);
 
@@ -337,15 +353,41 @@ int ContourBitmap::ExtractLevels()
 		
 		if (colormap.count(c) == 0)
 		{
-			colormap.insert(pair<unsigned int, unsigned char>(c, levelValue));
-			levelValue+=2;
+			auto a = colormap[c];
+			pair<unsigned int, unsigned char> p;
+			p.first = c;
+			p.second = levelValue;
+			colormap.insert(p);
+			levelValue+=1;
 		}
 	}
 	
+	// Delete results of previouse extracting levels
+	for (Level* l : m_Levels)
+		delete l;
+	m_Levels.clear();
+	
+	// Create new levels
 	for (pair<unsigned int, unsigned char> colorPair : colormap)
 	{
 		m_Levels.push_back(new Level(m_Width, m_Height, colorPair, m_ImageData));
 	}
+
+	//sort((m_Levels.begin(), m_Levels.end(), [](Level const& a, Level const& b) {return true; });
+	/*
+	std::sort(m_Levels.begin(), m_Levels.end(), [](Level const& a, Level const& b)
+		{
+			return a.m_OriginalColor < b.m_OriginalColor;
+		
+		});
+		*/
+
+	std::sort(m_Levels.begin(), m_Levels.end(), [](Level* a, Level*  b)
+		{
+			return a->m_OriginalColor < b->m_OriginalColor;
+
+		});
+	//CompareLevelsByOriginalColor
 	return (int)m_Levels.size();
 }
 
@@ -372,6 +414,8 @@ IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(int levelnumber)
 	);
 	//return m_Levels[levelnumber]->FindAllContours();
 }
+
+
 
 void ContourBitmap::SetOriginalImageDataToDisplayBuffer()
 {
@@ -620,6 +664,12 @@ inline void ContourBitmap::SetPixel(int x, int y, unsigned char b, unsigned char
 	m_pPixelBuffer[pos + 3] = a;
 }
 
+bool ContourBitmap::CompareLevelsByOriginalColor(Level& l1, Level& l2)
+{
+	return l1.m_OriginalColor < l2.m_OriginalColor;
+}
+
+
 /*
 	Display params properties
 */
@@ -632,3 +682,4 @@ void DisplayParams::DisplayShapes::set(bool displayShapes) { m_DisplayShapes = d
 
 bool DisplayParams::DisplayContours::get() { return m_DisplayContours; }
 void DisplayParams::DisplayContours::set(bool displayContours) { m_DisplayContours = displayContours; }
+

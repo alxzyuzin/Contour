@@ -40,7 +40,7 @@
         <local:InverseBooleanConverter x:Key="BooleanConverter1"/>
     </Page.Resources>
 
-    <Grid x:Name="gridMain" Background="#FFA0A0A0">
+    <Grid x:Name="gridMain" Background="#FFA0A0A0" MinHeight="500">
         <Grid.RowDefinitions>
             <!-- Menu row -->
             <RowDefinition Height="40px"/>
@@ -112,13 +112,16 @@
         </muxc:MenuBar>
         <Grid Grid.Row="1" Visibility="Visible">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="200px"/>
+                <ColumnDefinition Width="8*"/>
+                <ColumnDefinition Width="300"/>
             </Grid.ColumnDefinitions>
-            <!--Rectangle Grid.Column="0" Fill="White" Margin="25,0,25,15" 
-                   Visibility="Visible"/-->
+            <!-- Image -->
+            <Rectangle Grid.Column="0" Fill="White" Margin="25,0,25,15" 
+                   Visibility="Visible"/>
             <Image  x:Name="ExposedImage" Grid.Column="0"  Margin="25,0,25,15"  />
-            <Rectangle Grid.Column="1" Fill="#FFA0A0A0" Margin="25,25,25,15" />
+            <!-- Palette -->
+            <!-- Grid.Column="1" Fill="#FFA0A0A0" Margin="25,25,25,15" / -->
+            <local:PalettePanel x:Name="Palette" Grid.Column ="1" Margin="0,0,25,15"/>
         </Grid>
         <!-- View options and controls -->
         <StackPanel x:Name="DisplayOptions" Grid.Row="2" HorizontalAlignment="Right" 

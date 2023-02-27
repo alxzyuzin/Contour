@@ -65,6 +65,18 @@ namespace ContourExtractorWindowsRuntimeComponent
 			Array<byte>^ get();
 		}
 
+		// List of colors present in image after converting  
+		property Array<unsigned int>^ Colors
+		{
+			Array<unsigned int>^ get();
+		}
+
+		// Number of levels in converted image  
+		property int LevelsCount
+		{
+			int get();
+		}
+
 	public:
 		ContourBitmap();
 		ContourBitmap(int width, int height);
@@ -94,6 +106,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void	ClearPixelBuffer();
 		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
+		bool CompareLevelsByOriginalColor(Level& l1, Level& l2);
 	private:	//Members
 		int m_Width;				// Ширина изображения в рикселях
 		int m_Height;				// Высота изображения в рикселях
