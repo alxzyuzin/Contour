@@ -21,6 +21,20 @@ namespace ContourExtractorWindowsRuntimeComponent
 		unsigned char alfa = 0xFF;
 	};
 
+	struct GrayColorRange
+	{
+		unsigned char bottom = 0;
+		unsigned char top = 0;
+		unsigned char value = 127;
+
+		boolean ContainColor(unsigned char r, unsigned char g, unsigned char b)
+		{
+			unsigned char c = (unsigned char)((r + g + b) / 3);
+			if (bottom <= c && c <= top)
+				return true;
+			return false;
+		}
+	};
 
 	union PixelBuffer
 	{
@@ -28,5 +42,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 		unsigned int* intBuffer;
 
 	};
+
 }
 

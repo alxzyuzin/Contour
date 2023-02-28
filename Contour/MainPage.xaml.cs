@@ -278,7 +278,7 @@ namespace ContourUI
                 
                 if (Options.ConversionType == TypeOfConvertion.Grayscale)
                 {
-                    bitmap.ConvertToGrayscale(Options.NumberOfColors);
+                    bitmap.ConvertToGrayscale2(Options.NumberOfColors);
                    
                 }
                 if (Options.ConversionType == TypeOfConvertion.ReducedColors)

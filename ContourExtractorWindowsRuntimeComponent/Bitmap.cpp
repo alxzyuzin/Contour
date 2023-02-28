@@ -124,7 +124,7 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 	if (levels < 2 || levels > 255) throw ref new InvalidArgumentException();
 
 	//Restore original image data
-	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
+	std::memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
 
 	int range = 255 / levels;
 
@@ -145,7 +145,47 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 		}
 	}
 	// Save converted image to the buffer for later use
-	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
+	std::memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
+}
+
+void ContourBitmap::ConvertToGrayscale2(unsigned char levels)
+{
+	// Убедимся что входной параметр нажодится в допустимом диапазоне
+	if (levels < 2 || levels > 255) throw ref new InvalidArgumentException();
+
+	//Restore original image data
+	std::memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
+
+	int range = 255 / levels;
+	std::vector<GrayColorRange> colorRanges;
+	GrayColorRange grayColorRange;
+	unsigned char bottomLevel = 0;
+	while (grayColorRange.top < 255)
+	{
+		grayColorRange.bottom = bottomLevel;
+		grayColorRange.top = bottomLevel + range;
+			
+		if ((bottomLevel + range) > 255)
+			grayColorRange.top = 255;
+
+		grayColorRange.value = (unsigned char)((grayColorRange.bottom + grayColorRange.top) / 2);
+		colorRanges.push_back(grayColorRange);
+		bottomLevel += (range + 1);
+	}
+
+	for (auto colorRange : colorRanges)
+		for (int j = 0; j < m_PixelBufferLength; j+=4)
+		{
+			if ( colorRange.ContainColor(m_pPixelBuffer[j], m_pPixelBuffer[j + 1], m_pPixelBuffer[j + 2]) )
+			{
+				m_pPixelBuffer[j] = colorRange.value;;
+				m_pPixelBuffer[j + 1] = colorRange.value;;
+				m_pPixelBuffer[j + 2] = colorRange.value;;
+				m_pPixelBuffer[j + 3] = 0xFF;
+			}
+	}
+	// Save converted image to the buffer for later use
+	std::memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
 
 void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
@@ -353,12 +393,14 @@ int ContourBitmap::ExtractLevels()
 		
 		if (colormap.count(c) == 0)
 		{
-			auto a = colormap[c];
-			pair<unsigned int, unsigned char> p;
-			p.first = c;
-			p.second = levelValue;
-			colormap.insert(p);
-			levelValue+=1;
+			colormap.insert(pair<unsigned int, unsigned char>(c, levelValue));
+			levelValue += 2;
+			//auto a = colormap[c];
+			//pair<unsigned int, unsigned char> p;
+			//p.first = c;
+			//p.second = levelValue;
+			//colormap.insert(p);
+			//levelValue+=2;
 		}
 	}
 	
@@ -373,19 +415,9 @@ int ContourBitmap::ExtractLevels()
 		m_Levels.push_back(new Level(m_Width, m_Height, colorPair, m_ImageData));
 	}
 
-	//sort((m_Levels.begin(), m_Levels.end(), [](Level const& a, Level const& b) {return true; });
-	/*
-	std::sort(m_Levels.begin(), m_Levels.end(), [](Level const& a, Level const& b)
-		{
-			return a.m_OriginalColor < b.m_OriginalColor;
-		
-		});
-		*/
-
 	std::sort(m_Levels.begin(), m_Levels.end(), [](Level* a, Level*  b)
 		{
 			return a->m_OriginalColor < b->m_OriginalColor;
-
 		});
 	//CompareLevelsByOriginalColor
 	return (int)m_Levels.size();
@@ -419,12 +451,12 @@ IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(int levelnumber)
 
 void ContourBitmap::SetOriginalImageDataToDisplayBuffer()
 {
-	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
+	std::memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
 }
 
 void ContourBitmap::SetConvertedImageDataToDisplayBuffer()
 {
-	memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
+	std::memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
 }
 /// <summary>
 /// Отображает контуры наиденные в изображении в буфере дисплея

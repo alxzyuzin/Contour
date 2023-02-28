@@ -83,6 +83,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		void ConvertToGrayscale(unsigned char levels);
+		void ConvertToGrayscale2(unsigned char levels);
 		void ConvertToReducedColors(unsigned char numberOfColors);
 		void ConvertToReducedColors2(unsigned char numberOfColors);
 		int  ExtractLevels();

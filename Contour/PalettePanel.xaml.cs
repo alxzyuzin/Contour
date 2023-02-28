@@ -130,7 +130,6 @@ namespace ContourUI
             int paletteRows = GetNumberOfPaletteRows(colors.Length);
             int paletteColumns = GetNumberOfPaletteColumns(colors.Length);
 
-            int i = 0;
             for (int r = 0; r < paletteRows; r++)
             {
                 RowDefinition row = new RowDefinition();
@@ -144,19 +143,19 @@ namespace ContourUI
                 GridPalette.ColumnDefinitions.Add(col);
             }
 
+         
+            int i = 0;
             for (int r = 0; r < paletteRows; r++)
                 for (int c = 0; c < paletteColumns; c++)
                 {
-                    Windows.UI.Xaml.Shapes.Rectangle paletteItem = BuildPaletteItem(colors[i++]);
-                    GridPalette.Children.Add(paletteItem);
-
-                    Grid.SetColumn(paletteItem, c);
-                    Grid.SetRow(paletteItem, r);
-
+                    if (i < colors.Length)
+                    {
+                        Windows.UI.Xaml.Shapes.Rectangle paletteItem = BuildPaletteItem(colors[i++]);
+                        GridPalette.Children.Add(paletteItem);
+                        Grid.SetColumn(paletteItem, c);
+                        Grid.SetRow(paletteItem, r);
+                    }
                 }
-
-        
- 
         }
 
         public void Clear()

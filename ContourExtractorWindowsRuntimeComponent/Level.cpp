@@ -27,8 +27,12 @@ Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair,
 	// 4 байта исходного изображения в оттенках серого сохраняем в буфере слоя в одном байте
 	// поскольку байты RGB исходного изображения содержат одинаковые значения 
 	for (int i = 0; i < m_BufferLength; i++)
-		m_Buffer[i] = (imageData.intBuffer[i] == colorPair.first) ? colorPair.second : 0xFF;
-
+	{
+		if (imageData.intBuffer[i] == colorPair.first)
+			m_Buffer[i] = colorPair.second;
+		else
+			m_Buffer[i] = 0xFF;
+	}
 	// Make copy built data to m_BufferCopy.
 	// We will use data from this buffer to to draw level on the screen
 	memcpy(m_BufferCopy, m_Buffer, m_BufferLength);
