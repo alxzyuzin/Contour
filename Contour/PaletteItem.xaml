@@ -5,10 +5,23 @@
     xmlns:local="using:ContourUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="60"
+    d:DesignWidth="200"
     mc:Ignorable="d"
-    d:DesignHeight="40"
-    d:DesignWidth="150">
+    >
     <UserControl.Resources>
+        <SolidColorBrush x:Key="RedBrash" Color="Red"/>
+        <SolidColorBrush x:Key="GreenBrash" Color="Green"/>
+        <SolidColorBrush x:Key="LightGreenBrash" Color="LightGreen"/>
+        <SolidColorBrush x:Key="TransparentBrash" Color="Transparent"/>
+        <SolidColorBrush x:Key="WhiteBrash" Color="White"/>
+        <SolidColorBrush x:Key="GrayBrash" Color="Gray"/>
+        <SolidColorBrush x:Key="LightGrayBrash" Color="LightGray"/>
+        <SolidColorBrush x:Key="DarkGrayBrash" Color="DarkGray"/>
+        <SolidColorBrush x:Key="BlackBrash" Color="Black"/>
+
+        <FontFamily x:Key="SymbolThemeFontFamily">Segoe Fluent Icons</FontFamily>
+
         <Style x:Key="CheckBoxStyle1" TargetType="CheckBox">
             <Setter Property="Background" Value="{ThemeResource CheckBoxBackgroundUnchecked}"/>
             <Setter Property="Foreground" Value="{ThemeResource CheckBoxForegroundUnchecked}"/>
@@ -17,7 +30,7 @@
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
             <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}"/>
             <Setter Property="MinWidth" Value="120"/>
@@ -27,32 +40,32 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
-                        <Grid x:Name="RootGrid" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
+                        <Grid x:Name="RootGrid" Background="{ StaticResource RedBrash}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="20"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup x:Name="CombinedStates">
                                     <VisualState x:Name="UncheckedNormal">
                                         <Storyboard>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxForegroundUnchecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{TemplateBinding Foreground}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxBackgroundUnchecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{TemplateBinding Background}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="BorderBrush">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxBorderBrushUnchecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource TransparentBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundStrokeUnchecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Fill">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundFillUnchecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource WhiteBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CheckGlyph" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckGlyphForegroundUnchecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource TransparentBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                         </Storyboard>
                                     </VisualState>
@@ -68,13 +81,13 @@
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxBorderBrushUncheckedPointerOver}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundStrokeUncheckedPointerOver}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Fill">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundFillUncheckedPointerOver}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightGrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CheckGlyph" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckGlyphForegroundUncheckedPointerOver}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightGrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                         </Storyboard>
                                     </VisualState>
@@ -90,13 +103,13 @@
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxBorderBrushUncheckedPressed}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundStrokeUncheckedPressed}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Fill">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundFillUncheckedPressed}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CheckGlyph" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckGlyphForegroundUncheckedPressed}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightGreenBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <DoubleAnimation Duration="0" Storyboard.TargetName="NormalRectangle" To="{ThemeResource CheckBoxCheckedStrokeThickness}" Storyboard.TargetProperty="StrokeThickness"/>
                                         </Storyboard>
@@ -126,24 +139,24 @@
                                     <VisualState x:Name="CheckedNormal">
                                         <Storyboard>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxForegroundChecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{TemplateBinding Foreground}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxBackgroundChecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{TemplateBinding Background}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="BorderBrush">
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxBorderBrushChecked}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundStrokeChecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Fill">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundFillChecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource WhiteBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CheckGlyph" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckGlyphForegroundChecked}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GreenBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
-                                            <DoubleAnimation Duration="0" Storyboard.TargetName="NormalRectangle" To="{ThemeResource CheckBoxCheckedStrokeThickness}" Storyboard.TargetProperty="StrokeThickness"/>
+                                            <DoubleAnimation Duration="0" Storyboard.TargetName="NormalRectangle" To="1" Storyboard.TargetProperty="StrokeThickness"/>
                                             <DoubleAnimation Duration="0" Storyboard.TargetName="CheckGlyph" To="1" Storyboard.TargetProperty="Opacity"/>
                                         </Storyboard>
                                     </VisualState>
@@ -159,13 +172,13 @@
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxBorderBrushCheckedPointerOver}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundStrokeCheckedPointerOver}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Fill">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundFillCheckedPointerOver}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightGrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CheckGlyph" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckGlyphForegroundCheckedPointerOver}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GreenBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <DoubleAnimation Duration="0" Storyboard.TargetName="CheckGlyph" To="1" Storyboard.TargetProperty="Opacity"/>
                                         </Storyboard>
@@ -182,15 +195,15 @@
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxBorderBrushCheckedPressed}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundStrokeCheckedPressed}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="NormalRectangle" Storyboard.TargetProperty="Fill">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckBackgroundFillCheckedPressed}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GrayBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CheckGlyph" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource CheckBoxCheckGlyphForegroundCheckedPressed}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightGreenBrash}"/>
                                             </ObjectAnimationUsingKeyFrames>
-                                            <DoubleAnimation Duration="0" Storyboard.TargetName="NormalRectangle" To="{ThemeResource CheckBoxCheckedStrokeThickness}" Storyboard.TargetProperty="StrokeThickness"/>
+                                            <DoubleAnimation Duration="0" Storyboard.TargetName="NormalRectangle" To="1" Storyboard.TargetProperty="StrokeThickness"/>
                                             <DoubleAnimation Duration="0" Storyboard.TargetName="CheckGlyph" To="1" Storyboard.TargetProperty="Opacity"/>
                                         </Storyboard>
                                     </VisualState>
@@ -323,23 +336,25 @@
                                     </VisualState>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            <Grid Height="32" VerticalAlignment="Top">
+                            <Grid Height="20" VerticalAlignment="Top" Grid.Column="1">
                                 <!--Rectangle x:Name="NormalRectangle" Fill="{ThemeResource CheckBoxCheckBackgroundFillUnchecked}" Height="20" Stroke="{ThemeResource CheckBoxCheckBackgroundStrokeUnchecked}" StrokeThickness="{ThemeResource CheckBoxBorderThemeThickness}" UseLayoutRounding="False" Width="20"/ -->
-                                <Rectangle x:Name="NormalRectangle" Width="20" Height="20" 
-                                           Fill="{ThemeResource CheckBoxCheckBackgroundFillUnchecked}" 
-                                           Stroke="{ThemeResource CheckBoxCheckBackgroundStrokeUnchecked}" 
-                                           StrokeThickness="1" UseLayoutRounding="False" />
+                                <Rectangle x:Name="NormalRectangle" Width="15" Height="15"
+                                           Stroke="{StaticResource GrayBrash}" 
+                                           Fill="White"
+                                           StrokeThickness="1" UseLayoutRounding="True" RadiusX="3" RadiusY="3"/>
 
-                                <FontIcon x:Name="CheckGlyph" Foreground="{ThemeResource CheckBoxCheckGlyphForegroundUnchecked}" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="20" Glyph="&#xE001;" Opacity="0"/>
+                                <FontIcon x:Name="CheckGlyph" Foreground="Green" 
+                                          FontFamily="{StaticResource SymbolThemeFontFamily}" 
+                                          FontSize="15" FontWeight="ExtraBold" Glyph="&#xE001;" Opacity="1"/>
                             </Grid>
                             <ContentPresenter x:Name="ContentPresenter" AutomationProperties.AccessibilityView="Raw" 
-                                              Grid.Column="1" Content="{TemplateBinding Content}" 
+                                              Grid.Column="0" Content="{TemplateBinding Content}" 
                                               ContentTemplate="{TemplateBinding ContentTemplate}" 
                                               ContentTransitions="{TemplateBinding ContentTransitions}" 
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               Margin="{TemplateBinding Padding}" 
-                                              TextWrapping="Wrap" />
+                                              />
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -347,16 +362,10 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid>
-       
-        <CheckBox Style="{StaticResource CheckBoxStyle1}" Background="Azure" BorderBrush="Azure" 
-                  Content="Burnt sienna"
-                  HorizontalAlignment="Right"
-                  VerticalAlignment="Top"
-                  FlowDirection="RightToLeft"
-                  Margin="0,0,5,0"
-                  IsChecked="True"
-                  Height="20px"/>
-        
+    <Grid x:Name="ControlGrid" Background="Green" Tapped="ControlGrig_Tapped">
+        <CheckBox x:Name="ControlCheckBox" Style="{StaticResource CheckBoxStyle1}"
+                  IsChecked="False"
+                  FlowDirection="LeftToRight"
+                  VerticalAlignment="Top"/>
     </Grid>
 </UserControl>

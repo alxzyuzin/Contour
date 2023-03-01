@@ -354,11 +354,7 @@ namespace ContourUI
                 ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
                 ApplicationStatus.ImageOutlined = true;
                 ApplicationStatus.DisplayContour = true;
-
- 
             }
-            
-            
         }
 
        

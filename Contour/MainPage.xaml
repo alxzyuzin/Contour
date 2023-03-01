@@ -135,6 +135,7 @@
             <ToggleSwitch Header="Display contours" Width="90"
                           IsEnabled="{Binding ImageOutlined}"
                           IsOn="{Binding DisplayContour, Mode=TwoWay}" />
+            <local:PaletteItem />
         </StackPanel>
 
         <!-- Status line -->

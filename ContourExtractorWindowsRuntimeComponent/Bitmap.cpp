@@ -395,12 +395,6 @@ int ContourBitmap::ExtractLevels()
 		{
 			colormap.insert(pair<unsigned int, unsigned char>(c, levelValue));
 			levelValue += 2;
-			//auto a = colormap[c];
-			//pair<unsigned int, unsigned char> p;
-			//p.first = c;
-			//p.second = levelValue;
-			//colormap.insert(p);
-			//levelValue+=2;
 		}
 	}
 	

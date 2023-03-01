@@ -23,5 +23,34 @@ namespace ContourUI
         {
             this.InitializeComponent();
         }
+
+        public PaletteItem(uint color) : this()
+        {
+            IntColor currentColor = new IntColor(color);
+
+            Windows.UI.Color itemColor = new Windows.UI.Color();
+            itemColor.R = currentColor.Red;
+            itemColor.G = currentColor.Green;
+            itemColor.B = currentColor.Blue;
+            itemColor.A = currentColor.Alfa;
+           
+            ControlGrid.Background = new Windows.UI.Xaml.Media.SolidColorBrush( itemColor);
+            
+        }
+
+        bool _isChecked = false;
+        bool IsChecked
+        {
+            get =>  _isChecked;
+            set => _isChecked = value;
+        }
+        private void ControlGrig_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            //if (IsChecked)
+            //    ControlCheckBox.IsChecked = IsChecked = false;
+            //else
+            //   ControlCheckBox.IsChecked = IsChecked = true;
+            ControlCheckBox.IsChecked = this.IsChecked = this.IsChecked ? false : true;
+        }
     }
 }

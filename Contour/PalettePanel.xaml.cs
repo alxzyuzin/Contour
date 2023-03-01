@@ -126,7 +126,6 @@ namespace ContourUI
             List<uint> colorsList = new System.Collections.Generic.List<uint>(colors);
             colorsList.Sort();
             // Define number of palette columns and rows
-            //uint ColorIndex = 0;
             int paletteRows = GetNumberOfPaletteRows(colors.Length);
             int paletteColumns = GetNumberOfPaletteColumns(colors.Length);
 
@@ -142,7 +141,6 @@ namespace ContourUI
                 col.MaxWidth = 80;
                 GridPalette.ColumnDefinitions.Add(col);
             }
-
          
             int i = 0;
             for (int r = 0; r < paletteRows; r++)
