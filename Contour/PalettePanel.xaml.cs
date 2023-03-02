@@ -181,8 +181,6 @@ namespace ContourUI
             for (int c = 0; c < paletteColumns; c++)
             {
                 ColumnDefinition col = new ColumnDefinition();
-                var columnWidth = col.Width;
-                
                 GridPalette.ColumnDefinitions.Add(col);
             }
 
@@ -193,7 +191,6 @@ namespace ContourUI
                     if (i < colors.Length)
                     {
                         PaletteItem paletteItem = new PaletteItem(colors[i]);
-                        //paletteItem.Width = ((double)(275 / paletteColumns));
                         paletteItem.PropertyChanged += PaletteItem_PropertyChanged;
                         GridPalette.Children.Add(paletteItem);
                         Grid.SetColumn(paletteItem, c);

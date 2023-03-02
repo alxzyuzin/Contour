@@ -91,7 +91,7 @@ namespace ContourUI
             }
         }
 
-        private string _imageFileName = string.Empty;
+        private string _imageFileName = "No image loaded";
         public string ImageFileName
         {
             get => _imageFileName;
@@ -101,6 +101,21 @@ namespace ContourUI
                 {
                     _imageFileName = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ImageFileName)));
+                }
+
+            }
+        }
+
+        private string _conversionMode = string.Empty;
+        public string ConversionMode
+        {
+            get => _conversionMode;
+            set
+            {
+                if (_conversionMode != value)
+                {
+                    _conversionMode = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConversionMode)));
                 }
 
             }

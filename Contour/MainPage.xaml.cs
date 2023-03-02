@@ -51,10 +51,9 @@ namespace ContourUI
             ApplicationStatus.ProgressValue = 0;
             ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
+            ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
 
             Palette.PropertyChanged += Palette_PropertyChanged;
-
-            
 
         }
 
@@ -276,6 +275,8 @@ namespace ContourUI
         {
             Options.Restore();
             await OptionsWindow.Show();
+            ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
+            ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
         }
 
         private async void mfiConvert_Clicked(object sender, RoutedEventArgs e)
