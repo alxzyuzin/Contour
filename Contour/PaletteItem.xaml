@@ -1,14 +1,21 @@
-﻿<UserControl
+﻿<!--  Copyright(c) 2023 Alexandr Ziuzin.
+ *
+ * This file is part of Contour project.
+ *
+ * This class describes single palette item
+ *
+ -->
+    
+    <UserControl
     x:Class="ContourUI.PaletteItem"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ContourUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="60"
+   
     d:DesignWidth="200"
-    mc:Ignorable="d"
-    >
+    mc:Ignorable="d">
     <UserControl.Resources>
         <SolidColorBrush x:Key="RedBrash" Color="Red"/>
         <SolidColorBrush x:Key="GreenBrash" Color="Green"/>
@@ -33,7 +40,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
             <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}"/>
-            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinWidth" Value="20"/>
             <Setter Property="MinHeight" Value="32"/>
             <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}"/>
             <Setter Property="FocusVisualMargin" Value="-7,-3,-7,-3"/>
@@ -43,11 +50,9 @@
                         <Grid x:Name="RootGrid" Background="{ StaticResource RedBrash}" 
                               BorderBrush="{TemplateBinding BorderBrush}" 
                               BorderThickness="{TemplateBinding BorderThickness}" 
-                              CornerRadius="{TemplateBinding CornerRadius}">
-                            <!--Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0"/>
-                                <ColumnDefinition Width="20"/>
-                            </Grid.ColumnDefinitions-->
+                              CornerRadius="{TemplateBinding CornerRadius}"
+                              Width="{TemplateBinding Width}">
+                           
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup x:Name="CombinedStates">
                                     <VisualState x:Name="UncheckedNormal">
@@ -339,15 +344,19 @@
                                     </VisualState>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            <Grid Height="20" VerticalAlignment="Top" Padding="0,0,16,0">
+                            <Grid Height="20" VerticalAlignment="Top">
                                 <Rectangle x:Name="NormalRectangle" Width="15" Height="15"
                                            Stroke="{StaticResource GrayBrash}" 
                                            Fill="White"
-                                           StrokeThickness="1" UseLayoutRounding="True" RadiusX="3" RadiusY="3"/>
+                                           StrokeThickness="1" UseLayoutRounding="True" RadiusX="3" RadiusY="3"
+                                           HorizontalAlignment="Right"
+                                           Margin="0,0,6,0"/>
 
                                 <FontIcon x:Name="CheckGlyph" Foreground="Green" 
                                           FontFamily="{StaticResource SymbolThemeFontFamily}" 
-                                          FontSize="15" FontWeight="ExtraBold" Glyph="&#xE001;" Opacity="1"/>
+                                          FontSize="15" FontWeight="ExtraBold" Glyph="&#xE001;" Opacity="1"
+                                          HorizontalAlignment="Right"
+                                          Margin="0,0,6,0"/>
                             </Grid>
                             <ContentPresenter x:Name="ContentPresenter" AutomationProperties.AccessibilityView="Raw" 
                                               Content="{TemplateBinding Content}" 
@@ -356,6 +365,7 @@
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               Margin="{TemplateBinding Padding}" 
+                                              Width="0"
                                               />
                         </Grid>
                     </ControlTemplate>
@@ -367,6 +377,7 @@
     <Grid x:Name="ControlGrid" Tapped="ControlGrig_Tapped">
         <CheckBox x:Name="ControlCheckBox" Style="{StaticResource CheckBoxStyle1}"
                   FlowDirection="LeftToRight"
-                  VerticalAlignment="Top"/>
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Right"/>
     </Grid>
 </UserControl>
