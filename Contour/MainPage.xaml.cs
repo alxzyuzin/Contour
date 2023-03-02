@@ -52,8 +52,15 @@ namespace ContourUI
             ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
 
+            Palette.PropertyChanged += Palette_PropertyChanged;
+
             
 
+        }
+
+        private void Palette_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            SortedDictionary<uint, bool> colors = ((PalettePanel)sender).ActiveColors;
         }
 
         private void ApplicationStatus_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -289,7 +296,7 @@ namespace ContourUI
 
                 int numberOfLevels = bitmap.ExtractLevels();
 
-                this.Palette.Build(bitmap.Colors);
+                this.Palette.Build2(bitmap.Colors);
 
                 ApplicationStatus.ImageConverted = true;
                 ApplicationStatus.DisplayConverted = true;

@@ -46,17 +46,12 @@
         </Grid.RowDefinitions>
         <TextBlock Text="Palette" Grid.Row="0" Margin="20,5,0,0"/>
         <Grid x:Name="GridPalette" Grid.Row="1" Padding="10,0,10,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="15*"/>
-                <ColumnDefinition Width="184*"/>
-            </Grid.ColumnDefinitions>
+            
         </Grid>
         <StackPanel Grid.Row="2" HorizontalAlignment="Right" Margin="10,15,20,10"
                     Orientation="Horizontal" >
-
-
-            <Button Content="Show all colors" Background="Gray" Style="{StaticResource MsgBoxButtonStyle}"/>
-            <Button Content="Hide all colors" Background="Gray" Style="{StaticResource MsgBoxButtonStyle}"/>
+            <Button Content="Show all colors" Background="Gray" Style="{StaticResource MsgBoxButtonStyle}" Tapped="Button_ShowAllTapped"/>
+            <Button Content="Hide all colors" Background="Gray" Style="{StaticResource MsgBoxButtonStyle}" Tapped="Button_HideAllTapped"/>
         </StackPanel>
     </Grid>
 </UserControl>

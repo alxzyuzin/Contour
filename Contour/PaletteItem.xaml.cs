@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
+﻿/*---------------------------------------------------------------------------------
+ * Copyright(c) 2023 Alexandr Ziuzin.
+ *
+ * This file is part of Contour project.
+ *
+ * This class presents single palette item
+ *
+ ---------------------------------------------------------------------------------*/
+
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using System.ComponentModel;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace ContourUI
 {
-    public sealed partial class PaletteItem : UserControl
+    public sealed partial class PaletteItem : UserControl, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
         public PaletteItem()
         {
             this.InitializeComponent();
@@ -26,6 +25,7 @@ namespace ContourUI
 
         public PaletteItem(uint color) : this()
         {
+            _color = color;
             IntColor currentColor = new IntColor(color);
 
             Windows.UI.Color itemColor = new Windows.UI.Color();
@@ -33,24 +33,54 @@ namespace ContourUI
             itemColor.G = currentColor.Green;
             itemColor.B = currentColor.Blue;
             itemColor.A = currentColor.Alfa;
-           
-            ControlGrid.Background = new Windows.UI.Xaml.Media.SolidColorBrush( itemColor);
-            
+
+            ControlGrid.Background = new Windows.UI.Xaml.Media.SolidColorBrush(itemColor);
+            ControlCheckBox.IsChecked = true;
+            _isChecked = true;
         }
 
-        bool _isChecked = false;
-        bool IsChecked
+        uint _color = 0xFF000000;
+        bool _isChecked = true;
+
+        public bool IsChecked
         {
-            get =>  _isChecked;
-            set => _isChecked = value;
+            get => _isChecked;
+            set
+            {
+                if (_isChecked != value) 
+                {
+                    _isChecked = value;
+                    ControlCheckBox.IsChecked = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsChecked)));
+                }
+            }
+        }
+
+        public void SetIsChecked(bool value)
+        {
+            _isChecked = value;
+            ControlCheckBox.IsChecked = value;
+        }
+        public uint Color
+        {
+            get => _color;
+            
         }
         private void ControlGrig_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            //if (IsChecked)
-            //    ControlCheckBox.IsChecked = IsChecked = false;
-            //else
-            //   ControlCheckBox.IsChecked = IsChecked = true;
-            ControlCheckBox.IsChecked = this.IsChecked = this.IsChecked ? false : true;
-        }
+            if (this.IsChecked)
+            {
+                ControlCheckBox.IsChecked = false;
+                IsChecked = false;
+            }
+            else
+            {
+                ControlCheckBox.IsChecked = true; ;
+                IsChecked = true; ;
+            }
+
+            
+
+            }
     }
 }

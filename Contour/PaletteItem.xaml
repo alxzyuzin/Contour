@@ -40,11 +40,14 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
-                        <Grid x:Name="RootGrid" Background="{ StaticResource RedBrash}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                        <Grid x:Name="RootGrid" Background="{ StaticResource RedBrash}" 
+                              BorderBrush="{TemplateBinding BorderBrush}" 
+                              BorderThickness="{TemplateBinding BorderThickness}" 
+                              CornerRadius="{TemplateBinding CornerRadius}">
+                            <!--Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0"/>
                                 <ColumnDefinition Width="20"/>
-                            </Grid.ColumnDefinitions>
+                            </Grid.ColumnDefinitions-->
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup x:Name="CombinedStates">
                                     <VisualState x:Name="UncheckedNormal">
@@ -336,8 +339,7 @@
                                     </VisualState>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            <Grid Height="20" VerticalAlignment="Top" Grid.Column="1">
-                                <!--Rectangle x:Name="NormalRectangle" Fill="{ThemeResource CheckBoxCheckBackgroundFillUnchecked}" Height="20" Stroke="{ThemeResource CheckBoxCheckBackgroundStrokeUnchecked}" StrokeThickness="{ThemeResource CheckBoxBorderThemeThickness}" UseLayoutRounding="False" Width="20"/ -->
+                            <Grid Height="20" VerticalAlignment="Top" Padding="0,0,16,0">
                                 <Rectangle x:Name="NormalRectangle" Width="15" Height="15"
                                            Stroke="{StaticResource GrayBrash}" 
                                            Fill="White"
@@ -348,7 +350,7 @@
                                           FontSize="15" FontWeight="ExtraBold" Glyph="&#xE001;" Opacity="1"/>
                             </Grid>
                             <ContentPresenter x:Name="ContentPresenter" AutomationProperties.AccessibilityView="Raw" 
-                                              Grid.Column="0" Content="{TemplateBinding Content}" 
+                                              Content="{TemplateBinding Content}" 
                                               ContentTemplate="{TemplateBinding ContentTemplate}" 
                                               ContentTransitions="{TemplateBinding ContentTransitions}" 
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
@@ -362,9 +364,8 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid x:Name="ControlGrid" Background="Green" Tapped="ControlGrig_Tapped">
+    <Grid x:Name="ControlGrid" Tapped="ControlGrig_Tapped">
         <CheckBox x:Name="ControlCheckBox" Style="{StaticResource CheckBoxStyle1}"
-                  IsChecked="False"
                   FlowDirection="LeftToRight"
                   VerticalAlignment="Top"/>
     </Grid>

@@ -1,24 +1,23 @@
-﻿using ContourExtractorWindowsRuntimeComponent;
+﻿/*---------------------------------------------------------------------------------
+ * Copyright(c) 2023 Alexandr Ziuzin.
+ *
+ * This file is part of Contour project.
+ *
+ * This class presents set of colors in image converted to grayscale image or
+ * image with redused number of colors
+ *
+ ---------------------------------------------------------------------------------*/
+
+using ContourExtractorWindowsRuntimeComponent;
 using ContourUI;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+using System.ComponentModel;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.System;
-using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Maps;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Windows.UI.Xaml.Shapes;
+
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -111,14 +110,22 @@ namespace ContourUI
             }
         }
     }
-    public sealed partial class PalettePanel : UserControl
+    public sealed partial class PalettePanel : UserControl, INotifyPropertyChanged
     {
+
+        private SortedDictionary<uint, bool> _activeColors = new SortedDictionary<uint, bool>();
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public PalettePanel() 
         {
             this.InitializeComponent();
         }
        
+        public SortedDictionary<uint,bool> ActiveColors
+        {
+            get =>  _activeColors;
+        }
 
         public void Build(uint[] colors)
         {
@@ -156,11 +163,60 @@ namespace ContourUI
                 }
         }
 
+        public void Build2(uint[] colors)
+        {
+            this.Clear();
+            List<uint> colorsList = new System.Collections.Generic.List<uint>(colors);
+            colorsList.Sort();
+            // Define number of palette columns and rows
+            int paletteRows = GetNumberOfPaletteRows(colors.Length);
+            int paletteColumns = GetNumberOfPaletteColumns(colors.Length);
+
+            for (int r = 0; r < paletteRows; r++)
+            {
+                RowDefinition row = new RowDefinition();
+                row.MaxHeight = 40;
+                GridPalette.RowDefinitions.Add(row);
+            }
+            for (int c = 0; c < paletteColumns; c++)
+            {
+                ColumnDefinition col = new ColumnDefinition();
+                col.MaxWidth = 80;
+                GridPalette.ColumnDefinitions.Add(col);
+            }
+
+            int i = 0;
+            for (int r = 0; r < paletteRows; r++)
+                for (int c = 0; c < paletteColumns; c++)
+                {
+                    if (i < colors.Length)
+                    {
+                        PaletteItem paletteItem = new PaletteItem(colors[i]);
+                        paletteItem.PropertyChanged += PaletteItem_PropertyChanged;
+                        GridPalette.Children.Add(paletteItem);
+                        Grid.SetColumn(paletteItem, c);
+                        Grid.SetRow(paletteItem, r);
+                        _activeColors.Add(colors[i], true);
+                        i++;
+                    }
+                }
+        }
+
+        private void PaletteItem_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            PaletteItem s = (PaletteItem)sender;
+            _activeColors[s.Color] = s.IsChecked;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActiveColors)));
+        }
+        /// <summary>
+        ///  Remove all palette items from palette, rows and columns
+        /// </summary>
         public void Clear()
         {
             GridPalette.Children.Clear();
             GridPalette.RowDefinitions.Clear();
             GridPalette.ColumnDefinitions.Clear();
+            _activeColors.Clear();
         }
 
         private int GetNumberOfPaletteColumns(int NumberOfColors)
@@ -208,6 +264,27 @@ namespace ContourUI
             rectangle.Fill = new SolidColorBrush(itemColor);
 
             return rectangle;
+        }
+
+        private void Button_ShowAllTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            foreach (PaletteItem  paletteItem in GridPalette.Children)
+            {
+                paletteItem.SetIsChecked(true);
+                _activeColors[paletteItem.Color] = true;
+            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActiveColors)));
+
+        }
+
+        private void Button_HideAllTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            foreach (PaletteItem paletteItem in GridPalette.Children)
+            {
+                paletteItem.SetIsChecked(false);
+                _activeColors[paletteItem.Color] = false;
+            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActiveColors)));
         }
     }
        
