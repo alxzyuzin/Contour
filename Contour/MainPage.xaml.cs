@@ -1,6 +1,6 @@
 ﻿/*---------------------------------------------------------------------------------
  * Copyright(c) 2023 Alexandr Ziuzin.
- *
+ * e-mail alx.zyuzin@gmail.com
  * This file is part of Contour project.
  *
  * This class presents main application window
@@ -23,9 +23,6 @@ using System.IO;
 using Windows.UI.Xaml;
 using System.Threading.Tasks;
 
-
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace ContourUI
 {
@@ -75,80 +72,7 @@ namespace ContourUI
             }
         }
 
-        /// <summary>
-        /// Load JPG or BMP image to bitmap object
-        /// Convert color image to grayscale with defined levels of gray color
-        /// Extract each gray color to separate layer in bitmap object
-        /// </summary>
-
-
-        
-        private void BtnExtractLevels_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            BuildLayersWindow();
-        }
-
-        
-        /// <summary>
-        /// Create window with toggle controls to switch on(off) grayscale levels and contours associated with these levels
-        /// </summary>
-        private void BuildLayersWindow()
-        {
-            //Button b = new Button();
-            //// Clear Layers window from controls created for previous convertion color image to grayscale
-            //int lcount = stp_Layers.Children.Count;
-            //for (int i = 0; i < lcount; i++)
-            //    stp_Layers.Children.RemoveAt(0);
-            //// Create new control for each gray color in bitmap
-            //foreach (byte color in bitmap.GrayScaleColorMap)
-            //{
-            //    LayerDisplayParams ldp =  new LayerDisplayParams(color);
-            //    ldp.ContourSwitchToggled += OnContourSwitchToggled;
-            //    ldp.ShapeSwitchToggled += OnShapeSwitchToggled;
-            //    stp_Layers.Children.Add(ldp);
-            //}
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        private DisplayParams[] BuilDisplayParamsArray()
-        {
-            DisplayParams[] parameters = new DisplayParams[0];
-            //DisplayParams[] parameters = new DisplayParams[stp_Layers.Children.Count];
-
-            //for (int i = 0; i < stp_Layers.Children.Count; i++)
-            //{
-            //    DisplayParams displayParams = new DisplayParams();
-
-            //    LayerDisplayParams userParams = (LayerDisplayParams)stp_Layers.Children[i];
-
-            //    displayParams.Color = userParams.Color;
-            //    displayParams.DisplayShapes = userParams.DisplayShapes;
-            //    displayParams.DisplayContours = userParams.DisplayContours;
-
-            //    parameters.SetValue(displayParams, i);
-            //}
-            return parameters;
-        }
-
-        
-        private void OnShapeSwitchToggled(object obj, RoutedEventArgs e)
-        {
-            DisplayParams[] parameters = BuilDisplayParamsArray();
-            bitmap.DisplayOutlinedImage(parameters);
-            bitmap.ImageData.Invalidate();
-        }
-
-        private void OnContourSwitchToggled(object obj, RoutedEventArgs e)
-        {
-            DisplayParams[] parameters = BuilDisplayParamsArray();
-            bitmap.DisplayOutlinedImage(parameters);
-            bitmap.ImageData.Invalidate();
-        }
-
-         private async Task<MsgBoxButton> DisplayMessage(UserMessage message)
+        private async Task<MsgBoxButton> DisplayMessage(UserMessage message)
         {
             MsgBox.SetButtons(message.Buttons);
             MsgBox.Message = message.Text;
@@ -162,6 +86,7 @@ namespace ContourUI
             UserMessage msg = new UserMessage(MsgBoxType.Info, "Function not imlemented");
             MsgBoxButton mbb = await DisplayMessage(msg);
         }
+
         /// <summary>
         /// Load JPG or BMP image to bitmap object
         /// </summary>
@@ -331,7 +256,6 @@ namespace ContourUI
             await DisplayMessage(message);
         }
         
-
         private async  void mfiOutline_Clicked(object sender, RoutedEventArgs e)
         {
             
@@ -364,18 +288,12 @@ namespace ContourUI
                 ApplicationStatus.DisplayContour = true;
             }
         }
-
        
-        private void mfiAbout_Clicked(object sender, RoutedEventArgs e)
+        private async void mfiAbout_Clicked(object sender, RoutedEventArgs e)
         {
-            AboutWindow.Show();
+            await AboutWindow.Show();
         }
 
-       
-       
     } // End of MainPage class definition
-
-
-
 
 }
