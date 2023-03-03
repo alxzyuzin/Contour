@@ -29,19 +29,21 @@ namespace ContourExtractorWindowsRuntimeComponent
 	{
 		return m_maxColorRange;
 	}
-	/*
-	Color ColorGroup::getMidleGroupColor()
+	unsigned char ColorGroup::AverageRed()
 	{
-		Color color;
-		return color;
+		return m_averageRed;
 	}
 
-	Color ColorGroup::getMedianGroupColor()
+	unsigned char ColorGroup::AverageGreen()
 	{
-		Color color;
-		return color;
+		return m_averageGreen;
 	}
-	*/
+
+	unsigned char ColorGroup::AverageBlue()
+	{
+		return m_averageBlue;
+	}
+
 	Color ColorGroup::getAverageGroupColor()
 	{
 		Color color;
@@ -117,6 +119,11 @@ namespace ContourExtractorWindowsRuntimeComponent
 		m_b_min = 255;
 		m_b_max = 0;
 
+		long totalRed = 0;
+		long totalGreen = 0;
+		long totalBlue = 0;
+		long totalColors = 0;
+
 		// Store max and min value for each color
 		for (Color color : m_color_values)
 		{
@@ -126,6 +133,17 @@ namespace ContourExtractorWindowsRuntimeComponent
 			m_g_max = color.green > m_g_max ? color.green : m_g_max;
 			m_b_min = color.blue  < m_b_min ? color.blue  : m_b_min;
 			m_b_max = color.blue  > m_b_max ? color.blue  : m_b_max;
+
+			totalRed +=color.red;
+			totalGreen += color.green;
+			totalBlue += color.blue;
+			++totalColors;
+		}
+		if (totalColors > 0)
+		{
+			m_averageRed = (unsigned char)(totalRed / totalColors);
+			m_averageGreen = (unsigned char)(totalGreen / totalColors);
+			m_averageBlue = (unsigned char)(totalBlue / totalColors);
 		}
 		// Calculate color range for each color component
 		unsigned char r_range = m_r_max - m_r_min;

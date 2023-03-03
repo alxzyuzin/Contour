@@ -1,9 +1,7 @@
 ﻿#include "pch.h"
 #include "Bitmap.h"
 #include <ppltasks.h>
-//#include <ColorLimiter.h>
 #include <ColorGroup.h>
-#include <ColorRegion.h>
 #include "Color.h"
 
 using namespace concurrency;
@@ -209,17 +207,23 @@ void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
 	// Convert source image to image with reduced number of colors
 	for (ColorGroup* group : m_ColorGroups)
 	{
-		Color cc = group->getAverageGroupColor();
+		//Color cc = group->getAverageGroupColor();
 
 		for (int pos = 0; pos < m_PixelBufferLength; pos += 4)
 		{
 			// If pixel color belongs to group change pixel color to group average color
 			if (group->Contain(m_pPixelBuffer[pos], m_pPixelBuffer[pos + 1], m_pPixelBuffer[pos + 2]))
 			{
+				/*
 				m_pPixelBuffer[pos] = cc.red;
 				m_pPixelBuffer[pos + 1] = cc.green;
 				m_pPixelBuffer[pos + 2] = cc.blue;
 				m_pPixelBuffer[pos + 3] = 0xFF;
+				*/
+				m_pPixelBuffer[pos] = group->AverageRed();
+				m_pPixelBuffer[pos + 1] = group->AverageGreen();
+				m_pPixelBuffer[pos + 2] = group->AverageBlue();
+				//m_pPixelBuffer[pos + 3] = 0xFF;
 			}
 		}
 	}
