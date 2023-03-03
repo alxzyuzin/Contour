@@ -211,13 +211,11 @@ namespace ContourUI
                 
                 if (Options.ConversionType == TypeOfConvertion.Grayscale)
                 {
-                    bitmap.ConvertToGrayscale2(Options.NumberOfColors);
-                   
-                }
+                    bitmap.ConvertToGrayscale(Options.NumberOfColors);
+                 }
                 if (Options.ConversionType == TypeOfConvertion.ReducedColors)
                 {
-                    bitmap.ConvertToReducedColors2(Options.NumberOfColors);
-                    
+                    bitmap.ConvertToReducedColors(Options.NumberOfColors);
                 }
 
                 int numberOfLevels = bitmap.ExtractLevels();
@@ -227,8 +225,6 @@ namespace ContourUI
                 ApplicationStatus.ImageConverted = true;
                 ApplicationStatus.DisplayConverted = true;
                 bitmap.ImageData.Invalidate();
-
-               
             }
             else
             {

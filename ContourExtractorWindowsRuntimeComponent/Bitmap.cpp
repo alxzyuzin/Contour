@@ -111,7 +111,6 @@ void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 
 }
 
-
 /// <summary>
 /// Convert original color image into grayscale with defined number of gray tints
 /// </summary>
@@ -126,40 +125,12 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 	//Restore original image data
 	std::memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
 
-	int range = 255 / levels;
-
-	for (int j = 0; j < m_Height; j++)
-	{
-		for (int i = 0; i < (m_Width * 4); i += 4)
-		{
-			int pos = j * (m_Width * 4) + (i);
-			unsigned char pixelColor = (((m_pPixelBuffer[pos] + m_pPixelBuffer[pos + 1] + m_pPixelBuffer[pos + 2]) / 3) / range)*range;
-			// Зарезервируем цвет 0xFF для пикселей фона
-			// All pixels with color 0xFF in source image convert into color 0xFE
-			// Далее при построении контуров в слоях цвет 0xFF будет означать отсутствие в этом месте пикселя
-			pixelColor = pixelColor == 0xFF ? 0xFE : pixelColor;
-			m_pPixelBuffer[pos] = pixelColor;
-			m_pPixelBuffer[pos + 1] = pixelColor;
-			m_pPixelBuffer[pos + 2] = pixelColor;
-			m_pPixelBuffer[pos + 3] = 0xFF;
-		}
-	}
-	// Save converted image to the buffer for later use
-	std::memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
-}
-
-void ContourBitmap::ConvertToGrayscale2(unsigned char levels)
-{
-	// Убедимся что входной параметр нажодится в допустимом диапазоне
-	if (levels < 2 || levels > 255) throw ref new InvalidArgumentException();
-
-	//Restore original image data
-	std::memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
-
+	// Split aall range of possible gray colors into ranges
 	int range = 255 / levels;
 	std::vector<GrayColorRange> colorRanges;
 	GrayColorRange grayColorRange;
 	unsigned char bottomLevel = 0;
+	// Define for each range top value, bottom value and average color 
 	while (grayColorRange.top < 255)
 	{
 		grayColorRange.bottom = bottomLevel;
@@ -172,7 +143,7 @@ void ContourBitmap::ConvertToGrayscale2(unsigned char levels)
 		colorRanges.push_back(grayColorRange);
 		bottomLevel += (range + 1);
 	}
-
+	// Convert source image to grayscaled image
 	for (auto colorRange : colorRanges)
 		for (int j = 0; j < m_PixelBufferLength; j+=4)
 		{
@@ -188,76 +159,19 @@ void ContourBitmap::ConvertToGrayscale2(unsigned char levels)
 	std::memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
 
+/// <summary>
+/// Convert original color image into image with reduced number of colors
+/// </summary>
+/// <param name="numberOfColors">
+/// Number of desirable colors in result image
+/// </param>
 void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
-{
-	//numberOfColors = 128;
-	std::vector<ColorRegion*> m_ColorRegions;
-
-	// Убедимся что входной параметр нажодится в допустимом диапазоне
-	if (numberOfColors < 2 || numberOfColors > 255) throw ref new InvalidArgumentException();
-	//Restore original image data
-	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
-	
-	ColorRegion* cr = new ColorRegion(m_pPixelBuffer, m_PixelBufferLength);
-	m_ColorRegions.push_back(cr);
-
-	for (int k = 1; k < numberOfColors; k++)
-	{
-		// Find in color regions region with max base color range
-		int CRIndex = 0;
-		for (int i = 0; i < m_ColorRegions.size(); i++)
-		{
-			if (m_ColorRegions[CRIndex]->getBaseMaxColorRange() < m_ColorRegions[i]->getBaseMaxColorRange())
-			{
-				CRIndex = i;
-			}
-		}
-
-		// Split found color region with maxbase color range to two color regions
-		ColorRegion* a = new ColorRegion();
-		ColorRegion* b = new ColorRegion();
-		m_ColorRegions[CRIndex]->Split(a, b);
-		// Remove pointer to splitted color region from color regions list and delete object
-		ColorRegion* cr = m_ColorRegions[CRIndex];
-		delete cr;
-		m_ColorRegions.erase(m_ColorRegions.begin() + CRIndex);
-		// Add two new color regions to color regions list
-		m_ColorRegions.push_back(a);
-		m_ColorRegions.push_back(b);
-	}
-		
-	for (ColorRegion* cr : m_ColorRegions)
-	{
-		//Color cc = cr->getMidledRegionColor();
-		//Color cc = cr->getMediandRegionColor();
-		Color cc = cr->getAverageRegionColor();
-
-
-		for (int pos = 0; pos < m_PixelBufferLength; pos += 4)
-		{
-			if (cr->Contain(m_pPixelBuffer[pos], m_pPixelBuffer[pos + 1], m_pPixelBuffer[pos + 2]))
-			{
-				m_pPixelBuffer[pos] = cc.red;
-				m_pPixelBuffer[pos + 1] = cc.green;
-				m_pPixelBuffer[pos + 2] = cc.blue;
-				m_pPixelBuffer[pos + 3] = 0xFF;
-			}
-
-		}
-	}
-	
-
-	// Save converted image to the buffer for later use
-	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
-}
-
-void ContourBitmap::ConvertToReducedColors2(unsigned char numberOfColors)
 {
 	
 	std::vector<ColorGroup*> m_ColorGroups;
 
-	// Убедимся что входной параметр нажодится в допустимом диапазоне
-	if (numberOfColors < 2 || numberOfColors > 255) throw ref new InvalidArgumentException();
+	// Check if input parameter is correct
+	if (numberOfColors < 2 || numberOfColors > 128) throw ref new InvalidArgumentException();
 	//Restore original image data
 	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
 
@@ -274,8 +188,7 @@ void ContourBitmap::ConvertToReducedColors2(unsigned char numberOfColors)
 		{
 			if (m_ColorGroups[CGIndex]->getBaseMaxColorRange() < group->getBaseMaxColorRange())
 			{
-				CGIndex = current_index;;
-				
+				CGIndex = current_index;
 			}
 			++current_index;
 		}
@@ -293,16 +206,14 @@ void ContourBitmap::ConvertToReducedColors2(unsigned char numberOfColors)
 		m_ColorGroups.push_back(a);
 		m_ColorGroups.push_back(b);
 	}
-
+	// Convert source image to image with reduced number of colors
 	for (ColorGroup* group : m_ColorGroups)
 	{
-		//CrColor cc = cr->getMidledGroupColor();
-		//CrColor cc = cr->getMediandGroupColor();
 		Color cc = group->getAverageGroupColor();
-
 
 		for (int pos = 0; pos < m_PixelBufferLength; pos += 4)
 		{
+			// If pixel color belongs to group change pixel color to group average color
 			if (group->Contain(m_pPixelBuffer[pos], m_pPixelBuffer[pos + 1], m_pPixelBuffer[pos + 2]))
 			{
 				m_pPixelBuffer[pos] = cc.red;
@@ -310,7 +221,6 @@ void ContourBitmap::ConvertToReducedColors2(unsigned char numberOfColors)
 				m_pPixelBuffer[pos + 2] = cc.blue;
 				m_pPixelBuffer[pos + 3] = 0xFF;
 			}
-
 		}
 	}
 
