@@ -368,7 +368,7 @@ namespace ContourUI
        
         private void mfiAbout_Clicked(object sender, RoutedEventArgs e)
         {
-
+            AboutWindow.Show();
         }
 
        
