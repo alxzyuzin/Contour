@@ -1,4 +1,13 @@
-﻿#include "pch.h"
+﻿/*---------------------------------------------------------------------------------
+ * Copyright(c) 2023 Alexandr Ziuzin.
+ * e-mail alx.zyuzin@gmail.com
+ * This file is part of Contour project.
+ *
+ * Main class for image manipulation
+ *
+ ---------------------------------------------------------------------------------*/
+
+#include "pch.h"
 #include "Bitmap.h"
 #include <ppltasks.h>
 #include <ColorGroup.h>
@@ -15,7 +24,7 @@ using namespace Windows::Foundation;
 using namespace ContourExtractorWindowsRuntimeComponent;
 
 //=============================================================================
-// Свойства
+// Properties
 //=============================================================================
 WriteableBitmap^	ContourBitmap::ImageData::get() { return m_Bitmap; }
 void				ContourBitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m_Bitmap = imageDataValue; }
@@ -48,7 +57,7 @@ int ContourBitmap::LevelsCount::get()
 }
 
 //-----------------------------------------------------------------------------
-// public members
+// Public members
 //-----------------------------------------------------------------------------
 
 ContourBitmap::ContourBitmap()
@@ -82,7 +91,6 @@ ContourBitmap::ContourBitmap(int width, int height)
 }
 
 
-
 /// <summary>
 /// Extract pointer to  WritableBitmap internal buffer
 /// All image conversions handle right in WritableBitmap internal buffer
@@ -105,8 +113,6 @@ void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 	memcpy(m_pOriginalImageData, m_pPixelBuffer, m_PixelBufferLength);
 	// Make possible work with image data in two ways (as byte array and as unsigned int array
 	m_ImageData.charBuffer = m_pPixelBuffer;
-
-
 }
 
 /// <summary>
@@ -213,61 +219,8 @@ void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
 	// Save converted image to the buffer for later use
 	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
-/*
-/// <summary>
-/// Разбивает изображение на слои. Каждый слой содержит пиксели одного из оттенков
-/// серого присутствующих в изображении.
-/// Для каждого оттенка серого в исходном изображении создаётся отдельный слой(Level)
-/// Размер слоя соответствует размеру исходного изображения.
-/// В слой переносятся пиксели оттенка серого для которого создан слой,
-/// остальные пиксели в слое закрашиваются цветом 0xFF (сооьветствует пустому цвету)
-/// </summary>
-/// <param name="conversionType"></param>
-int ContourBitmap::ExtractLevels(TypeOfConvertion conversionType)
-{
-	if (conversionType == TypeOfConvertion::Grayscale)
-	{
-		vector<unsigned char> colormap;
-		//// Сформируем список оттенков серого присутствующих в изображении
-		for (int j = 0; j < m_Height; j++)
-		{
-			for (int i = 0; i < (m_Width * 4); i += 4)
-			{
-				int pos = j * (m_Width * 4) + i;
-				// Сравниваем толко один байт поскольку при преобразовании в оттенки серого
-				// все байты одного пикселя принимают одно значение
-				byte pixelColor = m_pPixelBuffer[pos];
-				bool newColor = true;
-				for (byte b : colormap)
-				{
-					if (b == pixelColor)
-					{
-						newColor = false;
-						break;
-					}
-				}
-				if (newColor)
-					colormap.push_back(pixelColor);
-			}
-		}
-		//// Можно ускорить
-		//// При формировании списка цветов создать буфер для каждого цвета
-		//// и поместить в массив длиной 255 элементов
-		////	индекс в массиве равен цвету пикселей помещаемых в буфер
-		//// Затем разнести пиксели по буферам за один просмотр
 
-		//// Вынесем каждый оттенок в отдельный буфер
-		// Переменная m_Levels Содержит список уровней (экземпляров класса Level). Каждый уровень представляет
-		// собой срез изображения по одному из оттенков серого
-		// Данные хранятся в массиве байтов. Каждому пкселю исходного изображения  в Level соответствует один байт. 
-		// Конструктор класса Level извлекает пиксели с цветом заданным параметром levelColor из буфера m_pPixelBuffer
-		// и создаёт срез исходного изображения по цвету levelColor
-		for (unsigned char levelColor : colormap)
-			m_Levels.push_back(new Level(m_Width, m_Height, levelColor, m_pPixelBuffer)); 
-	}
-	return (int)m_Levels.size();
-}
-*/
+
 /// <summary>
 /// Split color image to levels. Every level contains pixels of one color.
 /// For each color in original image function create separate level.
@@ -285,7 +238,7 @@ int ContourBitmap::ExtractLevels()
 	for (unsigned int i = 0; i < m_uintImageDataLength; i++)
 	{
 		unsigned int c = m_ImageData.intBuffer[i];
-		
+		// If pixel color not in the list of colos add it to list
 		if (colormap.count(c) == 0)
 		{
 			colormap.insert(pair<unsigned int, unsigned char>(c, levelValue));
@@ -298,17 +251,22 @@ int ContourBitmap::ExtractLevels()
 		delete l;
 	m_Levels.clear();
 	
+	// Move each color into separate buffer
+	// Variable m_Levels contains list of levels (objects of class Level). Each Level presents slice of image by one color
+	// Levels data stored in byte array. Each pixel of source image represents with one byte in level data.
+	// Level constructor extract pixels with color defaned by parameter levelColor from m_pPixelBuffer
+	// and create slice of source image by color levelColor
 	// Create new levels
 	for (pair<unsigned int, unsigned char> colorPair : colormap)
 	{
 		m_Levels.push_back(new Level(m_Width, m_Height, colorPair, m_ImageData));
 	}
-
+	// Sort array of levels by level color
 	std::sort(m_Levels.begin(), m_Levels.end(), [](Level* a, Level*  b)
 		{
 			return a->m_OriginalColor < b->m_OriginalColor;
 		});
-	//CompareLevelsByOriginalColor
+	
 	return (int)m_Levels.size();
 }
 
@@ -333,7 +291,6 @@ IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(int levelnumber)
 			return m_Levels[levelnumber]->FindAllContours();
 		}
 	);
-	//return m_Levels[levelnumber]->FindAllContours();
 }
 
 
@@ -410,18 +367,6 @@ void ContourBitmap::Clear()
 	m_Initialized = false;
 }
 
-void ContourBitmap::DisplayOutlinedImage(const Array<DisplayParams^>^ parameters)
-{
-	ClearPixelBuffer();
-	/*for (unsigned int i = 0; i < parameters->Length; i++)
-	{
-		if (parameters[i]->DisplayShapes)
-			DisplayLevelShapes(parameters[i]->Color);
-
-		if (parameters[i]->DisplayContours)
-			DisplayLevelContours(parameters[i]->Color,);
-	}*/
-}
 /// <summary>
 /// Выполняет поиск всех контуров в изображении
 /// </summary>
@@ -454,7 +399,7 @@ void ContourBitmap::RectifyLevel(unsigned char color, int size)
 }
 
 //-----------------------------------------------------------------------------
-// private members
+// Private members
 //-----------------------------------------------------------------------------
 
 
@@ -492,32 +437,10 @@ void ContourBitmap::DisplayLevelContours(unsigned char levelcolor, ContourColors
 			case ContourColors::Red		: SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF); break;
 			case ContourColors::White	: SetPixel(point->X, point->Y, 0xFF, 0xFF, 0xFF, 0xFF); break;
 			}
-			/*if (contour->Type == Contour::ContourType::External)
-				SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF);
-			else
-				SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF);*/
 		}
 }
 
 
-///// <summary>
-///// Отрисовывает в буфере дисплея контуры для слоя цвет которого задан во входном параметре
-///// </summary>
-///// <param name="color">
-///// Цвет слоя для которого требуется отрисовать контур
-///// </param>
-//void ContourBitmap::DisplayLevelContours(Level* level)
-//{
-//	for (Contour* contour : level->m_Contours)
-//		for (int i = 0; i < contour->Size(); i++)
-//		{
-//			Point* point = contour->GetPoint(i);
-//			if (contour->Type == Contour::ContourType::External)
-//				SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF);
-//			else
-//				SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF);
-//		}
-//}
 
 // Возвращает указатель на уровень заданного цвета
 
@@ -535,26 +458,6 @@ Level* ContourBitmap::SelectLevel(unsigned char color)
 }
 
 
-void ContourBitmap::SortColorMap(std::vector<unsigned char>* colormap)
-{
-	/*
-		bool sorted = false;
-		byte b;
-		while (!sorted)
-		{
-			for (unsigned int i = 0; i < colormap->size()-1; i++)
-			{
-				if (colormap[i] > colormap[i + 1])
-				{
-	//				b = colormap->at(i);
-	//				colormap[i] = colormap[i + 1];
-	//				colormap[i + 1] = b;
-				}
-			}
-		}
-	*/
-}
-
 // Закрашивает буфер изображения белым цветом
 // Необходимо переписать (Один цикл от i=0 до BufferLength)
 void inline ContourBitmap::ClearPixelBuffer()
@@ -562,17 +465,6 @@ void inline ContourBitmap::ClearPixelBuffer()
 
 	for (int i = 0; i < m_PixelBufferLength; i++)
 		m_pPixelBuffer[i] = 0xFF;
-	/*for (int j = 0; j < m_Height; j++)
-	{
-		for (int i = 0; i < (m_Width * 4); i += 4)
-		{
-			int pos = j * (m_Width * 4) + i;
-			m_pPixelBuffer[pos] = 0xFF;
-			m_pPixelBuffer[pos + 1] = 0xFF;
-			m_pPixelBuffer[pos + 2] = 0xFF;
-			m_pPixelBuffer[pos + 3] = 0xFF;
-		}
-	}*/
 }
 
 inline void ContourBitmap::SetPixel(int x, int y, unsigned char b, unsigned char g, unsigned char r, unsigned char a)
@@ -589,18 +481,3 @@ bool ContourBitmap::CompareLevelsByOriginalColor(Level& l1, Level& l2)
 {
 	return l1.m_OriginalColor < l2.m_OriginalColor;
 }
-
-
-/*
-	Display params properties
-*/
-
-byte DisplayParams::Color::get() { return m_Color; }
-void DisplayParams::Color::set(unsigned char color) { m_Color = color; }
-
-bool DisplayParams::DisplayShapes::get() { return m_DisplayShapes; }
-void DisplayParams::DisplayShapes::set(bool displayShapes) { m_DisplayShapes = displayShapes; }
-
-bool DisplayParams::DisplayContours::get() { return m_DisplayContours; }
-void DisplayParams::DisplayContours::set(bool displayContours) { m_DisplayContours = displayContours; }
-

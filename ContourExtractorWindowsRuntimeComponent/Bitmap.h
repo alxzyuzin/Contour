@@ -1,4 +1,14 @@
-﻿#pragma once
+﻿/*---------------------------------------------------------------------------------
+ * Copyright(c) 2023 Alexandr Ziuzin.
+ * e-mail alx.zyuzin@gmail.com
+ * This file is part of Contour project.
+ *
+ * Main class for image manipulation
+ *
+ ---------------------------------------------------------------------------------*/
+
+
+#pragma once
 #include <robuffer.h>
 #include <ppltasks.h>
 #include "Level.h"
@@ -13,36 +23,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 	public enum class TypeOfConvertion { Grayscale = 0, ReducedColors = 1 };
 	public enum class ContourColors { Black, White, Red, Green, Blue };
 	
-	public ref class DisplayParams sealed
-	{
-	public:
-		// Цвет к которому относится данный набор параметров
-	property byte Color
-		{
-			byte get();
-			void set(byte color);
-		}
-
-		// If TRUE display shapes from this level on the output image
-		property bool DisplayShapes
-		{
-			bool get();
-			void set(bool displayShapes);
-		}
-
-		// If TRUE display contours from this level on the output image
-		property bool DisplayContours
-		{
-			bool get();
-			void set(bool displayContours);
-		}
-
-	private:
-		unsigned char m_Color = 0;
-		bool m_DisplayShapes = false;
-		bool m_DisplayContours = false;
-	};
-
 	[Windows::Foundation::Metadata::WebHostHiddenAttribute]
 
 	// This class contain all information using in image convertion process
@@ -89,7 +69,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 		IAsyncOperation<int>^  FindLevelContoursAsync(int contournumber);
 		void OutlineImage();
 		void RectifyLevel(unsigned char color, int size);
-		void DisplayOutlinedImage(const Array<DisplayParams^>^ parameters);
 		void SetOriginalImageDataToDisplayBuffer();
 		void SetConvertedImageDataToDisplayBuffer();
 		void DisplayContours(ContourColors color);
@@ -101,7 +80,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void	DisplayLevelContours(unsigned char color, ContourColors contourColor);
 
 		Level*	SelectLevel(unsigned char color);
-		void	SortColorMap(std::vector<unsigned char>* colormap);
 		void	ClearPixelBuffer();
 		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
