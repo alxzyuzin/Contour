@@ -15,10 +15,25 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	struct Color
 	{
+		Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+		{
+			red = r;
+			green = g;
+			blue = b;
+			alfa = a;
+		}
+		
+		Color() {}
 		unsigned char red = 0;
 		unsigned char green = 0;
 		unsigned char blue = 0;
 		unsigned char alfa = 0xFF;
+	};
+
+	union CharToIntColor
+	{
+		unsigned int intcolor;
+		Color charcolor;
 	};
 
 	struct GrayColorRange

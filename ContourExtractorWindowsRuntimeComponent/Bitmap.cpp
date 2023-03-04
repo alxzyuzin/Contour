@@ -165,8 +165,7 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 /// </param>
 void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
 {
-	
-	std::vector<ColorGroup*> m_ColorGroups;
+	std::vector<ColorGroup*> colorGroups;
 
 	// Check if input parameter is correct
 	if (numberOfColors < 2 || numberOfColors > 128) throw ref new InvalidArgumentException();
@@ -175,51 +174,35 @@ void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
 
 	// Create first color group containes all image colors based on data from pixel buffer 
 	ColorGroup* colorGroup = new ColorGroup(m_pPixelBuffer, m_PixelBufferLength);
-	m_ColorGroups.push_back(colorGroup);
-
+	colorGroups.push_back(colorGroup);
+	
 	// Split first color group according number of desired colors in image
 	for (int k = 1; k < numberOfColors; k++)
 	{
-		// Look through list of color groups and find index of color group with max base color range
-		int CGIndex = 0, current_index = 0;
-		for (ColorGroup* group : m_ColorGroups)
-		{
-			if (m_ColorGroups[CGIndex]->getBaseMaxColorRange() < group->getBaseMaxColorRange())
-			{
-				CGIndex = current_index;
-			}
-			++current_index;
-		}
-
-		// Split found color group with maxbase color range to two color groups
-		ColorGroup* cg = m_ColorGroups[CGIndex];
+		// Find color group with max base color range
+		sort(colorGroups.begin(), colorGroups.end(), [](ColorGroup* a, ColorGroup* b) { return a->MaxColorRange() > b->MaxColorRange(); });
+		ColorGroup* cg = colorGroups[0];
+		
+		// Split found color group with max base color range to two color groups
 		ColorGroup* a = new ColorGroup();
 		ColorGroup* b = new ColorGroup();
 		cg->Split(a, b);
-		// Remove pointer to splitted color region from color regions list and delete object
-		m_ColorGroups.erase(m_ColorGroups.begin() + CGIndex);
+		// Remove pointer to splitted color group from color groupss list and delete it from the list
+		colorGroups.erase(colorGroups.begin());
 		delete cg;
 		
-		// Add two new color regions to color groups list
-		m_ColorGroups.push_back(a);
-		m_ColorGroups.push_back(b);
+		// Add two new color groups to color groups list
+		colorGroups.push_back(a);
+		colorGroups.push_back(b);
 	}
 	// Convert source image to image with reduced number of colors
-	for (ColorGroup* group : m_ColorGroups)
+	for (ColorGroup* group : colorGroups)
 	{
-		//Color cc = group->getAverageGroupColor();
-
 		for (int pos = 0; pos < m_PixelBufferLength; pos += 4)
 		{
 			// If pixel color belongs to group change pixel color to group average color
 			if (group->Contain(m_pPixelBuffer[pos], m_pPixelBuffer[pos + 1], m_pPixelBuffer[pos + 2]))
 			{
-				/*
-				m_pPixelBuffer[pos] = cc.red;
-				m_pPixelBuffer[pos + 1] = cc.green;
-				m_pPixelBuffer[pos + 2] = cc.blue;
-				m_pPixelBuffer[pos + 3] = 0xFF;
-				*/
 				m_pPixelBuffer[pos] = group->AverageRed();
 				m_pPixelBuffer[pos + 1] = group->AverageGreen();
 				m_pPixelBuffer[pos + 2] = group->AverageBlue();
@@ -227,8 +210,6 @@ void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
 			}
 		}
 	}
-
-
 	// Save converted image to the buffer for later use
 	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
 }
