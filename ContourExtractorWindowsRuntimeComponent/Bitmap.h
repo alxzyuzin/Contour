@@ -64,8 +64,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void ConvertToGrayscale(unsigned char levels);
 		void ConvertToReducedColors(unsigned char numberOfColors);
 		int  ExtractLevels();
-		int  FindLevelContours(int contournumber);
-		IAsyncOperation<int>^  FindLevelContoursAsync(int contournumber);
+		//int  FindLevelContours(int contournumber);
+		IAsyncOperation<int>^  FindLevelContoursAsync(unsigned int levelColor);
 		void OutlineImage();
 		void RectifyLevel(unsigned int color, int size);
 
@@ -78,7 +78,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	private:	//Methods
 		void	DisplayLevelContours(unsigned int color, ContourColors contourColor);
-		Level*	SelectLevel(unsigned int color);
+		//Level*	SelectLevel(unsigned int color);
 		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 		bool    CompareLevelsByOriginalColor(Level& l1, Level& l2);
 
@@ -97,7 +97,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ m_Bitmap = nullptr;
 		Windows::UI::Xaml::Controls::Page^ m_pMainPage;
 		bool m_Initialized = false;
-		std::vector<Level*> m_Levels;
+
+		map<unsigned int, Level*> m_Levels;
+		//std::vector<Level*> m_Levels;
 	};
 
 }

@@ -123,7 +123,7 @@ bool Level::FindFirstExternalContourPoint(Point& point)
 	for (int y = 0; y < m_Height; y++)
 		for (int x = 0; x < m_Width; x++)
 		{
-			unsigned char c = m_Buffer[y * m_Width + x]; //
+			unsigned char c = m_Buffer[y * m_Width + x]; 
 			if (m_Buffer[y * m_Width + x] == m_Color)
 			{
 				point.X = x;

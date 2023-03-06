@@ -43,11 +43,12 @@ Array<unsigned char>^ ContourBitmap::GrayScaleColorMap::get()
 Array<unsigned int>^ ContourBitmap::Colors::get()
 {
 	Array<unsigned int>^ ColorMap = ref new Array<unsigned int>((int)m_Levels.size());
-	for (int i = 0; i < (int)m_Levels.size(); i++)
-		ColorMap->set(i, m_Levels[i]->m_OriginalColor);
-
+	int i = 0;
+	for (auto levelItem : m_Levels)
+	{
+		ColorMap[i++] = levelItem.second->m_OriginalColor;
+	}
 	return ColorMap;
-
 }
 
 // Number of levels in converted image  
@@ -87,7 +88,6 @@ ContourBitmap::ContourBitmap(int width, int height)
 	m_Bitmap = ref new WriteableBitmap(width, height);
 	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Create buffer for original image data
 	m_pConvertedImageData = new unsigned char[m_PixelBufferLength]; // Create buffer for converted image data
-
 }
 
 
@@ -247,8 +247,8 @@ int ContourBitmap::ExtractLevels()
 	}
 	
 	// Delete results of previouse extracting levels
-	for (Level* l : m_Levels)
-		delete l;
+	for (auto l : m_Levels)
+		delete l.second;
 	m_Levels.clear();
 	
 	// Move each color into separate buffer
@@ -259,13 +259,13 @@ int ContourBitmap::ExtractLevels()
 	// Create new levels
 	for (pair<unsigned int, unsigned char> colorPair : colormap)
 	{
-		m_Levels.push_back(new Level(m_Width, m_Height, colorPair, m_ImageData));
+		m_Levels.insert(pair<unsigned int, Level*>(colorPair.first, new Level(m_Width, m_Height, colorPair, m_ImageData)));
 	}
 	// Sort array of levels by level color
-	std::sort(m_Levels.begin(), m_Levels.end(), [](Level* a, Level*  b)
-		{
-			return a->m_OriginalColor < b->m_OriginalColor;
-		});
+	//std::sort(m_Levels.begin(), m_Levels.end(), [](pair<unsigned int, Level*>& a, pair<unsigned int, Level*>& b)
+	//	{
+	//		return true;// a.second->m_OriginalColor < b.second->m_OriginalColor;
+	//	});
 	
 	return (int)m_Levels.size();
 }
@@ -279,16 +279,16 @@ int ContourBitmap::ExtractLevels()
 /// <returns>
 /// Number of contours found
 /// </returns>
-int ContourBitmap::FindLevelContours(int levelnumber)
-{
-	return m_Levels[levelnumber]->FindAllContours();
-}
+//int ContourBitmap::FindLevelContours(int levelnumber)
+//{
+//	return m_Levels[levelnumber]->FindAllContours();
+//}
 
-IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(int levelnumber)
+IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelColor)
 {
-	return create_async([this, levelnumber]()->int
+	return create_async([this, levelColor]()->int
 		{
-			return m_Levels[levelnumber]->FindAllContours();
+			return m_Levels[levelColor]->FindAllContours();
 		}
 	);
 }
@@ -307,18 +307,18 @@ void ContourBitmap::SetConvertedImageDataToDisplayBuffer()
 
 void ContourBitmap::SetLevelDataToDisplayBuffer(unsigned int color)
 {
-	Level* level = SelectLevel(color);
-	if (!level) return;
+	//Level* level = SelectLevel(color);
+	//if (!level) return;
 
-	level->SetLevelShapesToDisplayBuffer(m_ImageData);
+	m_Levels[color]->SetLevelShapesToDisplayBuffer(m_ImageData);
 }
 /// <summary>
 /// Set contours found in image to display buffer
 /// </summary>
 void ContourBitmap::DisplayContours(ContourColors contourcolor)
 {
-	for (Level* level : m_Levels)
-		DisplayLevelContours(level->m_OriginalColor, contourcolor);
+	for (auto level : m_Levels)
+		DisplayLevelContours(level.second->m_OriginalColor, contourcolor);
 }
 
 
@@ -329,8 +329,8 @@ void ContourBitmap::Clear()
 {
 	for (auto level : m_Levels)
 	{
-		level->Clear();
-		delete level;
+		level.second->Clear();
+		delete level.second;
 	}
 	
 	delete[] m_pOriginalImageData;
@@ -349,8 +349,8 @@ void ContourBitmap::OutlineImage()
 {
 	clock_t start = clock();
 
-	for (Level* level : m_Levels)
-		level->FindAllContours();
+	for (auto level : m_Levels)
+		level.second->FindAllContours();
 	// time содержит время выполнения функции в милисекундах 
 	double time = (clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
 	// Изображение разделено на 8 слоёв. Исходное время построения контуров 58818 ms (760 контуров)
@@ -378,17 +378,7 @@ void ContourBitmap::RectifyLevel(unsigned int color, int size)
 //-----------------------------------------------------------------------------
 
 
-/*
-	 Переносит данные одного слоя в буфер для отображения на экране
-*/
-/*
-void ContourBitmap::DisplayLevelShapes(unsigned int color)
-{
-	Level* selectedLevel = SelectLevel(color);
-	if (!selectedLevel) return;
-	selectedLevel->GetLevelShapes(m_pPixelBuffer);
-}
-*/
+
 /// <summary>
 /// Отрисовывает в буфере дисплея контуры для слоя цвет которого задан во входном параметре
 /// </summary>
@@ -397,10 +387,9 @@ void ContourBitmap::DisplayLevelShapes(unsigned int color)
 /// </param>
 void ContourBitmap::DisplayLevelContours(unsigned int levelcolor, ContourColors contourcolor)
 {
-	Level* selectedLevel = SelectLevel(levelcolor);
 	Point* point;
 
-	for (Contour* contour : selectedLevel->m_Contours)
+	for (Contour* contour : m_Levels[levelcolor]->m_Contours)
 		for (int i = 0; i < contour->Size(); i++)
 		{
 			point = contour->GetPoint(i);
@@ -418,20 +407,20 @@ void ContourBitmap::DisplayLevelContours(unsigned int levelcolor, ContourColors 
 
 
 
-// Возвращает указатель на уровень заданного цвета
-
-Level* ContourBitmap::SelectLevel(unsigned int color)
-{
-	for (Level* level : m_Levels)
-	{
-		if (level->m_OriginalColor == color)
-		{
-			return level;
-			break;
-		}
-	}
-	return nullptr;
-}
+//// Возвращает указатель на уровень заданного цвета
+//
+//Level* ContourBitmap::SelectLevel(unsigned int color)
+//{
+//	for (auto level : m_Levels)
+//	{
+//		if (level.second->m_OriginalColor == color)
+//		{
+//			return level.second;
+//			break;
+//		}
+//	}
+//	return nullptr;
+//}
 
 
 // Закрашивает буфер изображения белым цветом
