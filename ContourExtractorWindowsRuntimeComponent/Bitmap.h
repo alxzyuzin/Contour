@@ -74,11 +74,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void DisplayContours(ContourColors color);
 		void Clear();
 
-	private:	//Methods
-		//void	DisplayLevelContours(unsigned int color, ContourColors contourColor);
-		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-		//bool    CompareLevelsByOriginalColor(Level& l1, Level& l2);
-
+	
 	private:	//Members
 		int m_Width;				// Ширина изображения в рикселях
 		int m_Height;				// Высота изображения в рикселях

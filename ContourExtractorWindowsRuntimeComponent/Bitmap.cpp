@@ -357,46 +357,15 @@ void ContourBitmap::RectifyLevel(unsigned int color, int size)
 	//selectedLevel->Rectify(size);
 }
 
-//-----------------------------------------------------------------------------
-// Private members
-//-----------------------------------------------------------------------------
-
-
-
-/// <summary>
-/// Отрисовывает в буфере дисплея контуры для слоя цвет которого задан во входном параметре
-/// </summary>
-/// <param name="color">
-/// Цвет слоя для которого требуется отрисовать контур
-/// </param>
-//void ContourBitmap::DisplayLevelContours(unsigned int levelcolor, ContourColors contourcolor)
-//{
-//	m_Levels[levelcolor]->SetContoursToDisplayBuffer(m_ImageData, contourcolor, ContourType::External);
-//
-//}
-
-
-
-
 // Закрашивает буфер изображения белым цветом
 // Необходимо переписать (Один цикл от i=0 до BufferLength)
 void inline ContourBitmap::ClearPixelBuffer()
 {
-
 	for (int i = 0; i < m_PixelBufferLength; i++)
 		m_pPixelBuffer[i] = 0xFF;
 }
 
-inline void ContourBitmap::SetPixel(int x, int y, unsigned char b, unsigned char g, unsigned char r, unsigned char a)
-{
-	int pos = y * (m_Width * 4) + x * 4;
-
-	m_pPixelBuffer[pos] = b;
-	m_pPixelBuffer[pos + 1] = g;
-	m_pPixelBuffer[pos + 2] = r;
-	m_pPixelBuffer[pos + 3] = a;
-}
-
+//
 //bool ContourBitmap::CompareLevelsByOriginalColor(Level& l1, Level& l2)
 //{
 //	return l1.m_OriginalColor < l2.m_OriginalColor;
