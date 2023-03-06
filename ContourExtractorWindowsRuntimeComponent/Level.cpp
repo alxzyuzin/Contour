@@ -2,6 +2,7 @@
 #include "Level.h"
 
 
+
 using namespace ContourExtractorWindowsRuntimeComponent;
 
 Level::Level() {};
@@ -89,6 +90,33 @@ void Level::SetLevelShapesToDisplayBuffer(PixelBuffer imageData)
 	for (int i = 0; i < m_BufferLength; i++)
 		if (m_Buffer[i] == m_Color)
 			imageData.intBuffer[i] = m_OriginalColor;
+}
+
+void Level::SetContoursToDisplayBuffer(PixelBuffer ImageData, ContourColors color, ContourType type)
+{
+	Point* point;
+
+	for (Contour* contour : m_Contours)
+	{
+		if (contour->Type == type)
+		{
+			for (int i = 0; i < contour->Size(); i++)
+			{
+				point = contour->GetPoint(i);
+				unsigned int offset = point->Y * m_Width + point->X;
+
+				switch (color)
+				{
+				case ContourColors::Black:	ImageData.intBuffer[offset] = 0xFF000000; break;
+				case ContourColors::Blue:	ImageData.intBuffer[offset] = 0xFF0000FF; break;
+				case ContourColors::Green:	ImageData.intBuffer[offset] = 0xFF00FF00; break;
+				case ContourColors::Red:	ImageData.intBuffer[offset] = 0xFFFF0000; break;
+				case ContourColors::White:	ImageData.intBuffer[offset] = 0xFFFFFFFF; break;
+				}
+				
+			}
+		}
+	}
 }
 
 
@@ -187,7 +215,7 @@ Contour* Level::FindExternalContour()
 	if (!firstPointFound)
 		return nullptr;
 
-	Contour* contour = new Contour(Contour::ContourType::External);
+	Contour* contour = new Contour(ContourType::External);
 	contour->AddPoint(firstPoint);
 
 	Point nextPoint = firstPoint;
@@ -317,7 +345,7 @@ Contour* Level::FindInternalContour(Contour* parentContour)
 	bool pointFound = FindFirstInternalContourPoint(parentContour, point);
 	Point firstContourPoint = point;
 	if (pointFound)
-		contour = new Contour(Contour::ContourType::Internal);
+		contour = new Contour(ContourType::Internal);
 
 	while (pointFound)
 	{

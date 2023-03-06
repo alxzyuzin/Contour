@@ -14,15 +14,14 @@
 #include "Level.h"
 #include "Color.h"
 
+
 using namespace Platform;
 using namespace Windows::Foundation;
 
 
 namespace ContourExtractorWindowsRuntimeComponent
 {
-	public enum class TypeOfConvertion { Grayscale = 0, ReducedColors = 1 };
-	public enum class ContourColors { Black, White, Red, Green, Blue };
-	
+		
 	[Windows::Foundation::Metadata::WebHostHiddenAttribute]
 
 	// This class contain all information using in image convertion process
@@ -64,7 +63,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void ConvertToGrayscale(unsigned char levels);
 		void ConvertToReducedColors(unsigned char numberOfColors);
 		int  ExtractLevels();
-		//int  FindLevelContours(int contournumber);
 		IAsyncOperation<int>^  FindLevelContoursAsync(unsigned int levelColor);
 		void OutlineImage();
 		void RectifyLevel(unsigned int color, int size);
@@ -77,10 +75,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void Clear();
 
 	private:	//Methods
-		void	DisplayLevelContours(unsigned int color, ContourColors contourColor);
-		//Level*	SelectLevel(unsigned int color);
+		//void	DisplayLevelContours(unsigned int color, ContourColors contourColor);
 		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-		bool    CompareLevelsByOriginalColor(Level& l1, Level& l2);
+		//bool    CompareLevelsByOriginalColor(Level& l1, Level& l2);
 
 	private:	//Members
 		int m_Width;				// Ширина изображения в рикселях
@@ -98,8 +95,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Windows::UI::Xaml::Controls::Page^ m_pMainPage;
 		bool m_Initialized = false;
 
-		map<unsigned int, Level*> m_Levels;
-		//std::vector<Level*> m_Levels;
+		std::map<unsigned int, Level*> m_Levels;
+
 	};
 
 }

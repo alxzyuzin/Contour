@@ -12,6 +12,9 @@
 namespace ContourExtractorWindowsRuntimeComponent
 {
 	public enum class BaseColor { Red, Green, Blue, Alfa };
+	public enum class TypeOfConvertion { Grayscale = 0, ReducedColors = 1 };
+	public enum class ContourColors { Black, White, Red, Green, Blue };
+	public enum class ContourType {External, Internal, Both};
 
 	struct Color
 	{

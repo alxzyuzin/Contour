@@ -288,10 +288,7 @@ namespace ContourUI
 
                 foreach(var color in Palette.ActiveColors)
                     taskList.Add(bitmap.FindLevelContoursAsync(color.Key));
-                //for (int levelNumber = 0; levelNumber < numberOfLevels; levelNumber++)
-                //{
-                //    taskList.Add(bitmap.FindLevelContoursAsync(levelNumber));
-                //}
+               
 
                 foreach (var task in taskList)
                 {

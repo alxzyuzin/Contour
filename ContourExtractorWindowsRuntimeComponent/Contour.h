@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <vector>
 #include <set>
+#include "Color.h"
 
 
 
@@ -25,7 +26,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	class Contour sealed
 	{
 	public:
-		enum ContourType { External, Internal };
+		//enum ContourType { External, Internal };
 		int Length = 0;
 		ContourType Type = ContourType::External;
 

@@ -5,6 +5,7 @@
 #include "Color.h"
 
 
+
 using namespace std;
 
 namespace ContourExtractorWindowsRuntimeComponent
@@ -51,6 +52,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void Rectify(int size);
 
 		void SetLevelShapesToDisplayBuffer(PixelBuffer ImageData);
+		void SetContoursToDisplayBuffer(PixelBuffer ImageData, ContourColors color, ContourType type);
 
 		Contour* FindExternalContour();
 		Contour* FindInternalContour(Contour* parentContour);

@@ -270,19 +270,6 @@ int ContourBitmap::ExtractLevels()
 	return (int)m_Levels.size();
 }
 
-/// <summary>
-///  Look for contours in difined level
-/// </summary>
-/// <param name="levelnumber">
-///  Level number in the list of levels in bitmap 
-/// </param>
-/// <returns>
-/// Number of contours found
-/// </returns>
-//int ContourBitmap::FindLevelContours(int levelnumber)
-//{
-//	return m_Levels[levelnumber]->FindAllContours();
-//}
 
 IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelColor)
 {
@@ -292,7 +279,6 @@ IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelCo
 		}
 	);
 }
-
 
 
 void ContourBitmap::SetOriginalImageDataToDisplayBuffer()
@@ -307,9 +293,6 @@ void ContourBitmap::SetConvertedImageDataToDisplayBuffer()
 
 void ContourBitmap::SetLevelDataToDisplayBuffer(unsigned int color)
 {
-	//Level* level = SelectLevel(color);
-	//if (!level) return;
-
 	m_Levels[color]->SetLevelShapesToDisplayBuffer(m_ImageData);
 }
 /// <summary>
@@ -318,7 +301,8 @@ void ContourBitmap::SetLevelDataToDisplayBuffer(unsigned int color)
 void ContourBitmap::DisplayContours(ContourColors contourcolor)
 {
 	for (auto level : m_Levels)
-		DisplayLevelContours(level.second->m_OriginalColor, contourcolor);
+		level.second->SetContoursToDisplayBuffer(m_ImageData, contourcolor, ContourType::External);
+		//DisplayLevelContours(level.second->m_OriginalColor, contourcolor);
 }
 
 
@@ -385,42 +369,13 @@ void ContourBitmap::RectifyLevel(unsigned int color, int size)
 /// <param name="color">
 /// Цвет слоя для которого требуется отрисовать контур
 /// </param>
-void ContourBitmap::DisplayLevelContours(unsigned int levelcolor, ContourColors contourcolor)
-{
-	Point* point;
-
-	for (Contour* contour : m_Levels[levelcolor]->m_Contours)
-		for (int i = 0; i < contour->Size(); i++)
-		{
-			point = contour->GetPoint(i);
-
-			switch (contourcolor)
-			{
-			case ContourColors::Black	: SetPixel(point->X, point->Y, 0x00, 0x00, 0x00, 0xFF); break;
-			case ContourColors::Blue	: SetPixel(point->X, point->Y, 0xFF, 0x00, 0x00, 0xFF); break;
-			case ContourColors::Green	: SetPixel(point->X, point->Y, 0x00, 0xFF, 0x00, 0xFF); break;
-			case ContourColors::Red		: SetPixel(point->X, point->Y, 0x00, 0x00, 0xFF, 0xFF); break;
-			case ContourColors::White	: SetPixel(point->X, point->Y, 0xFF, 0xFF, 0xFF, 0xFF); break;
-			}
-		}
-}
-
-
-
-//// Возвращает указатель на уровень заданного цвета
-//
-//Level* ContourBitmap::SelectLevel(unsigned int color)
+//void ContourBitmap::DisplayLevelContours(unsigned int levelcolor, ContourColors contourcolor)
 //{
-//	for (auto level : m_Levels)
-//	{
-//		if (level.second->m_OriginalColor == color)
-//		{
-//			return level.second;
-//			break;
-//		}
-//	}
-//	return nullptr;
+//	m_Levels[levelcolor]->SetContoursToDisplayBuffer(m_ImageData, contourcolor, ContourType::External);
+//
 //}
+
+
 
 
 // Закрашивает буфер изображения белым цветом
@@ -442,7 +397,7 @@ inline void ContourBitmap::SetPixel(int x, int y, unsigned char b, unsigned char
 	m_pPixelBuffer[pos + 3] = a;
 }
 
-bool ContourBitmap::CompareLevelsByOriginalColor(Level& l1, Level& l2)
-{
-	return l1.m_OriginalColor < l2.m_OriginalColor;
-}
+//bool ContourBitmap::CompareLevelsByOriginalColor(Level& l1, Level& l2)
+//{
+//	return l1.m_OriginalColor < l2.m_OriginalColor;
+//}
