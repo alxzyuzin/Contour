@@ -26,8 +26,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	[Windows::Foundation::Metadata::WebHostHiddenAttribute]
 
 	// This class contain all information using in image convertion process
-	//		List of gray colors after converting original image to grayscale
-	//		List of grayscaled image Levels after extracting  
+	
 	public ref class ContourBitmap sealed
 	{
 
@@ -68,22 +67,21 @@ namespace ContourExtractorWindowsRuntimeComponent
 		int  FindLevelContours(int contournumber);
 		IAsyncOperation<int>^  FindLevelContoursAsync(int contournumber);
 		void OutlineImage();
-		void RectifyLevel(unsigned char color, int size);
+		void RectifyLevel(unsigned int color, int size);
+
+		void ClearPixelBuffer();
 		void SetOriginalImageDataToDisplayBuffer();
 		void SetConvertedImageDataToDisplayBuffer();
+		void SetLevelDataToDisplayBuffer(unsigned int levelColor);
 		void DisplayContours(ContourColors color);
-		void DisplayAll(bool displayImage, bool displayOriginal, bool displayContours, ContourColors color);
 		void Clear();
 
 	private:	//Methods
-		void	DisplayLevelShapes(unsigned char color);
-		void	DisplayLevelContours(unsigned char color, ContourColors contourColor);
-
-		Level*	SelectLevel(unsigned char color);
-		void	ClearPixelBuffer();
+		void	DisplayLevelContours(unsigned int color, ContourColors contourColor);
+		Level*	SelectLevel(unsigned int color);
 		void	SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+		bool    CompareLevelsByOriginalColor(Level& l1, Level& l2);
 
-		bool CompareLevelsByOriginalColor(Level& l1, Level& l2);
 	private:	//Members
 		int m_Width;				// Ширина изображения в рикселях
 		int m_Height;				// Высота изображения в рикселях

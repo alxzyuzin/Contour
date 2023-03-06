@@ -304,47 +304,22 @@ void ContourBitmap::SetConvertedImageDataToDisplayBuffer()
 {
 	std::memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
 }
+
+void ContourBitmap::SetLevelDataToDisplayBuffer(unsigned int color)
+{
+	Level* level = SelectLevel(color);
+	if (!level) return;
+
+	level->SetLevelShapesToDisplayBuffer(m_ImageData);
+}
 /// <summary>
-/// Отображает контуры наиденные в изображении в буфере дисплея
+/// Set contours found in image to display buffer
 /// </summary>
 void ContourBitmap::DisplayContours(ContourColors contourcolor)
 {
 	for (Level* level : m_Levels)
-		DisplayLevelContours(level->m_Color, contourcolor);
+		DisplayLevelContours(level->m_OriginalColor, contourcolor);
 }
-
-/// <summary>
-/// Set image (Original or Converted) and (or) contours to display buffer
-/// </summary>
-/// <param name="hideImage">
-///  true - Disable to display image
-///  false - Enable to display image
-/// </param>
-/// <param name="displayConverted">
-/// true  - Display conerted image
-/// false - Display original image
-/// </param>
-/// <param name="displayContours">
-/// true - Display contours
-/// false -Hide contours
-/// </param>
-/// <param name="color"></param>
-void ContourBitmap::DisplayAll(bool hideImage, bool displayConverted, bool displayContours, ContourColors color)
-{
-	ClearPixelBuffer();
-	if (!hideImage)
-	{
-		if (displayConverted)
-			memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
-		else
-			memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
-	}
-	if (displayContours)
-	{
-		DisplayContours(color);
-	}
-}
-
 
 
 /// <summary>
@@ -392,7 +367,7 @@ void ContourBitmap::OutlineImage()
 /// <param name="size">
 /// Длина стороны квадрата в который должны вписываться группы пикселей подлежащие удалению
 /// </param>
-void ContourBitmap::RectifyLevel(unsigned char color, int size)
+void ContourBitmap::RectifyLevel(unsigned int color, int size)
 {
 	//Level* selectedLevel = SelectLevel(color);
 	//selectedLevel->Rectify(size);
@@ -406,20 +381,21 @@ void ContourBitmap::RectifyLevel(unsigned char color, int size)
 /*
 	 Переносит данные одного слоя в буфер для отображения на экране
 */
-void ContourBitmap::DisplayLevelShapes(unsigned char color)
+/*
+void ContourBitmap::DisplayLevelShapes(unsigned int color)
 {
 	Level* selectedLevel = SelectLevel(color);
 	if (!selectedLevel) return;
 	selectedLevel->GetLevelShapes(m_pPixelBuffer);
 }
-
+*/
 /// <summary>
 /// Отрисовывает в буфере дисплея контуры для слоя цвет которого задан во входном параметре
 /// </summary>
 /// <param name="color">
 /// Цвет слоя для которого требуется отрисовать контур
 /// </param>
-void ContourBitmap::DisplayLevelContours(unsigned char levelcolor, ContourColors contourcolor)
+void ContourBitmap::DisplayLevelContours(unsigned int levelcolor, ContourColors contourcolor)
 {
 	Level* selectedLevel = SelectLevel(levelcolor);
 	Point* point;
@@ -444,11 +420,11 @@ void ContourBitmap::DisplayLevelContours(unsigned char levelcolor, ContourColors
 
 // Возвращает указатель на уровень заданного цвета
 
-Level* ContourBitmap::SelectLevel(unsigned char color)
+Level* ContourBitmap::SelectLevel(unsigned int color)
 {
 	for (Level* level : m_Levels)
 	{
-		if (level->m_Color == color)
+		if (level->m_OriginalColor == color)
 		{
 			return level;
 			break;

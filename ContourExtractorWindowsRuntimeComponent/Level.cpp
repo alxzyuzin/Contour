@@ -80,27 +80,18 @@ void Level::Rectify(int size)
 	}
 }
 
-/*
-Переносит все закрашенные области слоя в буфер изображения отображаемого на экране
-*/
-void Level::GetLevelShapes(unsigned char* pPixelBuffer)
+/// <summary>
+/// Draw all filled level arias to display buffer
+/// </summary>
+
+void Level::SetLevelShapesToDisplayBuffer(PixelBuffer imageData)
 {
-	for (int y = 0; y < m_Height; y++)
-	{
-		for (int x = 0; x < m_Width; x++)
-		{
-			int PixelBufferOffset = (y * m_Width + x) * 4;
-			unsigned char pixelColor = m_BufferCopy[y * m_Width + x];
-			if (pixelColor == m_Color)
-			{
-				pPixelBuffer[PixelBufferOffset] = m_Color;
-				pPixelBuffer[PixelBufferOffset + 1] = m_Color;
-				pPixelBuffer[PixelBufferOffset + 2] = m_Color;
-				pPixelBuffer[PixelBufferOffset + 3] = EMPTY_COLOR;
-			}
-		}
-	}
+	for (int i = 0; i < m_BufferLength; i++)
+		if (m_Buffer[i] == m_Color)
+			imageData.intBuffer[i] = m_OriginalColor;
 }
+
+
 
 void Level::SetPixel(Point* point, unsigned char color)
 {
@@ -360,6 +351,10 @@ int Level::FindAllContours()
 			FillContour(externalContour, EMPTY_COLOR);
 		}
 	} while (externalContour);
+
+	// Restore data in the level buffer
+	memcpy(m_Buffer, m_BufferCopy,  m_BufferLength);
+
 	return (int)m_Contours.size();
 }
 

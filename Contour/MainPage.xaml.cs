@@ -12,7 +12,6 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 using System.Runtime.InteropServices.WindowsRuntime;
 
 using ContourExtractorWindowsRuntimeComponent;
@@ -22,7 +21,6 @@ using Windows.Graphics.Imaging;
 using System.IO;
 using Windows.UI.Xaml;
 using System.Threading.Tasks;
-
 
 namespace ContourUI
 {
@@ -56,20 +54,40 @@ namespace ContourUI
 
         private void Palette_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            SortedDictionary<uint, bool> colors = ((PalettePanel)sender).ActiveColors;
+            RedrawImageArea();
         }
 
         private void ApplicationStatus_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
+            // Disable Display Converted/Original toggle switch if image hided 
+            ApplicationStatus.ImageConverted = !ApplicationStatus.HideImage;
+
             if (e.PropertyName == "HideImage" || e.PropertyName == "DisplayConverted" || e.PropertyName == "DisplayContour")
             {
-                // Disable Display Converted/Original toggle switch if image hided 
-                ApplicationStatus.ImageConverted = !ApplicationStatus.HideImage;
-                    
-                bitmap.DisplayAll(ApplicationStatus.HideImage, ApplicationStatus.DisplayConverted,
-                                    ApplicationStatus.DisplayContour, Options.ContourColorValue);
-                bitmap.ImageData.Invalidate();
+               RedrawImageArea();
             }
+        }
+
+        private void RedrawImageArea()
+        {
+            bitmap.ClearPixelBuffer();
+            if (!ApplicationStatus.HideImage)
+            {
+                if (ApplicationStatus.DisplayConverted)
+                {
+                    foreach (var color in Palette.ActiveColors)
+                    {
+                        if (color.Value)
+                            bitmap.SetLevelDataToDisplayBuffer(color.Key);
+                    }
+                }
+                else
+                    bitmap.SetOriginalImageDataToDisplayBuffer();
+            }
+            if (ApplicationStatus.DisplayContour)
+                bitmap.DisplayContours(Options.ContourColorValue);
+
+            bitmap.ImageData.Invalidate();
         }
 
         private async Task<MsgBoxButton> DisplayMessage(UserMessage message)
@@ -254,7 +272,8 @@ namespace ContourUI
         
         private async  void mfiOutline_Clicked(object sender, RoutedEventArgs e)
         {
-            
+            ApplicationStatus.DisplayContour = false;
+
             if (ApplicationStatus.ImageConverted)
             {
                 ApplicationStatus.ProgressValue = 0;

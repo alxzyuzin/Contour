@@ -21,8 +21,7 @@ namespace ContourUI
     public sealed partial class AboutContour : UserControl
     {
         private bool _stopWating;
-        private int _width;
-        private int _height;
+       
         public AboutContour()
         {
             this.InitializeComponent();

@@ -50,6 +50,7 @@ namespace ContourUI
             }
         }
         private bool _hideImage = false;
+        
         public bool HideImage
         {
             get { return _hideImage; }
@@ -90,7 +91,7 @@ namespace ContourUI
                 }
             }
         }
-
+                
         private string _imageFileName = "No image loaded";
         public string ImageFileName
         {

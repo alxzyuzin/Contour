@@ -50,7 +50,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void Clear();
 		void Rectify(int size);
 
-		void GetLevelShapes(unsigned char* pPixelBuffer);
+		void SetLevelShapesToDisplayBuffer(PixelBuffer ImageData);
 
 		Contour* FindExternalContour();
 		Contour* FindInternalContour(Contour* parentContour);

@@ -90,16 +90,16 @@ namespace ContourExtractorWindowsRuntimeComponent
 			break;
 		}
 
-		int median = (int)(m_color_values.size() / 2);
+		unsigned int median = (unsigned int)(m_color_values.size() / 2);
 	
 		std::vector<Color> color_values;
-		for (int i = 0; i < median; i++)
+		for (unsigned int i = 0; i < median; i++)
 			color_values.push_back(m_color_values[i]);
 		group1->AddColorValues(&color_values);
 
 		color_values.clear();
 
-		for (int i = median; i < m_color_values.size(); i++)
+		for (unsigned int i = median; i < m_color_values.size(); i++)
 			color_values.push_back(m_color_values[i]);
 		group2->AddColorValues(&color_values);
 	}
