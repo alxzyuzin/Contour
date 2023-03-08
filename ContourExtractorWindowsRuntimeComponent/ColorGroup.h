@@ -26,23 +26,18 @@ namespace ContourExtractorWindowsRuntimeComponent
 		unsigned char m_b_min = 0;
 		unsigned char m_b_max = 255;
 
-		unsigned char m_averageRed = 0;
-		unsigned char m_averageGreen =0;
-		unsigned char m_averageBlue = 0;
-		unsigned int m_averageGroupColor = 0;
+		CharToIntColor  m_averageGroupColor = 0;
 
 		void CalcColorGroupParams();
 	public:
 		ColorGroup();
-		ColorGroup(unsigned char* imgData, int bufferLength);
+		ColorGroup(unsigned int* imgData, int bufferLength);
 		ColorGroup(std::vector<Color>* color_values);
 		unsigned char MaxColorRange();
 		void Split(ColorGroup* group1, ColorGroup* group2);
 		void AddColorValues(std::vector<Color> *color_values);
-		bool Contain(unsigned char r, unsigned char g, unsigned char b);
-		unsigned char AverageRed();
-		unsigned char AverageGreen();
-		unsigned char AverageBlue();
+		bool Contains(unsigned char r, unsigned char g, unsigned char b);
+		bool Contains(CharToIntColor color);
 		unsigned int AverageGroupColor();
 	};
 }

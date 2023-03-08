@@ -45,14 +45,14 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	public:
 		Level();
-		Level(int width, int height, pair<unsigned int, unsigned char> colorPair, PixelBuffer ImageData);
+		Level(int width, int height, pair<unsigned int, unsigned char> colorPair, unsigned int* imageData);
 				
 		~Level();
 		void Clear();
 		void Rectify(int size);
 
-		void SetLevelShapesToDisplayBuffer(PixelBuffer ImageData);
-		void SetContoursToDisplayBuffer(PixelBuffer ImageData, ContourColors color, ContourType type);
+		void SetLevelShapesToDisplayBuffer(unsigned int* ImageData);
+		void SetContoursToDisplayBuffer(unsigned int*  ImageData, ContourColors color, ContourType type);
 
 		Contour* FindExternalContour();
 		Contour* FindInternalContour(Contour* parentContour);

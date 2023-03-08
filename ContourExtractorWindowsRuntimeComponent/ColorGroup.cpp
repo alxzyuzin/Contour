@@ -10,70 +10,26 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	}
 
-	ColorGroup::ColorGroup(unsigned char* imgData, int bufferLength)
+	ColorGroup::ColorGroup(unsigned int* imgData, int bufferLength)
 	{
-		for (int pos = 0; pos < bufferLength; pos += 4)
+		for (int i = 0; i < bufferLength; i++)
 		{
-			Color color = { imgData[pos + 0] , imgData[pos + 1], imgData[pos + 2], 0xFF };
-			m_color_values.push_back(color);
+			CharToIntColor color = imgData[i];
+			m_color_values.push_back(color.charcolor);
 		}
 		CalcColorGroupParams();
 	}
-	/*
-	ColorGroup::ColorGroup(std::vector<Color>* color_values)
-	{
-
-	}
-	*/
-	/*
-	unsigned char ColorGroup::getBaseMaxColorRange()
-	{
-		return m_maxColorRange;
-	}
-	*/
+	
 	unsigned char ColorGroup::MaxColorRange()
 	{
 		return m_maxColorRange;
 	}
 
-	unsigned char ColorGroup::AverageRed()
-	{
-		return m_averageRed;
-	}
-
-	unsigned char ColorGroup::AverageGreen()
-	{
-		return m_averageGreen;
-	}
-
-	unsigned char ColorGroup::AverageBlue()
-	{
-		return m_averageBlue;
-	}
-
 	unsigned int ColorGroup::AverageGroupColor()
 	{
-		return m_averageGroupColor;
+		return m_averageGroupColor.intcolor;
 	}
-	/*
-	Color ColorGroup::getAverageGroupColor()
-	{
-		Color color;
-		long r = 0, g = 0, b = 0;
-		for (Color c : m_color_values)
-		{
-			r += c.red;
-			g += c.green;
-			b += c.blue;
-		}
-
-		int l = (int)m_color_values.size();
-		color.red = (unsigned char)(r / l);
-		color.green = (unsigned char)(g / l);
-		color.blue = (unsigned char)(b / l);
-		return color;
-	}
-	*/
+	
 	void ColorGroup::Split(ColorGroup* group1, ColorGroup* group2)
 	{
 		// Sort image color data by color with max range
@@ -111,13 +67,21 @@ namespace ContourExtractorWindowsRuntimeComponent
 	}
 
 	// Define if particular color belongs to this group
-	bool ColorGroup::Contain(unsigned char r, unsigned char g, unsigned char b)
+	bool ColorGroup::Contains(unsigned char r, unsigned char g, unsigned char b)
 	{
 		if (r >= m_r_min && r <= m_r_max && g >= m_g_min && g <= m_g_max && b >= m_b_min && b <= m_b_max)
 			return true;
 		return false;
 	}
 
+	bool ColorGroup::Contains(CharToIntColor color)
+	{
+		if (color.charcolor.red >= m_r_min && color.charcolor.red <= m_r_max &&
+			color.charcolor.green >= m_g_min && color.charcolor.green <= m_g_max &&
+			color.charcolor.blue >= m_b_min && color.charcolor.blue <= m_b_max)
+			return true;
+		return false;
+	}
 
 	// Calculate max and min value for each color component, max range and color component with max range
 	void ColorGroup::CalcColorGroupParams()
@@ -149,18 +113,15 @@ namespace ContourExtractorWindowsRuntimeComponent
 			totalBlue += color.blue;
 			++totalColors;
 		}
+
+		// Calculate group average color
 		if (totalColors > 0)
-		{
-			m_averageRed = (unsigned char)(totalRed / totalColors);
-			m_averageGreen = (unsigned char)(totalGreen / totalColors);
-			m_averageBlue = (unsigned char)(totalBlue / totalColors);
-		}
-
-		
-		CharToIntColor color{};
-		color.charcolor =  Color(m_averageRed, m_averageGreen, m_averageBlue, 0xFF); 
-
-		m_averageGroupColor = color.intcolor;
+			m_averageGroupColor = { (unsigned char)(totalRed / totalColors), 
+									(unsigned char)(totalGreen / totalColors), 
+									(unsigned char)(totalBlue / totalColors),
+									0xFF
+								  };
+	
 		// Calculate color range for each color component
 		unsigned char r_range = m_r_max - m_r_min;
 		unsigned char g_range = m_g_max - m_g_min;

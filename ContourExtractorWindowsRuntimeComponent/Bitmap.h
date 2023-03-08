@@ -1,6 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------
  * Copyright(c) 2023 Alexandr Ziuzin.
  * e-mail alx.zyuzin@gmail.com
+ * 
  * This file is part of Contour project.
  *
  * Main class for image manipulation
@@ -74,25 +75,25 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void DisplayContours(ContourColors color);
 		void Clear();
 
-	
+	private:
+		void SaveOriginalImageData();
+		void SaveConvertedImageData();
+		void RestoreOriginalImageData();
+		void RestoreConvertedImageData();
 	private:	//Members
-		int m_Width;				// Ширина изображения в рикселях
-		int m_Height;				// Высота изображения в рикселях
-		int m_PixelBufferLength;	// Длина буфера изображения в байтах
-		
-		unsigned char* m_pPixelBuffer;		    // Pointer to WriteableBitmap buffer. Data from this buffer serves as data source for Image object to display
-		
-		PixelBuffer m_ImageData;
-		unsigned int m_uintImageDataLength;
+		int m_Width;					// Image width in pixels
+		int m_Height;					// Image width in pixels
+	
+		int m_bytePixelBufferLength;	// Pixel buffer length in bytes
+		int m_uintPixelBufferLength;	// Pixel buffer length in unsigned int
+		unsigned int* m_PixelBuffer;    // Pointer to WriteableBitmap buffer. Data from this buffer serves as data source for Image object to display
 		
 		unsigned char* m_pOriginalImageData;	// Pointer to buffer to store original image data loaded from file
 		unsigned char* m_pConvertedImageData;	// Pointer to buffer to store converted image data 
 		Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ m_Bitmap = nullptr;
 		Windows::UI::Xaml::Controls::Page^ m_pMainPage;
-		bool m_Initialized = false;
-
+		
 		std::map<unsigned int, Level*> m_Levels;
-
 	};
 
 }

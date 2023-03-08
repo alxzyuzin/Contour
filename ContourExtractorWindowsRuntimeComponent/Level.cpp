@@ -8,13 +8,13 @@ using namespace ContourExtractorWindowsRuntimeComponent;
 Level::Level() {};
 
 
-Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair, PixelBuffer imageData)
+Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair, unsigned int* imageData)
 {
 	if (width <= 0)
 		throw std::invalid_argument("parameter width <= 0");
 	if (height <= 0)
 		throw std::invalid_argument("parameter width <= 0");
-	if (!imageData.intBuffer)
+	if (!imageData)
 		throw std::invalid_argument("Pointer to pPixelBuffer is null");
 
 	m_Width = width;
@@ -29,7 +29,7 @@ Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair,
 	// поскольку байты RGB исходного изображения содержат одинаковые значения 
 	for (int i = 0; i < m_BufferLength; i++)
 	{
-		if (imageData.intBuffer[i] == colorPair.first)
+		if (imageData[i] == colorPair.first)
 			m_Buffer[i] = colorPair.second;
 		else
 			m_Buffer[i] = 0xFF;
@@ -85,14 +85,14 @@ void Level::Rectify(int size)
 /// Draw all filled level arias to display buffer
 /// </summary>
 
-void Level::SetLevelShapesToDisplayBuffer(PixelBuffer imageData)
+void Level::SetLevelShapesToDisplayBuffer(unsigned int* imageData)
 {
 	for (int i = 0; i < m_BufferLength; i++)
 		if (m_Buffer[i] == m_Color)
-			imageData.intBuffer[i] = m_OriginalColor;
+			imageData[i] = m_OriginalColor;
 }
 
-void Level::SetContoursToDisplayBuffer(PixelBuffer ImageData, ContourColors color, ContourType type)
+void Level::SetContoursToDisplayBuffer(unsigned int*  ImageData, ContourColors color, ContourType type)
 {
 	Point* point;
 
@@ -107,11 +107,11 @@ void Level::SetContoursToDisplayBuffer(PixelBuffer ImageData, ContourColors colo
 
 				switch (color)
 				{
-				case ContourColors::Black:	ImageData.intBuffer[offset] = 0xFF000000; break;
-				case ContourColors::Blue:	ImageData.intBuffer[offset] = 0xFF0000FF; break;
-				case ContourColors::Green:	ImageData.intBuffer[offset] = 0xFF00FF00; break;
-				case ContourColors::Red:	ImageData.intBuffer[offset] = 0xFFFF0000; break;
-				case ContourColors::White:	ImageData.intBuffer[offset] = 0xFFFFFFFF; break;
+				case ContourColors::Black:	ImageData[offset] = 0xFF000000; break;
+				case ContourColors::Blue:	ImageData[offset] = 0xFF0000FF; break;
+				case ContourColors::Green:	ImageData[offset] = 0xFF00FF00; break;
+				case ContourColors::Red:	ImageData[offset] = 0xFFFF0000; break;
+				case ContourColors::White:	ImageData[offset] = 0xFFFFFFFF; break;
 				}
 				
 			}

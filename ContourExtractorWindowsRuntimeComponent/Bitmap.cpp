@@ -1,11 +1,13 @@
 ﻿/*---------------------------------------------------------------------------------
  * Copyright(c) 2023 Alexandr Ziuzin.
  * e-mail alx.zyuzin@gmail.com
+ *
  * This file is part of Contour project.
  *
  * Main class for image manipulation
  *
  ---------------------------------------------------------------------------------*/
+
 
 #include "pch.h"
 #include "Bitmap.h"
@@ -65,8 +67,13 @@ ContourBitmap::ContourBitmap()
 {
 	m_Width = 0;
 	m_Height = 0;
-	m_PixelBufferLength = 0;
-	m_uintImageDataLength = 0;
+
+	m_uintPixelBufferLength = 0;
+	m_bytePixelBufferLength = 0;
+
+	m_Bitmap = nullptr;
+	m_pOriginalImageData = nullptr;
+	m_pConvertedImageData = nullptr;
 }
 
 
@@ -83,11 +90,13 @@ ContourBitmap::ContourBitmap(int width, int height)
 {
 	m_Width = width;   
 	m_Height = height;
-	m_PixelBufferLength = 4 * width * height;
-	m_uintImageDataLength = width * height;
+
+	m_uintPixelBufferLength = width * height;
+	m_bytePixelBufferLength = m_uintPixelBufferLength *4;
+
 	m_Bitmap = ref new WriteableBitmap(width, height);
-	m_pOriginalImageData = new unsigned char[m_PixelBufferLength];  // Create buffer for original image data
-	m_pConvertedImageData = new unsigned char[m_PixelBufferLength]; // Create buffer for converted image data
+	m_pOriginalImageData  = new unsigned char[m_bytePixelBufferLength];  // Create buffer for original image data
+	m_pConvertedImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for converted image data
 }
 
 
@@ -98,21 +107,21 @@ ContourBitmap::ContourBitmap(int width, int height)
 /// <param name="stream"></param>
 void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 {
-	m_Bitmap->SetSource(stream);  // m_Bitmap - WritableBitmap^
-
 	using namespace Microsoft::WRL;
 
+	unsigned char* bytePixelBuffer;
+	m_Bitmap->SetSource(stream);  // m_Bitmap - WritableBitmap^
 	// Obtain access to image data
 	ComPtr<IBufferByteAccess> pBufferByteAccess;
 	IBuffer^ pIBuffer = m_Bitmap->PixelBuffer;
 	ComPtr<IUnknown> pBuffer((IUnknown*)pIBuffer);
 	pBuffer.As(&pBufferByteAccess);
 	// Get pointer to pixel bytes
-	pBufferByteAccess->Buffer(&m_pPixelBuffer); // Now m_pPixelBuffer contains address of image data in the internal WritableBitmap buffer
+	pBufferByteAccess->Buffer(&bytePixelBuffer); // Now bytePixelBuffer contains address of image data in the internal WritableBitmap buffer
+	
+	m_PixelBuffer = (unsigned int*)bytePixelBuffer;
 	// Make copy image data to m_pOriginalImageData before any manipulations
-	memcpy(m_pOriginalImageData, m_pPixelBuffer, m_PixelBufferLength);
-	// Make possible work with image data in two ways (as byte array and as unsigned int array
-	m_ImageData.charBuffer = m_pPixelBuffer;
+	SaveOriginalImageData();
 }
 
 /// <summary>
@@ -127,14 +136,13 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 	if (levels < 2 || levels > 255) throw ref new InvalidArgumentException();
 
 	//Restore original image data
-	std::memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
-
-	// Split aall range of possible gray colors into ranges
+	RestoreOriginalImageData();
+	// Split full range of possible gray colors into ranges
 	int range = 255 / levels;
-	std::vector<GrayColorRange> colorRanges;
+	vector<GrayColorRange> colorRanges;
 	GrayColorRange grayColorRange;
 	unsigned char bottomLevel = 0;
-	// Define for each range top value, bottom value and average color 
+	// Define for each range top and bottom value
 	while (grayColorRange.top < 255)
 	{
 		grayColorRange.bottom = bottomLevel;
@@ -142,25 +150,19 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 			
 		if ((bottomLevel + range) > 255)
 			grayColorRange.top = 255;
-
-		grayColorRange.value = (unsigned char)((grayColorRange.bottom + grayColorRange.top) / 2);
+				
 		colorRanges.push_back(grayColorRange);
 		bottomLevel += (range + 1);
 	}
 	// Convert source image to grayscaled image
 	for (auto colorRange : colorRanges)
-		for (int j = 0; j < m_PixelBufferLength; j+=4)
-		{
-			if ( colorRange.ContainColor(m_pPixelBuffer[j], m_pPixelBuffer[j + 1], m_pPixelBuffer[j + 2]) )
+		for (int i = 0; i < m_uintPixelBufferLength; i++)
+			if (colorRange.ContainsColor(m_PixelBuffer[i]))
 			{
-				m_pPixelBuffer[j] = colorRange.value;;
-				m_pPixelBuffer[j + 1] = colorRange.value;;
-				m_pPixelBuffer[j + 2] = colorRange.value;;
-				m_pPixelBuffer[j + 3] = 0xFF;
+				(m_PixelBuffer)[i] = colorRange.Value();
 			}
-	}
 	// Save converted image to the buffer for later use
-	std::memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
+	SaveConvertedImageData();
 }
 
 /// <summary>
@@ -176,10 +178,10 @@ void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
 	// Check if input parameter is correct
 	if (numberOfColors < 2 || numberOfColors > 128) throw ref new InvalidArgumentException();
 	//Restore original image data
-	memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
-
+	RestoreOriginalImageData();
+	
 	// Create first color group containes all image colors based on data from pixel buffer 
-	ColorGroup* colorGroup = new ColorGroup(m_pPixelBuffer, m_PixelBufferLength);
+	ColorGroup* colorGroup = new ColorGroup(m_PixelBuffer, m_uintPixelBufferLength);
 	colorGroups.push_back(colorGroup);
 	
 	// Split first color group according number of desired colors in image
@@ -204,20 +206,18 @@ void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
 	// Convert source image to image with reduced number of colors
 	for (ColorGroup* group : colorGroups)
 	{
-		for (int pos = 0; pos < m_PixelBufferLength; pos += 4)
+		for (int i = 0; i < m_uintPixelBufferLength; i++)
 		{
 			// If pixel color belongs to group change pixel color to group average color
-			if (group->Contain(m_pPixelBuffer[pos], m_pPixelBuffer[pos + 1], m_pPixelBuffer[pos + 2]))
+			if (group->Contains(m_PixelBuffer[i]))
 			{
-				m_pPixelBuffer[pos] = group->AverageRed();
-				m_pPixelBuffer[pos + 1] = group->AverageGreen();
-				m_pPixelBuffer[pos + 2] = group->AverageBlue();
-				//m_pPixelBuffer[pos + 3] = 0xFF;
+				m_PixelBuffer[i] = group->AverageGroupColor();
 			}
 		}
 	}
 	// Save converted image to the buffer for later use
-	memcpy(m_pConvertedImageData, m_pPixelBuffer, m_PixelBufferLength);
+	SaveConvertedImageData();
+
 }
 
 
@@ -235,9 +235,9 @@ int ContourBitmap::ExtractLevels()
 		
 	// Build list of color in image
 	unsigned char levelValue = 1;
-	for (unsigned int i = 0; i < m_uintImageDataLength; i++)
+	for (int i = 0; i < m_uintPixelBufferLength; i++)
 	{
-		unsigned int c = m_ImageData.intBuffer[i];
+		unsigned int c = m_PixelBuffer[i];
 		// If pixel color not in the list of colos add it to list
 		if (colormap.count(c) == 0)
 		{
@@ -259,7 +259,7 @@ int ContourBitmap::ExtractLevels()
 	// Create new levels
 	for (pair<unsigned int, unsigned char> colorPair : colormap)
 	{
-		m_Levels.insert(pair<unsigned int, Level*>(colorPair.first, new Level(m_Width, m_Height, colorPair, m_ImageData)));
+		m_Levels.insert(pair<unsigned int, Level*>(colorPair.first, new Level(m_Width, m_Height, colorPair, m_PixelBuffer)));
 	}
 	// Sort array of levels by level color
 	//std::sort(m_Levels.begin(), m_Levels.end(), [](pair<unsigned int, Level*>& a, pair<unsigned int, Level*>& b)
@@ -283,17 +283,17 @@ IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelCo
 
 void ContourBitmap::SetOriginalImageDataToDisplayBuffer()
 {
-	std::memcpy(m_pPixelBuffer, m_pOriginalImageData, m_PixelBufferLength);
+	RestoreOriginalImageData();
 }
 
 void ContourBitmap::SetConvertedImageDataToDisplayBuffer()
 {
-	std::memcpy(m_pPixelBuffer, m_pConvertedImageData, m_PixelBufferLength);
+	RestoreConvertedImageData();
 }
 
 void ContourBitmap::SetLevelDataToDisplayBuffer(unsigned int color)
 {
-	m_Levels[color]->SetLevelShapesToDisplayBuffer(m_ImageData);
+	m_Levels[color]->SetLevelShapesToDisplayBuffer(m_PixelBuffer);
 }
 /// <summary>
 /// Set contours found in image to display buffer
@@ -301,8 +301,7 @@ void ContourBitmap::SetLevelDataToDisplayBuffer(unsigned int color)
 void ContourBitmap::DisplayContours(ContourColors contourcolor)
 {
 	for (auto level : m_Levels)
-		level.second->SetContoursToDisplayBuffer(m_ImageData, contourcolor, ContourType::External);
-		//DisplayLevelContours(level.second->m_OriginalColor, contourcolor);
+		level.second->SetContoursToDisplayBuffer(m_PixelBuffer, contourcolor, ContourType::External);
 }
 
 
@@ -322,8 +321,7 @@ void ContourBitmap::Clear()
 	delete m_Bitmap;
 	m_Width = 0;				// Ширина изображения в рикселях
 	m_Height = 0;				// Высота изображения в рикселях
-	m_PixelBufferLength = 0;	// Длина буфера изображения в байтах
-	m_Initialized = false;
+
 }
 
 /// <summary>
@@ -358,15 +356,26 @@ void ContourBitmap::RectifyLevel(unsigned int color, int size)
 }
 
 // Закрашивает буфер изображения белым цветом
-// Необходимо переписать (Один цикл от i=0 до BufferLength)
 void inline ContourBitmap::ClearPixelBuffer()
 {
-	for (int i = 0; i < m_PixelBufferLength; i++)
-		m_pPixelBuffer[i] = 0xFF;
+	for (int i = 0; i < m_uintPixelBufferLength; i++)
+		m_PixelBuffer[i] = 0xFFFFFFFF;
 }
 
-//
-//bool ContourBitmap::CompareLevelsByOriginalColor(Level& l1, Level& l2)
-//{
-//	return l1.m_OriginalColor < l2.m_OriginalColor;
-//}
+
+inline void ContourBitmap::SaveOriginalImageData()
+{
+	memcpy(m_pOriginalImageData, m_PixelBuffer, m_bytePixelBufferLength);
+}
+inline void ContourBitmap::SaveConvertedImageData()
+{
+	memcpy(m_pConvertedImageData, m_PixelBuffer, m_bytePixelBufferLength);
+}
+inline void ContourBitmap::RestoreOriginalImageData()
+{
+	memcpy(m_PixelBuffer, m_pOriginalImageData, m_bytePixelBufferLength);
+}
+inline void ContourBitmap::RestoreConvertedImageData()
+{
+	memcpy(m_PixelBuffer, m_pConvertedImageData, m_bytePixelBufferLength);
+}

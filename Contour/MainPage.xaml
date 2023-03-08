@@ -47,8 +47,8 @@
             <!-- Image area row -->
             <RowDefinition Height="*"/>
             <!-- View options and status row -->
-            <RowDefinition Height="60px"/>
-            <RowDefinition Height="25px"/>
+            <RowDefinition Height="70px"/>
+            <RowDefinition Height="30px"/>
             
         </Grid.RowDefinitions>
         
@@ -113,7 +113,7 @@
         <Grid Grid.Row="1" Visibility="Visible">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="8*"/>
-                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="350"/>
             </Grid.ColumnDefinitions>
             <!-- Image -->
             <Rectangle Grid.Column="0" Fill="White" Margin="25,0,25,15" 
@@ -126,15 +126,15 @@
         <!-- View options and controls -->
         <StackPanel x:Name="DisplayOptions" Grid.Row="2" HorizontalAlignment="Right" 
                     Orientation="Horizontal" Margin="20,0,20,0">
-            <ToggleSwitch Header="Hide image" Width="90" 
+            <ToggleSwitch Header="Hide image" 
                           IsEnabled="{Binding ImageLoaded}" 
-                          IsOn="{Binding HideImage, Mode=TwoWay}" />
-            <ToggleSwitch Header="Original/Converted" OnContent="Converted" OffContent="Original" Width="90"
+                          IsOn="{Binding HideImage, Mode=TwoWay}" Margin="20,0,0,0"/>
+            <ToggleSwitch Header="Original/Converted" OnContent="Converted" OffContent="Original" 
                           IsEnabled="{Binding ImageConverted}"
-                          IsOn="{Binding DisplayConverted, Mode=TwoWay}"/>
-            <ToggleSwitch Header="Display contours" Width="90"
+                          IsOn="{Binding DisplayConverted, Mode=TwoWay}" />
+            <ToggleSwitch Header="Display contours" 
                           IsEnabled="{Binding ImageOutlined}"
-                          IsOn="{Binding DisplayContour, Mode=TwoWay}" />
+                          IsOn="{Binding DisplayContour, Mode=TwoWay}" Margin="20,0,0,0" />
         </StackPanel>
 
         <!-- Status line -->

@@ -37,6 +37,21 @@ namespace ContourExtractorWindowsRuntimeComponent
 	
 	union CharToIntColor
 	{
+		CharToIntColor() {}
+		
+			
+		CharToIntColor(unsigned int color)
+		{
+			intcolor =  color;
+		}
+
+		CharToIntColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+		{
+			charcolor.alfa = a;
+			charcolor.red = r;
+			charcolor.green = g;
+			charcolor.blue = b;
+		}
 		unsigned int intcolor;
 		Color charcolor;
 	};
@@ -47,21 +62,31 @@ namespace ContourExtractorWindowsRuntimeComponent
 		unsigned char top = 0;
 		unsigned char value = 127;
 
-		boolean ContainColor(unsigned char r, unsigned char g, unsigned char b)
+		bool ContainsColor(unsigned char r, unsigned char g, unsigned char b)
 		{
 			unsigned char c = (unsigned char)((r + g + b) / 3);
 			if (bottom <= c && c <= top)
 				return true;
 			return false;
 		}
+
+		bool  ContainsColor(CharToIntColor color)
+		{
+			unsigned char c = (unsigned char)((color.charcolor.red + color.charcolor.green + color.charcolor.blue) / 3);
+			if (bottom <= c && c <= top)
+				return true;
+			return false;
+		}
+
+		unsigned int Value()
+		{
+			unsigned char v = (unsigned char)((bottom + top) / 2);
+			CharToIntColor cc = {v, v, v, 0xFF };
+			return cc.intcolor;
+		}
 	};
 
-	union PixelBuffer
-	{
-		unsigned char* charBuffer;
-		unsigned int* intBuffer;
-
-	};
+	
 
 }
 
