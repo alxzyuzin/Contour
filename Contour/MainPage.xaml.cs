@@ -7,20 +7,20 @@
  *
  ---------------------------------------------------------------------------------*/
 
+using ContourExtractorWindowsRuntimeComponent;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
-using Windows.UI.Xaml.Controls;
-using System.Runtime.InteropServices.WindowsRuntime;
-
-using ContourExtractorWindowsRuntimeComponent;
 using Windows.Storage.Streams;
-using System.Collections.Generic;
-using Windows.Graphics.Imaging;
-using System.IO;
 using Windows.UI.Xaml;
-using System.Threading.Tasks;
+using Windows.UI.Xaml.Controls;
 
 namespace ContourUI
 {
@@ -29,13 +29,13 @@ namespace ContourUI
     /// </summary>
     public sealed partial class MainPage : Page //, INotifyPropertyChanged
     {
-        private GeneralOptions Options = new GeneralOptions();
-        AppStatus ApplicationStatus = new AppStatus();
+        private readonly GeneralOptions Options = new GeneralOptions();
+        readonly AppStatus ApplicationStatus = new AppStatus();
         private ContourBitmap bitmap = null;
-        
+
         private string _imageFileNameExtention;
         private string _imageFilePath;
-        
+
         public MainPage()
         {
             InitializeComponent();
@@ -64,7 +64,7 @@ namespace ContourUI
 
             if (e.PropertyName == "HideImage" || e.PropertyName == "DisplayConverted" || e.PropertyName == "DisplayContour")
             {
-               RedrawImageArea();
+                RedrawImageArea();
             }
         }
 
@@ -110,7 +110,7 @@ namespace ContourUI
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void mfiOpen_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuFileOpen_Clicked(object sender, RoutedEventArgs e)
         {
             FileOpenPicker openPicker = new FileOpenPicker
             {
@@ -123,13 +123,12 @@ namespace ContourUI
 
             if (file != null)
             {
-                
                 ApplicationStatus.Reset();
 
                 ApplicationStatus.ImageFileName = file.Name;
-                _imageFilePath = file.Path.Replace(ApplicationStatus.ImageFileName,"");
+                _imageFilePath = file.Path.Replace(ApplicationStatus.ImageFileName, "");
                 _imageFileNameExtention = file.FileType;
-                
+
                 ImageProperties props = await file.Properties.GetImagePropertiesAsync();
 
                 bitmap = new ContourBitmap((int)props.Width, (int)props.Height);
@@ -138,8 +137,6 @@ namespace ContourUI
                 bitmap.SetSource(stream);
                 ExposedImage.Source = bitmap.ImageData;
                 ApplicationStatus.ImageLoaded = true;
-
-                
             }
             else
             {
@@ -147,7 +144,7 @@ namespace ContourUI
             }
         }
 
-        private async void mfiSave_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuFileSave_Clicked(object sender, RoutedEventArgs e)
         {
             if (bitmap == null) return;
             StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(_imageFilePath);
@@ -176,7 +173,7 @@ namespace ContourUI
 
         }
 
-        private async void mfiSaveAs_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuFileSaveAs_Clicked(object sender, RoutedEventArgs e)
         {
             if (bitmap == null) return;
             FileSavePicker picker = new FileSavePicker();
@@ -197,7 +194,7 @@ namespace ContourUI
             await encoder.FlushAsync();
         }
 
-        private async void mfiPrint_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuFilePrint_Clicked(object sender, RoutedEventArgs e)
         {
             UserMessage message = new UserMessage()
             {
@@ -209,12 +206,12 @@ namespace ContourUI
             await DisplayMessage(message);
         }
 
-        private void mfiExit_Clicked(object sender, RoutedEventArgs e)
+        private void MenuFileExit_Clicked(object sender, RoutedEventArgs e)
         {
             Application.Current.Exit();
         }
 
-        private async void mfiOptions_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuFileOptions_Clicked(object sender, RoutedEventArgs e)
         {
             Options.Restore();
             await OptionsWindow.Show();
@@ -222,32 +219,42 @@ namespace ContourUI
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
         }
 
-        private async void mfiConvert_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuOperationConvert_Clicked(object sender, RoutedEventArgs e)
         {
             if (ApplicationStatus.ImageLoaded)
             {
-                
+                ApplicationStatus.ProgressValue = 0;
+                ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
+                IAsyncActionWithProgress<double> asyncAction = null;
                 if (Options.ConversionType == TypeOfConvertion.Grayscale)
                 {
-                    bitmap.ConvertToGrayscale(Options.NumberOfColors);
-                 }
+                    asyncAction = bitmap.ConvertToGrayscaleAsync(Options.NumberOfColors);
+                }
                 if (Options.ConversionType == TypeOfConvertion.ReducedColors)
                 {
-                    bitmap.ConvertToReducedColors(Options.NumberOfColors);
+                    asyncAction = bitmap.ConvertToReducedColorsAsync(Options.NumberOfColors);
                 }
 
-                int numberOfLevels = bitmap.ExtractLevels();
+                asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
+                {
+                    double i = progress;
+                    ApplicationStatus.ProgressValue = ((float)progress);
+                });
+                await asyncAction;
+
+                bitmap.ExtractLevels();
 
                 this.Palette.Build2(bitmap.Colors);
 
                 ApplicationStatus.ImageConverted = true;
                 ApplicationStatus.DisplayConverted = true;
                 bitmap.ImageData.Invalidate();
+                ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             }
             else
             {
                 UserMessage message = new UserMessage()
-                { 
+                {
                     Type = MsgBoxType.Error,
                     Text = "Image not loaded.",
                     BoxWidth = 350,
@@ -257,7 +264,7 @@ namespace ContourUI
             }
         }
 
-        private async void mfiClean_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
         {
             UserMessage message = new UserMessage()
             {
@@ -269,42 +276,47 @@ namespace ContourUI
             };
             await DisplayMessage(message);
         }
-        
-        private async  void mfiOutline_Clicked(object sender, RoutedEventArgs e)
+
+        private async void MenuOperationOutline_Clicked(object sender, RoutedEventArgs e)
         {
             ApplicationStatus.DisplayContour = false;
 
             if (ApplicationStatus.ImageConverted)
             {
                 ApplicationStatus.ProgressValue = 0;
+                int progress = 0;
                 ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
-                
+
                 int numberOfLevels = bitmap.LevelsCount;
 
                 ApplicationStatus.NumberOfLevels = numberOfLevels;
 
                 List<Windows.Foundation.IAsyncOperation<int>> taskList = new List<Windows.Foundation.IAsyncOperation<int>>();
-                var starttime = DateTime.Now;
 
-                foreach(var color in Palette.ActiveColors)
+                var starttime = DateTime.Now;
+                foreach (var color in Palette.ActiveColors)
                     taskList.Add(bitmap.FindLevelContoursAsync(color.Key));
-               
+
 
                 foreach (var task in taskList)
                 {
                     await task;
-                    ApplicationStatus.ProgressValue++;
+                    ApplicationStatus.ProgressValue = progress / Palette.ActiveColors.Count;
+                    ++progress;
                 }
 
-                DateTime endtime = DateTime.Now;
-                TimeSpan lll = endtime - starttime;
+
+                //bitmap.OutlineImage();
+                
+                Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
+
                 ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
                 ApplicationStatus.ImageOutlined = true;
                 ApplicationStatus.DisplayContour = true;
             }
         }
-       
-        private async void mfiAbout_Clicked(object sender, RoutedEventArgs e)
+
+        private async void MenuHelpAbout_Clicked(object sender, RoutedEventArgs e)
         {
             await AboutWindow.Show();
         }

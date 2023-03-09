@@ -133,8 +133,6 @@ void Level::SetPixel(int x, int y, unsigned char color)
 
 unsigned char Level::GetPixel(int x, int y)
 {
-	int pos = y * m_Width + x;
-	unsigned char c = m_Buffer[y * m_Width + x];
 	return m_Buffer[y * m_Width + x];
 }
 
@@ -151,7 +149,6 @@ bool Level::FindFirstExternalContourPoint(Point& point)
 	for (int y = 0; y < m_Height; y++)
 		for (int x = 0; x < m_Width; x++)
 		{
-			unsigned char c = m_Buffer[y * m_Width + x]; 
 			if (m_Buffer[y * m_Width + x] == m_Color)
 			{
 				point.X = x;
@@ -222,13 +219,13 @@ Contour* Level::FindExternalContour()
 	// Hаправлениe, в котором была найдена последняя точка контура, всегда E.
 	// Это следует из алгоритма поиска первой точки контура.
 	Direction searchDirection = Direction::E;
-	while (true)
+	int l=0;
+	while (l != 8) //if (l == 8)  // сделали полный круг и не нашли продолжения контура
 	{
 		// Выбираем новое начальное направление поска очередной точки
 		// контура исходя из направления, в котором была найдена последняя точка контура
 		searchDirection = StartDirection(searchDirection);
 
-		int l;
 		for (l = 0; l < 8; l++)
 		{
 			bool nextPointFound = FindNextExternalContourPoint(nextPoint, searchDirection);
@@ -244,8 +241,6 @@ Contour* Level::FindExternalContour()
 			}
 			searchDirection = NextDirection(searchDirection);
 		}
-		if (l == 8)  // сделали полный круг и не нашли продолжения контура
-			break; // контур состоит из одного пикселя
 	}
 	return contour;
 }
@@ -270,7 +265,6 @@ bool Level::FindFirstInternalContourPoint(Contour* contour, Point& point)
 		if ((prevPoint->Y < currPoint->Y) && (currPoint->Y <= nextPoint->Y))
 		{
 			Point* StartPoint = currPoint;
-			//Point* EndPoint = contour->FindRightNearestPoint(i + 1);
 			Point* EndPoint = contour->GetNearestContourPoint(i + 1, Contour::SearchNearestPointDirection::Right);
 			if (!EndPoint)
 				continue;
@@ -564,9 +558,10 @@ void Level::FillLine(Contour* externalContour, int startPointNumber, Contour::Se
 			startX = endPoint->X;
 			endX = startPoint->X;
 		}
+		int startOffset = startPoint->Y * m_Width;
 		for (int x = startX; x <= endX; x++)
-			m_Buffer[startPoint->Y * m_Width + x] = color;
-	}
+			m_Buffer[startOffset + x] = color;
+		}
 }
 
 void Level::RestoreLine(Contour* externalContour, int startPointNumber, Contour::SearchNearestPointDirection direction)
@@ -596,7 +591,7 @@ void Level::RestoreLine(Contour* externalContour, int startPointNumber, Contour:
 
 }
 
-void Level::RestorePixel(int x, int y)
+inline void Level::RestorePixel(int x, int y)
 {
 	int offset = y * m_Width + x;
 	m_Buffer[offset] = m_BufferCopy[offset];

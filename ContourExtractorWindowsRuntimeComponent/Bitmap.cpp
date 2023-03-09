@@ -46,7 +46,7 @@ Array<unsigned int>^ ContourBitmap::Colors::get()
 {
 	Array<unsigned int>^ ColorMap = ref new Array<unsigned int>((int)m_Levels.size());
 	int i = 0;
-	for (auto levelItem : m_Levels)
+	for (auto& levelItem : m_Levels)
 	{
 		ColorMap[i++] = levelItem.second->m_OriginalColor;
 	}
@@ -130,15 +130,19 @@ void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 /// <param name="levels">
 /// Number of desirable gray tints
 /// </param>
-void ContourBitmap::ConvertToGrayscale(unsigned char levels)
-{
-	// Убедимся что входной параметр нажодится в допустимом диапазоне
-	if (levels < 2 || levels > 255) throw ref new InvalidArgumentException();
 
+IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToGrayscaleAsync(unsigned int numberOfColors)
+{
+
+	// Убедимся что входной параметр нажодится в допустимом диапазоне
+	if (numberOfColors < 2 || numberOfColors > 255) throw ref new InvalidArgumentException();
+	return create_async([this, numberOfColors](progress_reporter<double> reporter)
+		{
+			int progress = 1;
 	//Restore original image data
 	RestoreOriginalImageData();
 	// Split full range of possible gray colors into ranges
-	int range = 255 / levels;
+	int range = 255 / numberOfColors;
 	vector<GrayColorRange> colorRanges;
 	GrayColorRange grayColorRange;
 	unsigned char bottomLevel = 0;
@@ -147,23 +151,30 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 	{
 		grayColorRange.bottom = bottomLevel;
 		grayColorRange.top = bottomLevel + range;
-			
+
 		if ((bottomLevel + range) > 255)
 			grayColorRange.top = 255;
-				
+
 		colorRanges.push_back(grayColorRange);
 		bottomLevel += (range + 1);
 	}
+	reporter.report((double)progress / numberOfColors + 1);
 	// Convert source image to grayscaled image
-	for (auto colorRange : colorRanges)
+	for (auto& colorRange : colorRanges)
+	{
 		for (int i = 0; i < m_uintPixelBufferLength; i++)
 			if (colorRange.ContainsColor(m_PixelBuffer[i]))
 			{
 				(m_PixelBuffer)[i] = colorRange.Value();
 			}
+		reporter.report((double)progress / numberOfColors + 1);
+		progress++;
+	}
 	// Save converted image to the buffer for later use
 	SaveConvertedImageData();
+		});
 }
+
 
 /// <summary>
 /// Convert original color image into image with reduced number of colors
@@ -171,55 +182,62 @@ void ContourBitmap::ConvertToGrayscale(unsigned char levels)
 /// <param name="numberOfColors">
 /// Number of desirable colors in result image
 /// </param>
-void ContourBitmap::ConvertToReducedColors(unsigned char numberOfColors)
-{
-	std::vector<ColorGroup*> colorGroups;
 
+IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(unsigned int numberOfColors)
+{
 	// Check if input parameter is correct
 	if (numberOfColors < 2 || numberOfColors > 128) throw ref new InvalidArgumentException();
-	//Restore original image data
-	RestoreOriginalImageData();
-	
-	// Create first color group containes all image colors based on data from pixel buffer 
-	ColorGroup* colorGroup = new ColorGroup(m_PixelBuffer, m_uintPixelBufferLength);
-	colorGroups.push_back(colorGroup);
-	
-	// Split first color group according number of desired colors in image
-	for (int k = 1; k < numberOfColors; k++)
-	{
-		// Find color group with max base color range
-		sort(colorGroups.begin(), colorGroups.end(), [](ColorGroup* a, ColorGroup* b) { return a->MaxColorRange() > b->MaxColorRange(); });
-		ColorGroup* cg = colorGroups[0];
-		
-		// Split found color group with max base color range to two color groups
-		ColorGroup* a = new ColorGroup();
-		ColorGroup* b = new ColorGroup();
-		cg->Split(a, b);
-		// Remove pointer to splitted color group from color groupss list and delete it from the list
-		colorGroups.erase(colorGroups.begin());
-		delete cg;
-		
-		// Add two new color groups to color groups list
-		colorGroups.push_back(a);
-		colorGroups.push_back(b);
-	}
-	// Convert source image to image with reduced number of colors
-	for (ColorGroup* group : colorGroups)
-	{
-		for (int i = 0; i < m_uintPixelBufferLength; i++)
+	return create_async([this, numberOfColors](progress_reporter<double> reporter)
 		{
-			// If pixel color belongs to group change pixel color to group average color
-			if (group->Contains(m_PixelBuffer[i]))
+			double progress = 1;
+
+			std::vector<ColorGroup*> colorGroups;
+	
+			//Restore original image data
+			RestoreOriginalImageData();
+
+			// Create first color group containes all image colors based on data from pixel buffer 
+			ColorGroup* colorGroup = new ColorGroup(m_PixelBuffer, m_uintPixelBufferLength);
+			colorGroups.push_back(colorGroup);
+
+			reporter.report(progress++ / numberOfColors);
+			// Split first color group according number of desired colors in image
+		for (int k = 1; k < numberOfColors; k++)
+		{
+			// Find color group with max base color range
+			sort(colorGroups.begin(), colorGroups.end(), [](ColorGroup* a, ColorGroup* b) { return a->MaxColorRange() > b->MaxColorRange(); });
+			ColorGroup* cg = colorGroups[0];
+
+			// Split found color group with max base color range to two color groups
+			ColorGroup* a = new ColorGroup();
+			ColorGroup* b = new ColorGroup();
+			cg->Split(a, b);
+			// Remove pointer to splitted color group from color groupss list and delete it from the list
+			colorGroups.erase(colorGroups.begin());
+			delete cg;
+
+			// Add two new color groups to color groups list
+			colorGroups.push_back(a);
+			colorGroups.push_back(b);
+
+			reporter.report(progress++ / numberOfColors);
+		}
+		// Convert source image to image with reduced number of colors
+		for (ColorGroup* group : colorGroups)
+		{
+			for (int i = 0; i < m_uintPixelBufferLength; i++)
 			{
-				m_PixelBuffer[i] = group->AverageGroupColor();
+				// If pixel color belongs to group change pixel color to group average color
+				if (group->Contains(m_PixelBuffer[i]))
+				{
+					m_PixelBuffer[i] = group->AverageGroupColor();
+				}
 			}
 		}
-	}
-	// Save converted image to the buffer for later use
-	SaveConvertedImageData();
-
+		// Save converted image to the buffer for later use
+		SaveConvertedImageData();
+		});
 }
-
 
 /// <summary>
 /// Split color image to levels. Every level contains pixels of one color.
@@ -234,20 +252,18 @@ int ContourBitmap::ExtractLevels()
 	map<unsigned int, unsigned char> colormap;
 		
 	// Build list of color in image
-	unsigned char levelValue = 1;
 	for (int i = 0; i < m_uintPixelBufferLength; i++)
 	{
 		unsigned int c = m_PixelBuffer[i];
 		// If pixel color not in the list of colos add it to list
 		if (colormap.count(c) == 0)
 		{
-			colormap.insert(pair<unsigned int, unsigned char>(c, levelValue));
-			levelValue += 2;
+			colormap.insert(pair<unsigned int, unsigned char>(c, 0x00));
 		}
 	}
 	
 	// Delete results of previouse extracting levels
-	for (auto l : m_Levels)
+	for (auto& l : m_Levels)
 		delete l.second;
 	m_Levels.clear();
 	
@@ -300,7 +316,7 @@ void ContourBitmap::SetLevelDataToDisplayBuffer(unsigned int color)
 /// </summary>
 void ContourBitmap::DisplayContours(ContourColors contourcolor)
 {
-	for (auto level : m_Levels)
+	for (auto& level : m_Levels)
 		level.second->SetContoursToDisplayBuffer(m_PixelBuffer, contourcolor, ContourType::External);
 }
 
@@ -310,7 +326,7 @@ void ContourBitmap::DisplayContours(ContourColors contourcolor)
 /// </summary>
 void ContourBitmap::Clear()
 {
-	for (auto level : m_Levels)
+	for (auto& level : m_Levels)
 	{
 		level.second->Clear();
 		delete level.second;
@@ -327,17 +343,18 @@ void ContourBitmap::Clear()
 /// <summary>
 /// Выполняет поиск всех контуров в изображении
 /// </summary>
-void ContourBitmap::OutlineImage()
+double ContourBitmap::OutlineImage()
 {
 	clock_t start = clock();
 
-	for (auto level : m_Levels)
+	for (auto& level : m_Levels)
 		level.second->FindAllContours();
 	// time содержит время выполнения функции в милисекундах 
 	double time = (clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
 	// Изображение разделено на 8 слоёв. Исходное время построения контуров 58818 ms (760 контуров)
 	// Изображение разделено на 2 слоя. Исходное время построения контуров  5774 (4587) ms (40 контуров)
 	// Изображение разделено на 4 слоя. Исходное время построения контуров 409 818 ms (760 контуров)
+	return time;
 }
 
 /// <summary>

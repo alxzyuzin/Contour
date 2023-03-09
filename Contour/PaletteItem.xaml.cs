@@ -7,9 +7,9 @@
  *
  ---------------------------------------------------------------------------------*/
 
+using System.ComponentModel;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using System.ComponentModel;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -47,7 +47,7 @@ namespace ContourUI
             get => _isChecked;
             set
             {
-                if (_isChecked != value) 
+                if (_isChecked != value)
                 {
                     _isChecked = value;
                     ControlCheckBox.IsChecked = value;
@@ -64,7 +64,7 @@ namespace ContourUI
         public uint Color
         {
             get => _color;
-            
+
         }
         private void ControlGrig_Tapped(object sender, TappedRoutedEventArgs e)
         {
@@ -79,8 +79,8 @@ namespace ContourUI
                 IsChecked = true; ;
             }
 
-            
 
-            }
+
+        }
     }
 }

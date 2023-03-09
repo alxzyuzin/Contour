@@ -43,7 +43,7 @@
     <Grid x:Name="gridMain" Background="#FFA0A0A0" MinHeight="500">
         <Grid.RowDefinitions>
             <!-- Menu row -->
-            <RowDefinition Height="40px"/>
+            <RowDefinition Height="45px"/>
             <!-- Image area row -->
             <RowDefinition Height="*"/>
             <!-- View options and status row -->
@@ -56,32 +56,32 @@
                      Background="Transparent"  >
             <muxc:MenuBarItem Title="File" FocusVisualMargin="2" CornerRadius="0" >
 
-                <MenuFlyoutItem x:Name="mfiOpen"        Text="Open"         Click="mfiOpen_Clicked" >
+                <MenuFlyoutItem x:Name="mfiOpen"        Text="Open"         Click="MenuFileOpen_Clicked" >
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="O" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem x:Name="mfiSave"        Text="Save"         Click="mfiSave_Clicked">
+                <MenuFlyoutItem x:Name="mfiSave"        Text="Save"         Click="MenuFileSave_Clicked">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem x:Name="mfiSaveAs"      Text="Save as..."   Click="mfiSaveAs_Clicked">
+                <MenuFlyoutItem x:Name="mfiSaveAs"      Text="Save as..."   Click="MenuFileSaveAs_Clicked">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="A" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem x:Name="mfiPrint"       Text="Print"        Click="mfiPrint_Clicked">
+                <MenuFlyoutItem x:Name="mfiPrint"       Text="Print"        Click="MenuFilePrint_Clicked">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="P" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem x:Name="mfiOptions"     Text="Options"      Click="mfiOptions_Clicked">
+                <MenuFlyoutItem x:Name="mfiOptions"     Text="Options"      Click="MenuFileOptions_Clicked">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="T" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem x:Name="mfiExit"        Text="Exit"         Click="mfiExit_Clicked">
+                <MenuFlyoutItem x:Name="mfiExit"        Text="Exit"         Click="MenuFileExit_Clicked">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="X" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
@@ -89,17 +89,17 @@
             </muxc:MenuBarItem>
 
             <muxc:MenuBarItem Title="Operation" IsEnabled="{Binding ImageLoaded}">
-                <MenuFlyoutItem x:Name="mfiConvert" Text="Convert" Click="mfiConvert_Clicked">
+                <MenuFlyoutItem x:Name="mfiConvert" Text="Convert" Click="MenuOperationConvert_Clicked">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="V" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem x:Name="mfiClean" Text="Clean" Click="mfiClean_Clicked" IsEnabled="{Binding ImageConverted}">
+                <MenuFlyoutItem x:Name="mfiClean" Text="Clean" Click="MenuOperationClean_Clicked" IsEnabled="{Binding ImageConverted}">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="C" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem x:Name="mfiOutline" Text="Outline" Click="mfiOutline_Clicked" IsEnabled="{Binding ImageConverted}">
+                <MenuFlyoutItem x:Name="mfiOutline" Text="Outline" Click="MenuOperationOutline_Clicked" IsEnabled="{Binding ImageConverted}">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="L" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
@@ -107,7 +107,7 @@
             </muxc:MenuBarItem>
 
             <muxc:MenuBarItem Title="Help">
-                 <MenuFlyoutItem x:Name="mfiAbout" Text="About" Click="mfiAbout_Clicked"/>
+                 <MenuFlyoutItem x:Name="mfiAbout" Text="About" Click="MenuHelpAbout_Clicked"/>
             </muxc:MenuBarItem>
         </muxc:MenuBar>
         <Grid Grid.Row="1" Visibility="Visible">
@@ -140,7 +140,7 @@
         <!-- Status line -->
         <Grid Grid.Row="3" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="700px"/>
+                <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
              </Grid.ColumnDefinitions>
             
@@ -151,10 +151,12 @@
                 <TextBlock Text="{Binding ConversionMode}"  Style="{StaticResource StatusTextBlocksStyle}"/>
                 <TextBlock Text=" |  Number of colors:"     Style="{StaticResource StatusTextBlocksStyle}"/>
                 <TextBlock Text="{Binding NumberOfLevels}"  Style="{StaticResource StatusTextBlocksStyle}"/>
+                <TextBlock Text=" !  Time spended:"         Style="{StaticResource StatusTextBlocksStyle}"/>
+                <TextBlock Text="{Binding TimeSpended}"     Style="{StaticResource StatusTextBlocksStyle}"/>
             </StackPanel>
 
-            <ProgressBar Grid.Column="1" Margin="30,0,30,0" Minimum="0" Maximum="{Binding NumberOfLevels}" 
-                         Value="{Binding ProgressValue}"
+            <ProgressBar Grid.Column="1" Margin="30,0,30,0" Minimum="0" Value="{Binding ProgressValue}" Maximum="1" Height="10"  Background="White"
+                         Foreground="Orange"
                          Visibility="{Binding ProgressBarVisibility}"/>
            
         </Grid>

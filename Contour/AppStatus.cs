@@ -4,10 +4,10 @@ using Windows.UI.Xaml;
 
 namespace ContourUI
 {
-    class AppStatus: INotifyPropertyChanged
+    class AppStatus : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
         private bool _imageLoaded = false;
         public bool ImageLoaded
         {
@@ -50,7 +50,7 @@ namespace ContourUI
             }
         }
         private bool _hideImage = false;
-        
+
         public bool HideImage
         {
             get { return _hideImage; }
@@ -91,7 +91,7 @@ namespace ContourUI
                 }
             }
         }
-                
+
         private string _imageFileName = "No image loaded";
         public string ImageFileName
         {
@@ -152,8 +152,8 @@ namespace ContourUI
             }
         }
 
-        private int _progressValue = 0;
-        public int ProgressValue
+        private double _progressValue = 0;
+        public double ProgressValue
         {
             get => _progressValue;
             set

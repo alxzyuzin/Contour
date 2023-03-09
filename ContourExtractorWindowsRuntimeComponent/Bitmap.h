@@ -61,11 +61,11 @@ namespace ContourExtractorWindowsRuntimeComponent
 		ContourBitmap(int width, int height);
 		
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
-		void ConvertToGrayscale(unsigned char levels);
-		void ConvertToReducedColors(unsigned char numberOfColors);
 		int  ExtractLevels();
 		IAsyncOperation<int>^  FindLevelContoursAsync(unsigned int levelColor);
-		void OutlineImage();
+		IAsyncActionWithProgress<double>^ ConvertToGrayscaleAsync(unsigned int numberOfColors);
+		IAsyncActionWithProgress<double>^ ConvertToReducedColorsAsync(unsigned int numberOfColors);
+		double OutlineImage();
 		void RectifyLevel(unsigned int color, int size);
 
 		void ClearPixelBuffer();

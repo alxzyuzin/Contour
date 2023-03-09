@@ -13,7 +13,7 @@ namespace ContourUI
         public event TappedEventHandler OutlineButtonTapped;
         public event RoutedEventHandler ShapeSwitchToggled;
         public event RoutedEventHandler ContourSwitchToggled;
-        
+
 
         private void NotifyOutlineButtonTapped(TappedRoutedEventArgs args)
         {
@@ -36,16 +36,16 @@ namespace ContourUI
 
         private byte _color;
         public byte Color => _color;
-        
+
         private bool _displayShapes = false;
         public bool DisplayShapes => _displayShapes;
-        
+
         private bool _displayContours;
         public bool DisplayContours => _displayContours;
-        
+
 
         public string LayerName { get; set; }
-        
+
 
         public LayerDisplayParams()
         {
@@ -58,7 +58,7 @@ namespace ContourUI
             _color = color;
             LayerName = $"Layer {color.ToString()}";
         }
-        
+
         private void Outline_Tapped(object sender, TappedRoutedEventArgs e)
         {
             NotifyOutlineButtonTapped(e);

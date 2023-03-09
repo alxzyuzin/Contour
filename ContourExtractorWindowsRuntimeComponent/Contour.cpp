@@ -205,10 +205,11 @@ namespace ContourExtractorWindowsRuntimeComponent
 	Для последней точки контура следующей считается точка с номером 0
 	Отсчёт идёт по часовой стрелке
 	*/
-	int Contour::GetNextContourPointIndex(int i)
+	inline int Contour::GetNextContourPointIndex(int i)
 	{
-		int k = i + 1;
-		return k % Length;
+		//int k = i + 1;
+		//return k % Length;
+		return (i + 1) % Length;
 	}
 
 	/*
@@ -216,10 +217,13 @@ namespace ContourExtractorWindowsRuntimeComponent
 	 Для точки контура с номером 0 предыдущей считается последняя точка контура
 	 Отсчёт идёт по часовой стрелке
 	*/
-	int Contour::GetPrevContourPointIndex(int i)
+	inline int Contour::GetPrevContourPointIndex(int i)
 	{
-		int k = i + Length - 1 ;
-		return k % Length;
+		//int k = i + Length - 1 ;
+		//return k % Length;
+
+		return (i + Length - 1) % Length;
+
 	}
 
 	bool Contour::PointLaysOnContour(int x, int y)

@@ -8,12 +8,8 @@
  *
  ---------------------------------------------------------------------------------*/
 
-using ContourExtractorWindowsRuntimeComponent;
-using ContourUI;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -117,14 +113,14 @@ namespace ContourUI
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public PalettePanel() 
+        public PalettePanel()
         {
             this.InitializeComponent();
         }
-       
-        public SortedDictionary<uint,bool> ActiveColors
+
+        public SortedDictionary<uint, bool> ActiveColors
         {
-            get =>  _activeColors;
+            get => _activeColors;
         }
 
         public void Build(uint[] colors)
@@ -148,7 +144,7 @@ namespace ContourUI
                 col.MaxWidth = 80;
                 GridPalette.ColumnDefinitions.Add(col);
             }
-         
+
             int i = 0;
             for (int r = 0; r < paletteRows; r++)
                 for (int c = 0; c < paletteColumns; c++)
@@ -171,7 +167,7 @@ namespace ContourUI
             // Define number of palette columns and rows
             int paletteRows = GetNumberOfPaletteRows(colors.Length);
             int paletteColumns = GetNumberOfPaletteColumns(colors.Length);
-            
+
             for (int r = 0; r < paletteRows; r++)
             {
                 RowDefinition row = new RowDefinition();
@@ -222,10 +218,10 @@ namespace ContourUI
         {
             if (NumberOfColors == 128)
                 return 8;
-            
+
             if (NumberOfColors <= 4)
                 return NumberOfColors;
-            
+
             return 4;
         }
 
@@ -234,11 +230,11 @@ namespace ContourUI
             int NumberOfRows = 0;
 
             if (NumberOfColors == 128)
-                return (int)( NumberOfColors / 8);
+                return (int)(NumberOfColors / 8);
             NumberOfRows = NumberOfColors / 4;
             if ((NumberOfColors % 4) != 0)
                 ++NumberOfRows;
-            
+
             return NumberOfRows;
         }
 
@@ -253,7 +249,7 @@ namespace ContourUI
             rectangle.Margin = margin;
 
             IntColor currentColor = new IntColor(color);
-           
+
             Windows.UI.Color itemColor = new Windows.UI.Color();
             itemColor.R = currentColor.Red;
             itemColor.G = currentColor.Green;
@@ -267,7 +263,7 @@ namespace ContourUI
 
         private void Button_ShowAllTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            foreach (PaletteItem  paletteItem in GridPalette.Children)
+            foreach (PaletteItem paletteItem in GridPalette.Children)
             {
                 paletteItem.SetIsChecked(true);
                 _activeColors[paletteItem.Color] = true;
@@ -286,8 +282,8 @@ namespace ContourUI
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActiveColors)));
         }
     }
-       
- }
+
+}
 
 
 /* Create greed dinamically

@@ -3,7 +3,7 @@
 
 namespace ContourUI
 {
-    
+
     public class InverseBooleanConverter : Windows.UI.Xaml.Data.IValueConverter
     {
         #region IValueConverter Members

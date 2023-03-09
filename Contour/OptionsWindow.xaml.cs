@@ -22,14 +22,14 @@ namespace ContourUI
     public sealed partial class OptionsWindow : UserControl
     {
         //private string[] arrConversionTypesNames = { "Grayscale", "Reduced colors" };
-        
+
 
 
         private bool _stopWating;
         private int _width;
         private int _height;
 
-         #region Constructors
+        #region Constructors
         public OptionsWindow()
         {
             this.InitializeComponent();
@@ -73,8 +73,8 @@ namespace ContourUI
 
         #endregion Properties
 
-    #region DependencyProperties
-    public double InnerBoxHeight
+        #region DependencyProperties
+        public double InnerBoxHeight
         {
             get { return (double)GetValue(InnerBoxHeightProperty); }
             set { SetValue(InnerBoxHeightProperty, value); }
@@ -139,7 +139,7 @@ namespace ContourUI
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
-             HideControl.Begin();
+            HideControl.Begin();
             _stopWating = true;
             ((GeneralOptions)this.DataContext).Restore();
         }
@@ -151,9 +151,9 @@ namespace ContourUI
         /// <param name="e"></param>
         private void cbxConvType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-             ((GeneralOptions)this.DataContext).NumberOfColors = 8;
+            ((GeneralOptions)this.DataContext).NumberOfColors = 8;
             if (((GeneralOptions)this.DataContext).ConversionType == ContourExtractorWindowsRuntimeComponent.TypeOfConvertion.ReducedColors)
-                ((GeneralOptions)this.DataContext).NumberOfColors = 16;      
+                ((GeneralOptions)this.DataContext).NumberOfColors = 16;
         }
     }
 

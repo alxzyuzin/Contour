@@ -8,17 +8,16 @@
  ---------------------------------------------------------------------------------*/
 
 
+using ContourExtractorWindowsRuntimeComponent;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Windows.Storage;
-using ContourExtractorWindowsRuntimeComponent;
 
 namespace ContourUI
 {
-   
-    
+
+
     class GeneralOptions : INotifyPropertyChanged
     {
         private readonly Dictionary<string, TypeOfConvertion> ConvertionTypeItems = new Dictionary<string, TypeOfConvertion>
@@ -27,7 +26,7 @@ namespace ContourUI
               { "Reduced colors", TypeOfConvertion.ReducedColors }
             };
 
-        
+
         private readonly Dictionary<string, ContourExtractorWindowsRuntimeComponent.ContourColors> ContourColorItems = new Dictionary<string, ContourColors>
         {
             {"Black", ContourColors.Black},
@@ -47,7 +46,7 @@ namespace ContourUI
                 _contourColorList.Add(di.Key);
 
             ContourColorName = "Red";
-         }
+        }
 
 
 
@@ -55,7 +54,7 @@ namespace ContourUI
         //private string[] arrConversionTypesNames = { "Grayscale", "Reduced colors" };
 
         private List<string> _convertionTypesList = new List<string>();
-        public List<string> ConvertionTypesList { get => _convertionTypesList;  }
+        public List<string> ConvertionTypesList { get => _convertionTypesList; }
 
         private byte[] _arrNumberOfColorsList = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
         public byte[] NumberOfColorsList
@@ -99,7 +98,7 @@ namespace ContourUI
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NumberOfColorsList)));
 
-                    
+
                 }
             }
         }
@@ -108,8 +107,8 @@ namespace ContourUI
 
         private byte _numberOfColors;
         public byte NumberOfColors
-        { 
-            get =>_numberOfColors;
+        {
+            get => _numberOfColors;
             set
             {
                 if (_numberOfColors != value)
@@ -122,9 +121,9 @@ namespace ContourUI
         }
 
         private int _cleanupValue;
-        public int CleanupValue 
+        public int CleanupValue
         {
-            get =>_cleanupValue;
+            get => _cleanupValue;
             set
             {
                 if (_cleanupValue != value)
@@ -138,7 +137,7 @@ namespace ContourUI
         private int _maxContourLength;
         public int MaxContourLength
         {
-            get => _maxContourLength; 
+            get => _maxContourLength;
             set
             {
                 if (_maxContourLength != value)
@@ -152,7 +151,7 @@ namespace ContourUI
         private string _contourColorName;
         public string ContourColorName
         {
-            get =>_contourColorName;
+            get => _contourColorName;
             set
             {
                 if (_contourColorName != value)
@@ -164,10 +163,24 @@ namespace ContourUI
         }
         public ContourColors ContourColorValue { get => ContourColorItems[_contourColorName]; }
 
-        public bool SaveData { get; set; }
-        
+        private double _timeSpended;
+        public double TimeSpended
+        {
+            get => _timeSpended;
+            set
+            {
+                if (_timeSpended != value)
+                {
+                    _timeSpended = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TimeSpended)));
+                }
+            }
+        }
 
-     
+        public bool SaveData { get; set; }
+
+
+
 
         public void Save()
         {
@@ -178,7 +191,7 @@ namespace ContourUI
             LocalSettings.Values["CleanupValue"] = CleanupValue;
             LocalSettings.Values["MaxContourLength"] = MaxContourLength;
             LocalSettings.Values["ContourColorName"] = ContourColorName;
-           
+
         }
 
         public void Restore()
@@ -191,10 +204,10 @@ namespace ContourUI
             ConversionTypeName = (value != null) ? (string)value : "Grayscale";
 
             value = LocalSettings.Values["NumberOfColors"];
-            NumberOfColors = (value != null) ? (byte)value : (byte)6; 
+            NumberOfColors = (value != null) ? (byte)value : (byte)6;
 
             value = LocalSettings.Values["CleanupValue"];
-            CleanupValue = (value != null) ? (int)value : 1; 
+            CleanupValue = (value != null) ? (int)value : 1;
 
             value = LocalSettings.Values["MaxContourLength"];
             MaxContourLength = (value != null) ? (int)value : 10;
@@ -202,7 +215,7 @@ namespace ContourUI
             value = LocalSettings.Values["ContourColorName"];
             ContourColorName = value != null ? (string)value : "Red";
 
-            
+
         }
 
     }
