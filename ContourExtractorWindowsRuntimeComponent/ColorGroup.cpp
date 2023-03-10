@@ -36,34 +36,49 @@ namespace ContourExtractorWindowsRuntimeComponent
 		switch (m_MaxRangeColor)
 		{
 		case BaseColor::Red:
-			std::sort(m_color_values.begin(), m_color_values.end(), [](Color& a, Color& b) { return a.red < b.red; });
+			sort(m_color_values.begin(), m_color_values.end(), [](Color& a, Color& b) { return a.red < b.red; });
 			break;
 		case BaseColor::Green:
-			std::sort(m_color_values.begin(), m_color_values.end(), [](Color& a, Color& b) { return a.green < b.green; });
+			sort(m_color_values.begin(), m_color_values.end(), [](Color& a, Color& b) { return a.green < b.green; });
 			break;
 		case BaseColor::Blue:
-			std::sort(m_color_values.begin(), m_color_values.end(), [](Color& a, Color& b) { return a.blue < b.blue; });
+			sort(m_color_values.begin(), m_color_values.end(), [](Color& a, Color& b) { return a.blue < b.blue; });
 			break;
 		}
 
 		unsigned int median = (unsigned int)(m_color_values.size() / 2);
 	
 		std::vector<Color> color_values;
+		/* 
 		for (unsigned int i = 0; i < median; i++)
 			color_values.push_back(m_color_values[i]);
 		group1->AddColorValues(&color_values);
-
-		color_values.clear();
-
+		color_values.clear();*/
+		
+		group1->AddColorValuesFromHead(&m_color_values, median);
+		
 		for (unsigned int i = median; i < m_color_values.size(); i++)
 			color_values.push_back(m_color_values[i]);
 		group2->AddColorValues(&color_values);
 	}
 
-	void ColorGroup::AddColorValues(std::vector<Color> *color_values)
+	void ColorGroup::AddColorValues(vector<Color> *color_values)
 	{
 		m_color_values = *color_values;
 		CalcColorGroupParams();
+	}
+
+	void ColorGroup::AddColorValuesFromHead(vector<Color>* invector, unsigned int median)
+	{
+		clock_t start = clock();
+		m_color_values.insert(end(m_color_values), begin(*invector), begin(*invector) + median);
+		double time = (clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
+
+		CalcColorGroupParams();
+	}
+	void ColorGroup::AddColorValuesFromTail(vector<Color>* invector, unsigned int median)
+	{
+
 	}
 
 	// Define if particular color belongs to this group

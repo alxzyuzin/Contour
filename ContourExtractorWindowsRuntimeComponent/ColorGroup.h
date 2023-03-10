@@ -10,6 +10,11 @@
 #pragma once
 #include "Color.h"
 
+
+#include <vector>
+
+using namespace std;
+
 namespace ContourExtractorWindowsRuntimeComponent
 {
 	class ColorGroup
@@ -35,7 +40,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		ColorGroup(std::vector<Color>* color_values);
 		unsigned char MaxColorRange();
 		void Split(ColorGroup* group1, ColorGroup* group2);
-		void AddColorValues(std::vector<Color> *color_values);
+		void AddColorValues(vector<Color> *color_values);
+		void AddColorValuesFromHead(vector<Color>* invector, unsigned int median);
+		void AddColorValuesFromTail(vector<Color>* invector, unsigned int median);
 		bool Contains(unsigned char r, unsigned char g, unsigned char b);
 		bool Contains(CharToIntColor color);
 		unsigned int AverageGroupColor();
