@@ -92,28 +92,28 @@ void Level::SetLevelShapesToDisplayBuffer(unsigned int* imageData)
 			imageData[i] = m_OriginalColor;
 }
 
-void Level::SetContoursToDisplayBuffer(unsigned int*  ImageData, ContourColors color, ContourType type)
+void Level::SetContoursToDisplayBuffer(unsigned int*  ImageData, ContourColors color, int minContourLength, unsigned char contourDensity, ContourType type)
 {
 	Point* point;
 
 	for (Contour* contour : m_Contours)
 	{
-		if (contour->Type == type)
+		if (contour->Type == type && contour->Size() >= minContourLength)
 		{
 			for (int i = 0; i < contour->Size(); i++)
 			{
 				point = contour->GetPoint(i);
 				unsigned int offset = point->Y * m_Width + point->X;
-
+				unsigned int cd = (unsigned int)contourDensity << 24;
+				
 				switch (color)
 				{
-				case ContourColors::Black:	ImageData[offset] = 0xFF000000; break;
-				case ContourColors::Blue:	ImageData[offset] = 0xFF0000FF; break;
-				case ContourColors::Green:	ImageData[offset] = 0xFF00FF00; break;
-				case ContourColors::Red:	ImageData[offset] = 0xFFFF0000; break;
-				case ContourColors::White:	ImageData[offset] = 0xFFFFFFFF; break;
+				case ContourColors::Black:	ImageData[offset] = 0xFF000000 & cd; break;
+				case ContourColors::Blue:	ImageData[offset] = 0xFF0000FF & cd; break;
+				case ContourColors::Green:	ImageData[offset] = 0xFF00FF00 & cd; break;
+				case ContourColors::Red:	ImageData[offset] = 0xFFFF0000 & cd; break;
+				case ContourColors::White:	ImageData[offset] = 0xFFFFFFFF & cd; break;
 				}
-				
 			}
 		}
 	}

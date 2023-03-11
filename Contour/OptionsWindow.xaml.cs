@@ -26,8 +26,8 @@ namespace ContourUI
 
 
         private bool _stopWating;
-        private int _width;
-        private int _height;
+        private readonly int _width;
+        private readonly int _height;
 
         #region Constructors
         public OptionsWindow()

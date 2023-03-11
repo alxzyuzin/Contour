@@ -48,18 +48,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 		unsigned int median = (unsigned int)(m_color_values.size() / 2);
 	
-		std::vector<Color> color_values;
-		/* 
-		for (unsigned int i = 0; i < median; i++)
-			color_values.push_back(m_color_values[i]);
-		group1->AddColorValues(&color_values);
-		color_values.clear();*/
-		
 		group1->AddColorValuesFromHead(&m_color_values, median);
-		
-		for (unsigned int i = median; i < m_color_values.size(); i++)
-			color_values.push_back(m_color_values[i]);
-		group2->AddColorValues(&color_values);
+		group2->AddColorValuesFromTail(&m_color_values, median);
+
 	}
 
 	void ColorGroup::AddColorValues(vector<Color> *color_values)
@@ -70,15 +61,13 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	void ColorGroup::AddColorValuesFromHead(vector<Color>* invector, unsigned int median)
 	{
-		clock_t start = clock();
 		m_color_values.insert(end(m_color_values), begin(*invector), begin(*invector) + median);
-		double time = (clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
-
 		CalcColorGroupParams();
 	}
 	void ColorGroup::AddColorValuesFromTail(vector<Color>* invector, unsigned int median)
 	{
-
+		m_color_values.insert(end(m_color_values), begin(*invector) + median, end(*invector));
+		CalcColorGroupParams();
 	}
 
 	// Define if particular color belongs to this group

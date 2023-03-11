@@ -165,7 +165,7 @@
                          Grid.RowSpan="4" Visibility="Collapsed" />
 
         <local:OptionsWindow x:Name="OptionsWindow" Grid.Row="0" Grid.Column="0" 
-                         Grid.RowSpan="4" Visibility="Collapsed" InnerBoxHeight="330" InnerBoxWidth="400" />
+                         Grid.RowSpan="4" Visibility="Collapsed" InnerBoxHeight="450" InnerBoxWidth="550" />
 
         <local:AboutContour x:Name="AboutWindow" Grid.Row="0" Grid.Column="0" 
                          Grid.RowSpan="4" Visibility="Collapsed" InnerBoxHeight="240" InnerBoxWidth="300" />

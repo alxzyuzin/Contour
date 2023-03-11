@@ -202,7 +202,7 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 
 			reporter.report(progress++ / numberOfColors);
 			// Split first color group according number of desired colors in image
-		for (int k = 1; k < numberOfColors; k++)
+		for (unsigned int k = 1; k < numberOfColors; k++)
 		{
 			// Find color group with max base color range
 			sort(colorGroups.begin(), colorGroups.end(), [](ColorGroup* a, ColorGroup* b) { return a->MaxColorRange() > b->MaxColorRange(); });
@@ -314,10 +314,10 @@ void ContourBitmap::SetLevelDataToDisplayBuffer(unsigned int color)
 /// <summary>
 /// Set contours found in image to display buffer
 /// </summary>
-void ContourBitmap::DisplayContours(ContourColors contourcolor)
+void ContourBitmap::DisplayContours(ContourColors contourcolor, int minContourLength, unsigned char contourDensity)
 {
 	for (auto& level : m_Levels)
-		level.second->SetContoursToDisplayBuffer(m_PixelBuffer, contourcolor, ContourType::External);
+		level.second->SetContoursToDisplayBuffer(m_PixelBuffer, contourcolor, minContourLength, contourDensity, ContourType::External);
 }
 
 

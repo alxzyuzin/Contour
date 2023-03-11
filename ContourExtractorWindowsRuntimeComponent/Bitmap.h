@@ -72,7 +72,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void SetOriginalImageDataToDisplayBuffer();
 		void SetConvertedImageDataToDisplayBuffer();
 		void SetLevelDataToDisplayBuffer(unsigned int levelColor);
-		void DisplayContours(ContourColors color);
+		void DisplayContours(ContourColors color, int minContourLength, unsigned char contourDensity);
 		void Clear();
 
 	private:

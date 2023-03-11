@@ -47,9 +47,7 @@ namespace ContourUI
             ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
-
             Palette.PropertyChanged += Palette_PropertyChanged;
-
         }
 
         private void Palette_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -85,7 +83,7 @@ namespace ContourUI
                     bitmap.SetOriginalImageDataToDisplayBuffer();
             }
             if (ApplicationStatus.DisplayContour)
-                bitmap.DisplayContours(Options.ContourColorValue);
+                bitmap.DisplayContours(Options.ContourColorValue, Options.MinContourLength, Options.ContourDensityValue);
 
             bitmap.ImageData.Invalidate();
         }

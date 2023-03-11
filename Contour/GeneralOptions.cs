@@ -13,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Windows.Storage;
+using static System.Net.Mime.MediaTypeNames;
+using Windows.UI.Xaml.Controls;
 
 namespace ContourUI
 {
@@ -53,19 +55,22 @@ namespace ContourUI
         #region Properties for ComboBox DataSource
         //private string[] arrConversionTypesNames = { "Grayscale", "Reduced colors" };
 
-        private List<string> _convertionTypesList = new List<string>();
+        private readonly List<string> _convertionTypesList = new List<string>();
         public List<string> ConvertionTypesList { get => _convertionTypesList; }
 
         private byte[] _arrNumberOfColorsList = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-        public byte[] NumberOfColorsList
-        {
-            get => _arrNumberOfColorsList;
-        }
 
-        private int[] _arrcbxCleanupValues = { 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-        public int[] cbxCleanupValuesList { get => _arrcbxCleanupValues; }
+        private readonly byte[] _contourDensityList = { 1, 2, 4, 8, 16, 32, 64, 128, 255 };
+            
+        public byte[] ContourDensityList => _contourDensityList;
+        
+        public byte[] NumberOfColorsList => _arrNumberOfColorsList;
+        
 
-        private List<string> _contourColorList = new List<string>();
+        private readonly int[] _arrcbxCleanupValues = { 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+        public int[] cbxCleanupValuesList => _arrcbxCleanupValues; 
+
+        private readonly List<string> _contourColorList = new List<string>();
         public List<string> ContourColorsList { get => _contourColorList; }
 
         #endregion
@@ -103,7 +108,7 @@ namespace ContourUI
             }
         }
 
-        public TypeOfConvertion ConversionType { get => ConvertionTypeItems[_conversionTypeName]; }
+        public TypeOfConvertion ConversionType => ConvertionTypeItems[_conversionTypeName]; 
 
         private byte _numberOfColors;
         public byte NumberOfColors
@@ -134,19 +139,19 @@ namespace ContourUI
             }
         }
 
-        private int _maxContourLength;
-        public int MaxContourLength
-        {
-            get => _maxContourLength;
-            set
-            {
-                if (_maxContourLength != value)
-                {
-                    _maxContourLength = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MaxContourLength)));
-                }
-            }
-        }
+        //private int _maxContourLength;
+        //public int MaxContourLength
+        //{
+        //    get => _maxContourLength;
+        //    set
+        //    {
+        //        if (_maxContourLength != value)
+        //        {
+        //            _maxContourLength = value;
+        //            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MaxContourLength)));
+        //        }
+        //    }
+        //}
 
         private string _contourColorName;
         public string ContourColorName
@@ -161,6 +166,38 @@ namespace ContourUI
                 }
             }
         }
+
+
+      
+        private byte _contourDensityValue = 255;
+        public byte ContourDensityValue
+        {
+            get => _contourDensityValue;
+            set
+            {
+                if (_contourDensityValue != value)
+                {
+                    _contourDensityValue = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ContourDensityValue)));
+                }
+            }
+        }
+
+        
+        private int _minContourLength = 0;
+        public int MinContourLength
+        {
+            get => _minContourLength;
+            set
+            {
+                if (_minContourLength != value)
+                {
+                    _minContourLength = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MinContourLength)));
+                }
+            }
+        }
+       
         public ContourColors ContourColorValue { get => ContourColorItems[_contourColorName]; }
 
         private double _timeSpended;
@@ -177,6 +214,7 @@ namespace ContourUI
             }
         }
 
+       
         public bool SaveData { get; set; }
 
 
@@ -189,9 +227,10 @@ namespace ContourUI
             LocalSettings.Values["ConversionTypeName"] = ConversionTypeName;
             LocalSettings.Values["NumberOfColors"] = NumberOfColors;
             LocalSettings.Values["CleanupValue"] = CleanupValue;
-            LocalSettings.Values["MaxContourLength"] = MaxContourLength;
+            LocalSettings.Values["MinContourLength"] = MinContourLength;
             LocalSettings.Values["ContourColorName"] = ContourColorName;
-
+            LocalSettings.Values["ContourDensityValue"] = ContourDensityValue;
+                   
         }
 
         public void Restore()
@@ -209,13 +248,15 @@ namespace ContourUI
             value = LocalSettings.Values["CleanupValue"];
             CleanupValue = (value != null) ? (int)value : 1;
 
-            value = LocalSettings.Values["MaxContourLength"];
-            MaxContourLength = (value != null) ? (int)value : 10;
+            value = LocalSettings.Values["MinContourLength"];
+            MinContourLength = (value != null) ? (int)value : 10;
 
             value = LocalSettings.Values["ContourColorName"];
             ContourColorName = value != null ? (string)value : "Red";
 
-
+            value = LocalSettings.Values["ContourDensityValue"];
+            ContourDensityValue = value != null ? (byte)value : (byte)0xFF;
+             
         }
 
     }
