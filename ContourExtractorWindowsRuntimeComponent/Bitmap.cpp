@@ -368,8 +368,7 @@ double ContourBitmap::OutlineImage()
 /// </param>
 void ContourBitmap::RectifyLevel(unsigned int color, int size)
 {
-	//Level* selectedLevel = SelectLevel(color);
-	//selectedLevel->Rectify(size);
+	m_Levels[color]->Rectify(size);
 }
 
 // Закрашивает буфер изображения белым цветом

@@ -65,9 +65,10 @@ namespace ContourUI
         public byte[] ContourDensityList => _contourDensityList;
         
         public byte[] NumberOfColorsList => _arrNumberOfColorsList;
-        
 
-        private readonly int[] _arrcbxCleanupValues = { 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+
+        //private readonly int[] _arrcbxCleanupValues = { 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+        private readonly int[] _arrcbxCleanupValues = { 1, 2, 4, 8, 16, 32, 64 };
         public int[] cbxCleanupValuesList => _arrcbxCleanupValues; 
 
         private readonly List<string> _contourColorList = new List<string>();

@@ -262,17 +262,21 @@ namespace ContourUI
             }
         }
 
-        private async void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
+        private void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
         {
-            UserMessage message = new UserMessage()
-            {
-                Type = MsgBoxType.Error,
-                Text = "Function not implemented.",
-                BoxWidth = 350,
-                BoxHeight = 150
+            var starttime = DateTime.Now;
+            foreach (var color in Palette.ActiveColors)
+                bitmap.RectifyLevel(color.Key, Options.CleanupValue + 2);
+            Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
+            //UserMessage message = new UserMessage()
+            //{
+            //    Type = MsgBoxType.Error,
+            //    Text = "Function not implemented.",
+            //    BoxWidth = 350,
+            //    BoxHeight = 150
 
-            };
-            await DisplayMessage(message);
+            //};
+            //await DisplayMessage(message);
         }
 
         private async void MenuOperationOutline_Clicked(object sender, RoutedEventArgs e)

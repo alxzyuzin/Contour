@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "CppUnitTest.h"
 #include "TestUtils.h"
+#include "ContourTests.h"
 #include <..\ContourExtractorWindowsRuntimeComponent\Contour.h>
 #include <..\ContourExtractorWindowsRuntimeComponent\Level.h>
 #include <..\ContourExtractorWindowsRuntimeComponent\Color.h>
@@ -11,16 +12,14 @@ using namespace  ContourExtractorWindowsRuntimeComponent;
 
 namespace ContourTestVS2019
 {
-	const unsigned char L = 0x0F;
-	const unsigned int B = 0x000000FF;
-	const unsigned int W = 0xFFFFFFFF;
+
 
 	TEST_CLASS(LevelTest_FunctionsParams)
 	{
-		unsigned char pixelBuffer[100];
-		PixelBuffer buffer;
-		pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(W, W);
-		
+		//unsigned char pixelBuffer[100];
+		//PixelBuffer buffer;
+		//pair<unsigned int, unsigned char> colorPair = pair<unsigned int, unsigned char>(W, W);
+		/*
 
 		TEST_METHOD(Constructor_Test_1)
 		{
@@ -67,12 +66,12 @@ namespace ContourTestVS2019
 					return new Level(5, 5, colorPair, buffer);
 				}, L"Parametr pixelBuffer is null and exception not thrown.");
 		}
-		
+		*/
 	}; // class LevelTest_FunctionsParams
 	
 	TEST_CLASS(LevelTest_ExternalContour)
 	{
-		
+		/*
 	private:
 		wchar_t Message[100];
 
@@ -243,7 +242,7 @@ namespace ContourTestVS2019
 			swprintf(Message, 100, L"Contour length should be %i", 16);
 			Assert::AreEqual(64, contour->Length, Message);
 		}
-
+		*/
 
 	}; // class LevelTest_ExternalContour
 

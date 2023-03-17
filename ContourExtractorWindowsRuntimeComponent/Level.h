@@ -22,6 +22,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 		vector<Contour*> m_Contours;
 
 	private:	 // Members
+		
+		
 		int m_Width;
 		int m_Height;
 		unsigned char* m_Buffer;
@@ -82,17 +84,17 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 		void RestorePixel(int x, int y);
 
-		bool Level::BorderHasOnlyOneColor(int x, int y, int size);
-
 		Direction StartDirection(Direction direction);
 		Direction NextDirection(Direction direction);
-
-		
+	
+	public:
+		bool Level::ClearArea(int x, int y, int size);
 	/*----------------------------------*/
 	/* Debug functions section start    */
 	public:
 		static void ExpandLevelData(int width, int height, unsigned char color, unsigned char* inBuffer, unsigned char* outBuffer);
 		bool CompareLevelDataWithReferenceData(unsigned char* pReferenceData, wchar_t* message, int messageLength);
+		bool CompareLevelBufferWithReferenceData(unsigned char* referenceData);
 	/* Debug functions section end      */
 	/*----------------------------------*/
 

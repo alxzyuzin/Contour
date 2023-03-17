@@ -62,23 +62,9 @@ void Level::Clear()
 
 void Level::Rectify(int size)
 {
-	for (int y = size; y < m_Height - 2 * size; y++)
-	{
-		for (int x = size; x < m_Width - 2 * size; x++)
-		{
-			if (BorderHasOnlyOneColor(x, y, size)) // В окружении на расстоянии +-size нет цветных точек
-			{
-				unsigned char centralColor = GetPixel(x, y);
-				if (centralColor != 0xFF)
-				{
-					// Закрасим внутренность белым цветом
-					for (int j = y - size; j <= y + size; j++)
-						for (int i = x - size; i <= x + size; i++)
-							SetPixel(i, j, EMPTY_COLOR);
-				}
-			}
-		}
-	}
+	for (int y = 0; y <= m_Height - size; y++)
+		for (int x = 0; x <= m_Width - size; x++)
+			bool b = ClearArea(x, y, size);
 }
 
 /// <summary>
@@ -120,21 +106,17 @@ void Level::SetContoursToDisplayBuffer(unsigned int*  ImageData, ContourColors c
 }
 
 
-
-void Level::SetPixel(Point* point, unsigned char color)
+inline void Level::SetPixel(Point* point, unsigned char color)
 {
 	m_Buffer[point->Y * m_Width + point->X] = color;
 }
 
-void Level::SetPixel(int x, int y, unsigned char color)
+inline void Level::SetPixel(int x, int y, unsigned char color)
 {
 	m_Buffer[y * m_Width + x] = color;
 }
 
-unsigned char Level::GetPixel(int x, int y)
-{
-	return m_Buffer[y * m_Width + x];
-}
+
 
 /*
 Ищет первую точку контура (первую попавшуюся точку области закрашенной цветом shapeColor.
@@ -597,46 +579,52 @@ inline void Level::RestorePixel(int x, int y)
 	m_Buffer[offset] = m_BufferCopy[offset];
 }
 
+/// <summary>
+/// Get color of point with cords x,y
+/// </summary>
+/// <param name="x"></param>
+/// <param name="y"></param>
+/// <returns></returns>
+inline unsigned char Level::GetPixel(int x, int y)
+{
+	return m_Buffer[y * m_Width + x];
+}
 /* Проверяет пиксели лежащие на границе отстоящей от центрального пикселя
  заданного координатами x,y на расстояние size.
  Возвращает
-		true - если все пиксели границы одного цвета
-		false - если пиксели границы отличаются по цвету
+		true - if all ppoint on border has color equal empty color (0xFF)
+		false - if at least one point on border has point with color not equal empty color (0xFF)
 */
-bool Level::BorderHasOnlyOneColor(int x, int y, int size)
+bool Level::ClearArea(int left_top_x, int left_top_y, int size)
 {
-	int left_x = x - size;
-	int right_x = x + size;
-	int top_y = y - size;
-	int bottom_y = y + size;
+	if (size > m_Width || size > m_Height)
+		return false;
+	int leftTopOffsetX = left_top_y * m_Width + left_top_x;
+	int leftBottomOffsetX = leftTopOffsetX + (size - 1) * m_Width;
+	int leftTopOffsetY = leftTopOffsetX;
+	int rightTopOffsetY = leftTopOffsetY + size - 1;
 
-	unsigned char baseColor = 0xFF;// m_Color;
-	// Проверим верхнюю границу
-	for (int x = left_x; x <= right_x; x++)
+	int ltox = leftTopOffsetX;
+	//unsigned char baseColor = 0xFF;// m_Color;
+	// Check top and bottom borders
+		
+	for (int i = 0; i < size; i++)
 	{
-		unsigned char color = GetPixel(x, top_y);
-		if (color != baseColor) return false;
-	}
+		if (m_Buffer[leftTopOffsetX++] != EMPTY_COLOR || m_Buffer[leftBottomOffsetX++] != EMPTY_COLOR ||
+			m_Buffer[leftTopOffsetY] != EMPTY_COLOR || m_Buffer[rightTopOffsetY] != EMPTY_COLOR)
+			return false;
+		//++leftTopOffsetX;
+		//++leftBottomOffsetX;
+		leftTopOffsetY += m_Width;
+		rightTopOffsetY += m_Width;
 
-	// Проверим нижнюю границу
-	for (int x = left_x; x <= right_x; x++)
-	{
-		unsigned char color = GetPixel(x, bottom_y);
-		if (color != baseColor) return false;
 	}
+	// All border points color is empty color
+	// Fill area inside borders with empty color
+	for (int y = 1,  y_offset = m_Width; y < size - 1; y++, y_offset += m_Width)
+		for (int x = 1; x < size - 1; x++)
+			m_Buffer[ltox + y_offset + x] = EMPTY_COLOR;
 
-	// Проверим левую границу
-	for (int y = top_y + 1; y < bottom_y; y++)
-	{
-		unsigned char color = GetPixel(left_x, y);
-		if (color != baseColor) return false;
-	}
-	// Проверим правую границу
-	for (int y = top_y + 1; y < bottom_y; y++)
-	{
-		unsigned char color = GetPixel(right_x, y);
-		if (color != baseColor) return false;
-	}
 	return true;
 }
 
@@ -681,5 +669,21 @@ bool Level::CompareLevelDataWithReferenceData(unsigned char* pReferenceData, wch
 
 }
 
+bool Level::CompareLevelBufferWithReferenceData(unsigned char* referenceData)
+{
+	vector<unsigned char> a;
+	vector<unsigned char> b;
+
+	for (int i = 0; i < m_BufferLength; i++)
+		a.push_back(m_Buffer[i]);
+
+	for (int i = 0; i < m_BufferLength; i++)
+		b.push_back(referenceData[i]);
+
+	for (int i = 0; i < m_BufferLength; i++)
+		if (m_Buffer[i] != referenceData[i])
+			return false;
+	return true;
+}
 #pragma endregion
 
