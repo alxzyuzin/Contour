@@ -43,7 +43,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		};
 
 		const unsigned char EMPTY_COLOR = 0xFF;
-
+		const unsigned char BLACK_COLOR = 0x00;
 
 	public:
 		Level();
@@ -88,7 +88,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Direction NextDirection(Direction direction);
 	
 	public:
-		bool Level::ClearArea(int x, int y, int size);
+		bool Level::ClearArea(int x, int y, int size, unsigned char color);
 	/*----------------------------------*/
 	/* Debug functions section start    */
 	public:

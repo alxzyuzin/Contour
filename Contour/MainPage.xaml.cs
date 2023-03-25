@@ -21,6 +21,7 @@ using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace ContourUI
 {
@@ -85,7 +86,8 @@ namespace ContourUI
             if (ApplicationStatus.DisplayContour)
                 bitmap.DisplayContours(Options.ContourColorValue, Options.MinContourLength, Options.ContourDensityValue);
 
-            bitmap.ImageData.Invalidate();
+            //bitmap.ImageData.Invalidate();
+            bitmap.Invalidate();
         }
 
         private async Task<MsgBoxButton> DisplayMessage(UserMessage message)
@@ -134,6 +136,11 @@ namespace ContourUI
                 IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);
                 ExposedImage.Source = bitmap.ImageData;
+                //stream.Seek(0);
+                //BitmapImage img = new BitmapImage();
+                //img.SetSource(stream);
+                //ExposedImage.Source = img;
+
                 ApplicationStatus.ImageLoaded = true;
             }
             else
@@ -155,7 +162,7 @@ namespace ContourUI
             Stream pixelStream = bitmap.ImageData.PixelBuffer.AsStream();
             byte[] pixels = new byte[pixelStream.Length];
             await pixelStream.ReadAsync(pixels, 0, pixels.Length);
-            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)bitmap.ImageData.PixelWidth, (uint)bitmap.ImageData.PixelHeight, 96.0, 96.0, pixels);
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, bitmap.Width, bitmap.Height, 96.0, 96.0, pixels);
             await encoder.FlushAsync();
         }
 
@@ -188,7 +195,8 @@ namespace ContourUI
             Stream pixelStream = bitmap.ImageData.PixelBuffer.AsStream();
             byte[] pixels = new byte[pixelStream.Length];
             await pixelStream.ReadAsync(pixels, 0, pixels.Length);
-            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)bitmap.ImageData.PixelWidth, (uint)bitmap.ImageData.PixelHeight, 96.0, 96.0, pixels);
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, bitmap.Width, bitmap.Height, 96.0, 96.0, pixels);
+
             await encoder.FlushAsync();
         }
 
@@ -246,7 +254,8 @@ namespace ContourUI
 
                 ApplicationStatus.ImageConverted = true;
                 ApplicationStatus.DisplayConverted = true;
-                bitmap.ImageData.Invalidate();
+                //bitmap.ImageData.Invalidate();
+                bitmap.Invalidate();
                 ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             }
             else
@@ -262,21 +271,25 @@ namespace ContourUI
             }
         }
 
-        private void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
         {
             var starttime = DateTime.Now;
-            foreach (var color in Palette.ActiveColors)
-                bitmap.RectifyLevel(color.Key, Options.CleanupValue + 2);
-            Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
-            //UserMessage message = new UserMessage()
-            //{
-            //    Type = MsgBoxType.Error,
-            //    Text = "Function not implemented.",
-            //    BoxWidth = 350,
-            //    BoxHeight = 150
 
-            //};
-            //await DisplayMessage(message);
+            ApplicationStatus.ProgressValue = 0;
+            ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
+            IAsyncActionWithProgress<double> asyncAction = null;
+            asyncAction = bitmap.CleanUpImageAsync(Options.CleanupValue);
+            asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
+            {
+                double i = progress;
+                ApplicationStatus.ProgressValue = ((float)progress);
+            });
+            await asyncAction;
+            bitmap.Invalidate();
+            ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
+
+             Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
+        
         }
 
         private async void MenuOperationOutline_Clicked(object sender, RoutedEventArgs e)

@@ -29,7 +29,15 @@ using namespace ContourExtractorWindowsRuntimeComponent;
 // Properties
 //=============================================================================
 WriteableBitmap^	ContourBitmap::ImageData::get() { return m_Bitmap; }
-void				ContourBitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m_Bitmap = imageDataValue; }
+//void				ContourBitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m_Bitmap = imageDataValue; }
+unsigned int ContourBitmap::Width::get()  { return (unsigned int) m_Width; }
+unsigned int ContourBitmap::Height::get() { return (unsigned int) m_Height; }
+
+IRandomAccessStream^ ContourBitmap::ImageDataStream::get()
+{
+	//return m_Bitmap->PixelBuffer.;
+	return nullptr;
+}
 
 // Массив оттенков серого содержащихся в изображении
 Array<unsigned char>^ ContourBitmap::GrayScaleColorMap::get()
@@ -78,6 +86,34 @@ ContourBitmap::ContourBitmap()
 
 
 /// <summary>
+/// ContourBitmap constructor (we will use this constructor for testing only)
+/// </summary>
+/// <param name="width">
+/// Image width
+/// </param>
+/// <param name="height">
+/// Image height
+/// </param>
+/// <param name="imageData">
+/// Pointer to image data
+/// </param>
+ContourBitmap::ContourBitmap(int width, int height, unsigned int* imageData)
+{
+	m_Width = width;
+	m_Height = height;
+
+	m_uintPixelBufferLength = width * height;
+	m_bytePixelBufferLength = m_uintPixelBufferLength * 4;
+
+	m_Bitmap = ref new WriteableBitmap(width, height);
+	m_pOriginalImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for original image data
+	m_pConvertedImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for converted image data
+	m_PixelBuffer = imageData;
+	// Make copy image data to m_pOriginalImageData before any manipulations
+	SaveOriginalImageData();
+}
+
+/// <summary>
 /// ContourBitmap constructor
 /// </summary>
 /// <param name="width">
@@ -99,6 +135,10 @@ ContourBitmap::ContourBitmap(int width, int height)
 	m_pConvertedImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for converted image data
 }
 
+void ContourBitmap::Invalidate()
+{
+	m_Bitmap->Invalidate();
+}
 
 /// <summary>
 /// Extract pointer to  WritableBitmap internal buffer
@@ -238,6 +278,59 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 		SaveConvertedImageData();
 		});
 }
+
+IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size)
+{
+	return create_async([this, size](progress_reporter<double> reporter)
+	{
+		for (int y = 0; y <= m_Height - size; y++)
+		{
+			for (int x = 0; x <= m_Width - size; x++)
+				ClearRectangleArea(x, y, size);
+			//double d = 20 / 100;
+			reporter.report((double)y / (m_Height - size));
+		}
+		});
+}
+
+
+
+void ContourBitmap::ClearRectangleArea(int left_top_x, int left_top_y, int size)
+{
+	if (size > m_Width || size > m_Height)
+		return;
+	int leftTopOffsetX = left_top_y * m_Width + left_top_x;
+	int leftBottomOffsetX = leftTopOffsetX + (size - 1) * m_Width;
+	int leftTopOffsetY = leftTopOffsetX;
+	int rightTopOffsetY = leftTopOffsetY + size - 1;
+
+	int ltox = leftTopOffsetX;
+	unsigned int color = m_PixelBuffer[ltox];
+	for (int i = 0; i < size; i++)
+	{
+		if (
+			!(m_PixelBuffer[leftTopOffsetX] == color && m_PixelBuffer[leftBottomOffsetX] == color &&
+				m_PixelBuffer[leftTopOffsetY] == color && m_PixelBuffer[rightTopOffsetY] == color)
+			)
+			return;
+
+		++leftTopOffsetX;
+		++leftBottomOffsetX;
+		leftTopOffsetY += m_Width;
+		rightTopOffsetY += m_Width;
+
+	}
+	// All border points color is empty color
+	// Fill area inside borders with empty color
+
+	for (int y = 1, y_offset = m_Width; y < size - 1; y++, y_offset += m_Width)
+		for (int x = 1; x < size - 1; x++)
+			m_PixelBuffer[ltox + y_offset + x] = color;
+
+	return;
+}
+
+
 
 /// <summary>
 /// Split color image to levels. Every level contains pixels of one color.

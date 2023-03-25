@@ -18,6 +18,8 @@
 
 using namespace Platform;
 using namespace Windows::Foundation;
+using namespace Windows::Storage::Streams;
+using namespace Windows::UI::Xaml::Media::Imaging;
 
 
 namespace ContourExtractorWindowsRuntimeComponent
@@ -32,10 +34,24 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	public:
 
-		property  Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ ImageData
+		property  WriteableBitmap^ ImageData
 		{
-			Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ get();
-			void set(Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ imageDataValue);
+			WriteableBitmap^ get();
+		}
+
+		property  IRandomAccessStream^ ImageDataStream
+		{
+			IRandomAccessStream^ get();
+		}
+
+		property  unsigned int Width
+		{
+			unsigned int get();
+		}
+
+		property  unsigned int Height
+		{
+			unsigned int get();
 		}
 
 		// List of gray colors present in image after converting  
@@ -60,11 +76,14 @@ namespace ContourExtractorWindowsRuntimeComponent
 		ContourBitmap();
 		ContourBitmap(int width, int height);
 		
+		void Invalidate();
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		int  ExtractLevels();
 		IAsyncOperation<int>^  FindLevelContoursAsync(unsigned int levelColor);
 		IAsyncActionWithProgress<double>^ ConvertToGrayscaleAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ ConvertToReducedColorsAsync(unsigned int numberOfColors);
+		IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size);
+		
 		double OutlineImage();
 		void RectifyLevel(unsigned int color, int size);
 
@@ -75,11 +94,16 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void DisplayContours(ContourColors color, int minContourLength, unsigned char contourDensity);
 		void Clear();
 
+		void ClearRectangleArea(int x, int y, int size);
+	internal:
+		ContourBitmap(int width, int height, unsigned int* imageData);
 	private:
 		void SaveOriginalImageData();
 		void SaveConvertedImageData();
 		void RestoreOriginalImageData();
 		void RestoreConvertedImageData();
+
+		//void ClearRectangleArea(int x, int y, int size);
 	private:	//Members
 		int m_Width;					// Image width in pixels
 		int m_Height;					// Image width in pixels

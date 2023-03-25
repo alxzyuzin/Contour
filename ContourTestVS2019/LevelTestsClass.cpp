@@ -44,7 +44,7 @@ namespace ContourTestVS2019
 			// Create level with all empty points
 			// W = 0xFFFFFFFF != 0xFF00FF00 so all points in level buffer will be filled with empty values
 			Level* level = new Level(3, 3, levelColors, ct_1_input_data);
-			level->ClearArea(0, 0, 5);
+			level->ClearArea(0, 0, 5, 0xFF);
 			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_1_expected_res));
 		}
 
@@ -67,7 +67,7 @@ namespace ContourTestVS2019
 			// Create level with all empty points
 			// W = 0xFFFFFFFF != 0xFF00FF00 so all points in level buffer will be filled with empty values
 			Level* level = new Level(3, 3, levelColors, ct_2_input_data);
-			level->ClearArea(0, 0, 5);
+			level->ClearArea(0, 0, 5, 0xFF);
 			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_2_expected_res));
 		}
 
@@ -90,7 +90,7 @@ namespace ContourTestVS2019
 			// Create level with all empty points
 			// W = 0xFFFFFFFF != 0xFF00FF00 so all points in level buffer will be filled with empty values
 			Level* level = new Level(3, 3, levelColors, ct_3_input_data);
-			level->ClearArea(0, 0, 3);
+			level->ClearArea(0, 0, 3, 0xFF);
 			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_3_expected_res));
 		}
 
@@ -120,7 +120,7 @@ namespace ContourTestVS2019
 			// Create level with all empty points
 			// W = 0xFFFFFFFF != 0xFF00FF00 so all points in level buffer will be filled with empty values
 			Level* level = new Level(6, 6, levelColors, ct_4_input_data);
-			level->ClearArea(0, 0, 6);
+			level->ClearArea(0, 0, 6, 0xFF);
 			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_4_expected_res));
 		}
 
@@ -149,7 +149,7 @@ namespace ContourTestVS2019
 			// Create level with all empty points
 			// W = 0xFFFFFFFF != 0xFF00FF00 so all points in level buffer will be filled with empty values
 			Level* level = new Level(6, 6, levelColors, ct_5_input_data);
-			level->ClearArea(0, 0, 3);
+			level->ClearArea(0, 0, 3, 0xFF);
 			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_5_expected_res));
 		}
 
@@ -176,7 +176,7 @@ namespace ContourTestVS2019
 		TEST_METHOD(CleanUp_Test_6)
 		{
 			Level* level = new Level(6, 6, levelColors, ct_6_input_data);
-			level->ClearArea(1, 3, 3);
+			level->ClearArea(1, 3, 3, 0xFF);
 			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_6_expected_res));
 		}
 
@@ -203,11 +203,38 @@ namespace ContourTestVS2019
 		TEST_METHOD(CleanUp_Test_7)
 		{
 			Level* level = new Level(6, 6, levelColors, ct_7_input_data);
-			level->ClearArea(3, 0, 3);
+			level->ClearArea(3, 0, 3, 0xFF);
 			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_7_expected_res));
 		}
 
+
 		unsigned int ct_8_input_data[36] =
+		{
+			W, W, W, W, W, W,
+			W, B, B, B, B, W,
+			W, B, W, B, W, W,
+			W, B, B, B, B, W,
+			W, W, B, W, W, W,
+			W, W, W, W, W, W
+		};
+
+		unsigned char ct_8_expected_res[36] =
+		{
+			E, E, E, E, E, E,
+			E, P, P, P, P, E,
+			E, P, P, P, E, E,
+			E, P, P, P, P, E,
+			E, E, P, E, E, E,
+			E, E, E, E, E, E
+		};
+		TEST_METHOD(CleanUp_Test_8)
+		{
+			Level* level = new Level(6, 6, levelColors, ct_8_input_data);
+			level->ClearArea(1, 1, 3, 0x00);
+			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_8_expected_res));
+		}
+
+		unsigned int ct_9_input_data[36] =
 		{
 			W, W, W, W, W, W,
 			W, B, W, W, B, W,
@@ -217,7 +244,7 @@ namespace ContourTestVS2019
 			W, W, W, W, W, W
 		};
 
-		unsigned char ct_8_expected_res[36] =
+		unsigned char ct_9_expected_res[36] =
 		{
 			E, E, E, E, E, E,
 			E, P, E, E, E, E,
@@ -226,11 +253,38 @@ namespace ContourTestVS2019
 			E, E, E, E, E, E,
 			E, E, E, E, E, E
 		};
-		TEST_METHOD(CleanUp_Test_8)
+		TEST_METHOD(CleanUp_Test_9)
 		{
-			Level* level = new Level(6, 6, levelColors, ct_8_input_data);
+			Level* level = new Level(6, 6, levelColors, ct_9_input_data);
 			level->Rectify(3);
-			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_8_expected_res));
+			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_9_expected_res));
 		}
+
+		unsigned int ct_10_input_data[36] =
+		{
+			W, W, W, W, W, W,
+			W, B, B, B, B, W,
+			W, B, W, B, W, W,
+			W, B, B, B, B, W,
+			W, W, B, W, W, W,
+			W, W, W, W, W, W
+		};
+
+		unsigned char ct_10_expected_res[36] =
+		{
+			E, E, E, E, E, E,
+			E, P, P, P, P, E,
+			E, P, P, P, E, E,
+			E, P, P, P, P, E,
+			E, E, P, E, E, E,
+			E, E, E, E, E, E
+		};
+		TEST_METHOD(CleanUp_Test_10)
+		{
+			Level* level = new Level(6, 6, levelColors, ct_10_input_data);
+			level->Rectify(3);
+			Assert::IsTrue(level->CompareLevelBufferWithReferenceData(ct_10_expected_res));
+		}
+
 	};
 }

@@ -18,10 +18,13 @@
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Level.cpp" />
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Contour.cpp" />
     <ClCompile Include="TestUtils.cpp" />
+    <ClCompile Include="LevelTestsClass.cpp" />
+    <ClCompile Include="ContourBitmapTestsClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestUtils.h" />
+    <ClInclude Include="ContourTests.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="UnitTestApp.rd.xml" />

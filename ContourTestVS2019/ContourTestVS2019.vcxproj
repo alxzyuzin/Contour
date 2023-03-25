@@ -207,6 +207,7 @@
   <ItemGroup>
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Contour.cpp" />
     <ClCompile Include="..\ContourExtractorWindowsRuntimeComponent\Level.cpp" />
+    <ClCompile Include="ContourBitmapTestsClass.cpp" />
     <ClCompile Include="LevelTestsClass.cpp" />
     <ClCompile Include="TestUtils.cpp" />
     <ClCompile Include="UnitTestApp.xaml.cpp">
@@ -233,6 +234,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ContourExtractorWindowsRuntimeComponent\ContourExtractorWindowsRuntimeComponent.vcxproj">
+      <Project>{b5596cc7-90bb-467a-961d-e0d9eb4add98}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

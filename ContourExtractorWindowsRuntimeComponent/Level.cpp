@@ -62,9 +62,14 @@ void Level::Clear()
 
 void Level::Rectify(int size)
 {
+	bool b = false;
 	for (int y = 0; y <= m_Height - size; y++)
 		for (int x = 0; x <= m_Width - size; x++)
-			bool b = ClearArea(x, y, size);
+		{
+			
+			b = ClearArea(x, y, size, 0xFF);
+			//b = ClearArea(x, y, size, m_Color);
+		}
 }
 
 /// <summary>
@@ -595,7 +600,7 @@ inline unsigned char Level::GetPixel(int x, int y)
 		true - if all ppoint on border has color equal empty color (0xFF)
 		false - if at least one point on border has point with color not equal empty color (0xFF)
 */
-bool Level::ClearArea(int left_top_x, int left_top_y, int size)
+bool Level::ClearArea(int left_top_x, int left_top_y, int size, unsigned char color)
 {
 	if (size > m_Width || size > m_Height)
 		return false;
@@ -605,25 +610,27 @@ bool Level::ClearArea(int left_top_x, int left_top_y, int size)
 	int rightTopOffsetY = leftTopOffsetY + size - 1;
 
 	int ltox = leftTopOffsetX;
-	//unsigned char baseColor = 0xFF;// m_Color;
-	// Check top and bottom borders
-		
+			
 	for (int i = 0; i < size; i++)
 	{
-		if (m_Buffer[leftTopOffsetX++] != EMPTY_COLOR || m_Buffer[leftBottomOffsetX++] != EMPTY_COLOR ||
-			m_Buffer[leftTopOffsetY] != EMPTY_COLOR || m_Buffer[rightTopOffsetY] != EMPTY_COLOR)
+		if (
+			!(m_Buffer[leftTopOffsetX] == color && m_Buffer[leftBottomOffsetX] == color &&
+				m_Buffer[leftTopOffsetY] == color && m_Buffer[rightTopOffsetY] == color)
+		   )
 			return false;
-		//++leftTopOffsetX;
-		//++leftBottomOffsetX;
+				
+		++leftTopOffsetX;
+		++leftBottomOffsetX;
 		leftTopOffsetY += m_Width;
 		rightTopOffsetY += m_Width;
 
 	}
 	// All border points color is empty color
 	// Fill area inside borders with empty color
+	
 	for (int y = 1,  y_offset = m_Width; y < size - 1; y++, y_offset += m_Width)
 		for (int x = 1; x < size - 1; x++)
-			m_Buffer[ltox + y_offset + x] = EMPTY_COLOR;
+			m_Buffer[ltox + y_offset + x] = color;
 
 	return true;
 }
