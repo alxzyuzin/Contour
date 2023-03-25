@@ -62,14 +62,9 @@ void Level::Clear()
 
 void Level::Rectify(int size)
 {
-	bool b = false;
 	for (int y = 0; y <= m_Height - size; y++)
 		for (int x = 0; x <= m_Width - size; x++)
-		{
-			
-			b = ClearArea(x, y, size, 0xFF);
-			//b = ClearArea(x, y, size, m_Color);
-		}
+			ClearArea(x, y, size, 0xFF);
 }
 
 /// <summary>
@@ -623,7 +618,6 @@ bool Level::ClearArea(int left_top_x, int left_top_y, int size, unsigned char co
 		++leftBottomOffsetX;
 		leftTopOffsetY += m_Width;
 		rightTopOffsetY += m_Width;
-
 	}
 	// All border points color is empty color
 	// Fill area inside borders with empty color

@@ -22,8 +22,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 		vector<Contour*> m_Contours;
 
 	private:	 // Members
-		
-		
 		int m_Width;
 		int m_Height;
 		unsigned char* m_Buffer;
@@ -97,8 +95,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 		bool CompareLevelBufferWithReferenceData(unsigned char* referenceData);
 	/* Debug functions section end      */
 	/*----------------------------------*/
-
-
 	};
 
 

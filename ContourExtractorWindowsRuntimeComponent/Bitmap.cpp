@@ -29,7 +29,7 @@ using namespace ContourExtractorWindowsRuntimeComponent;
 // Properties
 //=============================================================================
 WriteableBitmap^	ContourBitmap::ImageData::get() { return m_Bitmap; }
-//void				ContourBitmap::ImageData::set(WriteableBitmap^ imageDataValue) { m_Bitmap = imageDataValue; }
+
 unsigned int ContourBitmap::Width::get()  { return (unsigned int) m_Width; }
 unsigned int ContourBitmap::Height::get() { return (unsigned int) m_Height; }
 
@@ -287,7 +287,6 @@ IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size)
 		{
 			for (int x = 0; x <= m_Width - size; x++)
 				ClearRectangleArea(x, y, size);
-			//double d = 20 / 100;
 			reporter.report((double)y / (m_Height - size));
 		}
 		});
@@ -313,20 +312,16 @@ void ContourBitmap::ClearRectangleArea(int left_top_x, int left_top_y, int size)
 				m_PixelBuffer[leftTopOffsetY] == color && m_PixelBuffer[rightTopOffsetY] == color)
 			)
 			return;
-
 		++leftTopOffsetX;
 		++leftBottomOffsetX;
 		leftTopOffsetY += m_Width;
 		rightTopOffsetY += m_Width;
-
 	}
 	// All border points color is empty color
 	// Fill area inside borders with empty color
-
 	for (int y = 1, y_offset = m_Width; y < size - 1; y++, y_offset += m_Width)
 		for (int x = 1; x < size - 1; x++)
 			m_PixelBuffer[ltox + y_offset + x] = color;
-
 	return;
 }
 
@@ -430,7 +425,6 @@ void ContourBitmap::Clear()
 	delete m_Bitmap;
 	m_Width = 0;				// Ширина изображения в рикселях
 	m_Height = 0;				// Высота изображения в рикселях
-
 }
 
 /// <summary>

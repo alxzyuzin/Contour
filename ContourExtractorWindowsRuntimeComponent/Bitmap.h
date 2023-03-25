@@ -103,7 +103,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void RestoreOriginalImageData();
 		void RestoreConvertedImageData();
 
-		//void ClearRectangleArea(int x, int y, int size);
 	private:	//Members
 		int m_Width;					// Image width in pixels
 		int m_Height;					// Image width in pixels
