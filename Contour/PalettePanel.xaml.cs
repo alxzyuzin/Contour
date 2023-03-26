@@ -10,6 +10,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -34,17 +35,17 @@ namespace ContourUI
             {
                 byte r;
                 uint c = _color;
-                c = c & 0xFF000000;
-                c = c >> 24;
+                c &= 0xFF000000;
+                c >>= 24;
                 r = (byte)c;
                 return r;
             }
             set
             {
                 uint c = value;
-                c = c << 24;
-                _color = _color & 0x00FFFFFF;
-                _color = _color | c;
+                c <<= 24;
+                _color &= 0x00FFFFFF;
+                _color |= c;
             }
         }
         public byte Red
@@ -53,19 +54,18 @@ namespace ContourUI
             {
                 byte r;
                 uint c = _color;
-                c = c & 0x00FF0000;
-                c = c >> 16;
+                c &= 0x00FF0000;
+                c >>= 16;
                 r = (byte)c;
                 return r;
             }
             set
             {
 
-                byte r = value;
                 uint c = value;
-                c = c << 16;
-                _color = _color & 0xFF00FFFF;
-                _color = _color | c;
+                c <<= 16;
+                _color &= 0xFF00FFFF;
+                _color |= c;
             }
         }
         public byte Green
@@ -74,17 +74,17 @@ namespace ContourUI
             {
                 byte r;
                 uint c = _color;
-                c = c & 0x0000FF00;
-                c = c >> 8;
+                c &= 0x0000FF00;
+                c >>= 8;
                 r = (byte)c;
                 return r;
             }
             set
             {
                 uint c = value;
-                c = c << 8;
-                _color = _color & 0xFFFF00FF;
-                _color = _color | c;
+                c <<= 8;
+                _color &= 0xFFFF00FF;
+                _color |= c;
             }
         }
         public byte Blue
@@ -93,7 +93,7 @@ namespace ContourUI
             {
                 byte r;
                 uint c = _color;
-                c = c & 0x000000FF;
+                c &= 0x000000FF;
 
                 r = (byte)c;
                 return r;
@@ -101,15 +101,15 @@ namespace ContourUI
             set
             {
                 uint c = value;
-                _color = _color & 0xFFFFFF00;
-                _color = _color | c;
+                _color &= 0xFFFFFF00;
+                _color |= c;
             }
         }
     }
     public sealed partial class PalettePanel : UserControl, INotifyPropertyChanged
     {
 
-        private SortedDictionary<uint, bool> _activeColors = new SortedDictionary<uint, bool>();
+        private readonly SortedDictionary<uint, bool> _activeColors = new SortedDictionary<uint, bool>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -135,8 +135,10 @@ namespace ContourUI
 
             for (int r = 0; r < paletteRows; r++)
             {
-                RowDefinition row = new RowDefinition();
-                row.MaxHeight = 40;
+                RowDefinition row = new RowDefinition
+                {
+                    MaxHeight = 40
+                };
                 GridPalette.RowDefinitions.Add(row);
             }
             for (int c = 0; c < paletteColumns; c++)
@@ -203,32 +205,11 @@ namespace ContourUI
             return NumberOfRows;
         }
 
-        Windows.UI.Xaml.Shapes.Rectangle BuildPaletteItem(uint color)
-        {
-            Windows.UI.Xaml.Shapes.Rectangle rectangle = new Windows.UI.Xaml.Shapes.Rectangle();
-            Thickness margin = rectangle.Margin;
-            margin.Left = 1;
-            margin.Right = 1;
-            margin.Top = 1;
-            margin.Bottom = 1;
-            rectangle.Margin = margin;
 
-            IntColor currentColor = new IntColor(color);
-
-            Windows.UI.Color itemColor = new Windows.UI.Color();
-            itemColor.R = currentColor.Red;
-            itemColor.G = currentColor.Green;
-            itemColor.B = currentColor.Blue;
-            itemColor.A = currentColor.Alfa;
-
-            rectangle.Fill = new SolidColorBrush(itemColor);
-
-            return rectangle;
-        }
 
         private void Button_ShowAllTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            foreach (PaletteItem paletteItem in GridPalette.Children)
+            foreach (PaletteItem paletteItem in GridPalette.Children.Cast<PaletteItem>())
             {
                 paletteItem.SetIsChecked(true);
                 _activeColors[paletteItem.Color] = true;
@@ -239,7 +220,7 @@ namespace ContourUI
 
         private void Button_HideAllTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            foreach (PaletteItem paletteItem in GridPalette.Children)
+            foreach (PaletteItem paletteItem in GridPalette.Children.Cast<PaletteItem>())
             {
                 paletteItem.SetIsChecked(false);
                 _activeColors[paletteItem.Color] = false;
