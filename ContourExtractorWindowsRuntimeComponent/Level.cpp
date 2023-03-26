@@ -77,11 +77,28 @@ void Level::SetLevelShapesToDisplayBuffer(unsigned int* imageData)
 		if (m_Buffer[i] == m_Color)
 			imageData[i] = m_OriginalColor;
 }
-
+/// <summary>
+/// Drow conturs in display buffer
+/// </summary>
+/// <param name="ImageData">
+/// Pointer to display buffer
+/// </param>
+/// <param name="color">
+/// Color used for drawing contours
+/// </param>
+/// <param name="minContourLength">
+/// Function do not draw in display buffer contours with length less then minContourLength 
+/// </param>
+/// <param name="contourDensity"></param>
+/// Drawed contour hardness ( for black color 255 mean black, 128 mean gray 64 meean light gray)
+/// <param name="type"></param>
 void Level::SetContoursToDisplayBuffer(unsigned int*  ImageData, ContourColors color, int minContourLength, unsigned char contourDensity, ContourType type)
 {
 	Point* point;
-
+	unsigned char baseColorValue = 0x00 - contourDensity;
+	CharToIntColor pointColor;
+	pointColor.charcolor.alfa = 0xFF;
+	
 	for (Contour* contour : m_Contours)
 	{
 		if (contour->Type == type && contour->Size() >= minContourLength)
@@ -90,16 +107,29 @@ void Level::SetContoursToDisplayBuffer(unsigned int*  ImageData, ContourColors c
 			{
 				point = contour->GetPoint(i);
 				unsigned int offset = point->Y * m_Width + point->X;
-				unsigned int cd = (unsigned int)contourDensity << 24;
-				
+								
 				switch (color)
 				{
-				case ContourColors::Black:	ImageData[offset] = 0xFF000000 & cd; break;
-				case ContourColors::Blue:	ImageData[offset] = 0xFF0000FF & cd; break;
-				case ContourColors::Green:	ImageData[offset] = 0xFF00FF00 & cd; break;
-				case ContourColors::Red:	ImageData[offset] = 0xFFFF0000 & cd; break;
-				case ContourColors::White:	ImageData[offset] = 0xFFFFFFFF & cd; break;
+					case ContourColors::Black:
+						pointColor.charcolor.red = pointColor.charcolor.green = pointColor.charcolor.blue = baseColorValue;
+						break;
+					case ContourColors::Blue:	
+						pointColor.charcolor.red = pointColor.charcolor.green = baseColorValue;
+						pointColor.charcolor.blue = 0xFF;
+						break;
+					case ContourColors::Green:
+						pointColor.charcolor.red = pointColor.charcolor.blue = baseColorValue;
+						pointColor.charcolor.green = 0xFF;
+						break;
+					case ContourColors::Red:
+						pointColor.charcolor.green = pointColor.charcolor.blue = baseColorValue;
+						pointColor.charcolor.red = 0xFF;
+						break;
+					case ContourColors::White:
+						pointColor.charcolor.red = pointColor.charcolor.green = pointColor.charcolor.blue = contourDensity;
+						break;
 				}
+				ImageData[offset] = pointColor.intcolor;
 			}
 		}
 	}

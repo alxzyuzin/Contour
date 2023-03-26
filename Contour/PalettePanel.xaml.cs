@@ -123,43 +123,8 @@ namespace ContourUI
             get => _activeColors;
         }
 
+        
         public void Build(uint[] colors)
-        {
-            this.Clear();
-            List<uint> colorsList = new System.Collections.Generic.List<uint>(colors);
-            colorsList.Sort();
-            // Define number of palette columns and rows
-            int paletteRows = GetNumberOfPaletteRows(colors.Length);
-            int paletteColumns = GetNumberOfPaletteColumns(colors.Length);
-
-            for (int r = 0; r < paletteRows; r++)
-            {
-                RowDefinition row = new RowDefinition();
-                row.MaxHeight = 40;
-                GridPalette.RowDefinitions.Add(row);
-            }
-            for (int c = 0; c < paletteColumns; c++)
-            {
-                ColumnDefinition col = new ColumnDefinition();
-                col.MaxWidth = 80;
-                GridPalette.ColumnDefinitions.Add(col);
-            }
-
-            int i = 0;
-            for (int r = 0; r < paletteRows; r++)
-                for (int c = 0; c < paletteColumns; c++)
-                {
-                    if (i < colors.Length)
-                    {
-                        Windows.UI.Xaml.Shapes.Rectangle paletteItem = BuildPaletteItem(colors[i++]);
-                        GridPalette.Children.Add(paletteItem);
-                        Grid.SetColumn(paletteItem, c);
-                        Grid.SetRow(paletteItem, r);
-                    }
-                }
-        }
-
-        public void Build2(uint[] colors)
         {
             this.Clear();
             List<uint> colorsList = new System.Collections.Generic.List<uint>(colors);

@@ -86,8 +86,7 @@ namespace ContourUI
             if (ApplicationStatus.DisplayContour)
                 bitmap.DisplayContours(Options.ContourColorValue, Options.MinContourLength, Options.ContourDensityValue);
 
-            //bitmap.ImageData.Invalidate();
-            bitmap.Invalidate();
+             bitmap.Invalidate();
         }
 
         private async Task<MsgBoxButton> DisplayMessage(UserMessage message)
@@ -142,6 +141,7 @@ namespace ContourUI
                 //ExposedImage.Source = img;
 
                 ApplicationStatus.ImageLoaded = true;
+                Palette.Clear();
             }
             else
             {
@@ -249,12 +249,10 @@ namespace ContourUI
                 await asyncAction;
 
                 bitmap.ExtractLevels();
-
-                this.Palette.Build2(bitmap.Colors);
+                this.Palette.Build(bitmap.Colors);
 
                 ApplicationStatus.ImageConverted = true;
                 ApplicationStatus.DisplayConverted = true;
-                //bitmap.ImageData.Invalidate();
                 bitmap.Invalidate();
                 ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             }
@@ -285,12 +283,13 @@ namespace ContourUI
                 ApplicationStatus.ProgressValue = ((float)progress);
             });
             await asyncAction;
+
+            bitmap.ExtractLevels();
+            Palette.Build(bitmap.Colors);
             bitmap.Invalidate();
             ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
-
-             Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
-        
-        }
+            Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
+         }
 
         private async void MenuOperationOutline_Clicked(object sender, RoutedEventArgs e)
         {
