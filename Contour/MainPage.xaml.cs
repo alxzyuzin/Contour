@@ -13,15 +13,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
+using Windows.Graphics.Printing;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Printing;
 
 namespace ContourUI
 {
@@ -37,6 +42,11 @@ namespace ContourUI
         private string _imageFileNameExtention;
         private string _imageFilePath;
 
+
+        private PrintManager printMan;
+        private PrintDocument printDoc;
+        private IPrintDocumentSource printDocSource;
+
         public MainPage()
         {
             InitializeComponent();
@@ -50,6 +60,27 @@ namespace ContourUI
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
             Palette.PropertyChanged += Palette_PropertyChanged;
         }
+
+        #region Register for printing
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            // Register for PrintTaskRequested event
+            printMan = PrintManager.GetForCurrentView();
+            printMan.PrintTaskRequested += PrintTaskRequested;
+
+            //// Build a PrintDocument and register for callbacks
+            printDoc = new PrintDocument();
+            printDocSource = printDoc.DocumentSource;
+            printDoc.Paginate += Paginate;
+            printDoc.GetPreviewPage += GetPreviewPage;
+            printDoc.AddPages += AddPages;
+        }
+
+
+
+        #endregion
+
 
         private void Palette_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -199,19 +230,101 @@ namespace ContourUI
 
             await encoder.FlushAsync();
         }
-
+        #region Showing print dialog
         private async void MenuFilePrint_Clicked(object sender, RoutedEventArgs e)
         {
-            UserMessage message = new UserMessage()
+           
+            if (PrintManager.IsSupported())
             {
-                Type = MsgBoxType.Error,
-                Text = "Function not implemented.",
-                BoxWidth = 350,
-                BoxHeight = 150
-            };
-            await DisplayMessage(message);
+                try
+                {
+                    // Show print UI
+                    await PrintManager.ShowPrintUIAsync();
+                }
+                catch
+                {
+                    // Printing cannot proceed at this time
+                    ContentDialog noPrintingDialog = new ContentDialog()
+                    {
+                        Title = "Printing error",
+                        Content = "\nSorry, printing can' t proceed at this time.",
+                        PrimaryButtonText = "OK"
+                    };
+                    await noPrintingDialog.ShowAsync();
+                }
+            }
+            else
+            {
+                // Printing is not supported on this device
+                ContentDialog noPrintingDialog = new ContentDialog()
+                {
+                    Title = "Printing not supported",
+                    Content = "\nSorry, printing is not supported on this device.",
+                    PrimaryButtonText = "OK"
+                };
+                await noPrintingDialog.ShowAsync();
+            }
         }
 
+        private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs args)
+        {
+            // Create the PrintTask.
+            // Defines the title and delegate for PrintTaskSourceRequested
+            var printTask = args.Request.CreatePrintTask("Print", PrintTaskSourceRequrested);
+
+            // Handle PrintTask.Completed to catch failed print jobs
+            printTask.Completed += PrintTaskCompleted;
+        }
+
+        private void PrintTaskSourceRequrested(PrintTaskSourceRequestedArgs args)
+        {
+            // Set the document source.
+            args.SetSource(printDocSource);
+        }
+
+        private async void PrintTaskCompleted(PrintTask sender, PrintTaskCompletedEventArgs args)
+        {
+            // Notify the user when the print operation fails.
+            if (args.Completion == PrintTaskCompletion.Failed)
+            {
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    ContentDialog noPrintingDialog = new ContentDialog()
+                    {
+                        Title = "Printing error",
+                        Content = "\nSorry, failed to print.",
+                        PrimaryButtonText = "OK"
+                    };
+                    await noPrintingDialog.ShowAsync();
+                });
+            }
+        }
+
+        // Print preview
+
+        private void Paginate(object sender, PaginateEventArgs e)
+        {
+            // As I only want to print one Rectangle, so I set the count to 1
+            printDoc.SetPreviewPageCount(1, PreviewPageCountType.Final);
+        }
+
+        private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
+        {
+            // Provide a UIElement as the print preview.
+            printDoc.SetPreviewPage(e.PageNumber, this.ExposedImage);
+        }
+
+
+        //Add pages to send to the printer
+
+        private void AddPages(object sender, AddPagesEventArgs e)
+        {
+            printDoc.AddPage(this.ExposedImage);
+
+            // Indicate that all of the print pages have been provided
+            printDoc.AddPagesComplete();
+        }
+        #endregion
         private void MenuFileExit_Clicked(object sender, RoutedEventArgs e)
         {
             Application.Current.Exit();
