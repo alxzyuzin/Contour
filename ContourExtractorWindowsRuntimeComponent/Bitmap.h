@@ -84,6 +84,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		IAsyncActionWithProgress<double>^ ConvertToReducedColorsAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size);
 		
+		void RotateLeft();
+		void RotateRight();
+
 		double OutlineImage();
 		void RectifyLevel(unsigned int color, int size);
 
@@ -94,15 +97,19 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void DisplayContours(ContourColors color, int minContourLength, unsigned char contourDensity);
 		void Clear();
 
-		void ClearRectangleArea(int x, int y, int size);
-	internal:
-		ContourBitmap(int width, int height, unsigned int* imageData);
+		
+
+	/*internal:
+		ContourBitmap(int width, int height, unsigned int* imageData);*/
 	private:
+		unsigned int* GetPointerToWriteableBitmapPixelData(WriteableBitmap^ bitmap);
 		void SaveOriginalImageData();
 		void SaveConvertedImageData();
 		void RestoreOriginalImageData();
 		void RestoreConvertedImageData();
+		void ClearRectangleArea(int x, int y, int size);
 
+		
 	private:	//Members
 		int m_Width;					// Image width in pixels
 		int m_Height;					// Image width in pixels
@@ -113,8 +120,10 @@ namespace ContourExtractorWindowsRuntimeComponent
 		
 		unsigned char* m_pOriginalImageData;	// Pointer to buffer to store original image data loaded from file
 		unsigned char* m_pConvertedImageData;	// Pointer to buffer to store converted image data 
-		Windows::UI::Xaml::Media::Imaging::WriteableBitmap^ m_Bitmap = nullptr;
-		Windows::UI::Xaml::Controls::Page^ m_pMainPage;
+		WriteableBitmap^ m_Bitmap = nullptr;
+		WriteableBitmap^ m_BufferBitmap = nullptr;
+
+		//Windows::UI::Xaml::Controls::Page^ m_pMainPage;
 		
 		std::map<unsigned int, Level*> m_Levels;
 	};

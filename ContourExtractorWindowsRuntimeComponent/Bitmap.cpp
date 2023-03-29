@@ -22,6 +22,7 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::Storage::Streams;
 using namespace Platform;
 using namespace Windows::Foundation;
+using namespace Microsoft::WRL;
 
 using namespace ContourExtractorWindowsRuntimeComponent;
 
@@ -84,7 +85,6 @@ ContourBitmap::ContourBitmap()
 	m_pConvertedImageData = nullptr;
 }
 
-
 /// <summary>
 /// ContourBitmap constructor (we will use this constructor for testing only)
 /// </summary>
@@ -97,21 +97,21 @@ ContourBitmap::ContourBitmap()
 /// <param name="imageData">
 /// Pointer to image data
 /// </param>
-ContourBitmap::ContourBitmap(int width, int height, unsigned int* imageData)
-{
-	m_Width = width;
-	m_Height = height;
-
-	m_uintPixelBufferLength = width * height;
-	m_bytePixelBufferLength = m_uintPixelBufferLength * 4;
-
-	m_Bitmap = ref new WriteableBitmap(width, height);
-	m_pOriginalImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for original image data
-	m_pConvertedImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for converted image data
-	m_PixelBuffer = imageData;
-	// Make copy image data to m_pOriginalImageData before any manipulations
-	SaveOriginalImageData();
-}
+//ContourBitmap::ContourBitmap(int width, int height, unsigned int* imageData)
+//{
+//	m_Width = width;
+//	m_Height = height;
+//
+//	m_uintPixelBufferLength = width * height;
+//	m_bytePixelBufferLength = m_uintPixelBufferLength * 4;
+//
+//	m_Bitmap = ref new WriteableBitmap(width, height);
+//	m_pOriginalImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for original image data
+//	m_pConvertedImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for converted image data
+//	m_PixelBuffer = imageData;
+//	// Make copy image data to m_pOriginalImageData before any manipulations
+//	SaveOriginalImageData();
+//}
 
 /// <summary>
 /// ContourBitmap constructor
@@ -147,19 +147,8 @@ void ContourBitmap::Invalidate()
 /// <param name="stream"></param>
 void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 {
-	using namespace Microsoft::WRL;
-
-	unsigned char* bytePixelBuffer;
 	m_Bitmap->SetSource(stream);  // m_Bitmap - WritableBitmap^
-	// Obtain access to image data
-	ComPtr<IBufferByteAccess> pBufferByteAccess;
-	IBuffer^ pIBuffer = m_Bitmap->PixelBuffer;
-	ComPtr<IUnknown> pBuffer((IUnknown*)pIBuffer);
-	pBuffer.As(&pBufferByteAccess);
-	// Get pointer to pixel bytes
-	pBufferByteAccess->Buffer(&bytePixelBuffer); // Now bytePixelBuffer contains address of image data in the internal WritableBitmap buffer
-	
-	m_PixelBuffer = (unsigned int*)bytePixelBuffer;
+	m_PixelBuffer = GetPointerToWriteableBitmapPixelData(m_Bitmap);
 	// Make copy image data to m_pOriginalImageData before any manipulations
 	SaveOriginalImageData();
 }
@@ -292,7 +281,42 @@ IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size)
 		});
 }
 
+void ContourBitmap::RotateLeft()
+{
+	m_BufferBitmap = ref new WriteableBitmap(m_Bitmap->PixelHeight, m_Bitmap->PixelWidth);
+	unsigned int* newPixelBuffer = GetPointerToWriteableBitmapPixelData(m_BufferBitmap);
 
+	int h = m_Bitmap->PixelHeight;
+	int w = m_Bitmap->PixelWidth;
+	for (int y = 0; y < h; y++)
+		for (int x = 0; x < w; x++)
+			newPixelBuffer[(w - 1 - x) * h + y] = m_PixelBuffer[y * w + x];
+	m_Bitmap = m_BufferBitmap;
+	
+	int m_Height = m_BufferBitmap->PixelHeight;
+	int m_Width  = m_BufferBitmap->PixelWidth;
+	m_PixelBuffer = newPixelBuffer;
+	SaveOriginalImageData();
+}
+
+
+void ContourBitmap::RotateRight()
+{
+	m_BufferBitmap = ref new WriteableBitmap(m_Bitmap->PixelHeight, m_Bitmap->PixelWidth);
+	unsigned int* newPixelBuffer = GetPointerToWriteableBitmapPixelData(m_BufferBitmap);
+
+	int h = m_Bitmap->PixelHeight;
+	int w = m_Bitmap->PixelWidth;
+	for (int y = 0; y < h; y++)
+		for (int x = 0; x < w; x++)
+			newPixelBuffer[h * x + h - y - 1] = m_PixelBuffer[y * w + x];
+	m_Bitmap = m_BufferBitmap;
+
+	int m_Height = m_BufferBitmap->PixelHeight;
+	int m_Width = m_BufferBitmap->PixelWidth;
+	m_PixelBuffer = newPixelBuffer;
+	SaveOriginalImageData();
+}
 
 void ContourBitmap::ClearRectangleArea(int left_top_x, int left_top_y, int size)
 {
@@ -481,4 +505,22 @@ inline void ContourBitmap::RestoreOriginalImageData()
 inline void ContourBitmap::RestoreConvertedImageData()
 {
 	memcpy(m_PixelBuffer, m_pConvertedImageData, m_bytePixelBufferLength);
+}
+
+
+//======================================================================
+// Private functions
+//======================================================================
+
+unsigned int* ContourBitmap::GetPointerToWriteableBitmapPixelData(WriteableBitmap^ bitmap)
+{
+	unsigned char* bytePixelBuffer;
+	// Obtain access to image data
+	ComPtr<IBufferByteAccess> pBufferByteAccess;
+	IBuffer^ pIBuffer = bitmap->PixelBuffer;
+	ComPtr<IUnknown> pBuffer((IUnknown*)pIBuffer);
+	pBuffer.As(&pBufferByteAccess);
+	// Get pointer to pixel bytes
+	pBufferByteAccess->Buffer(&bytePixelBuffer); // Now bytePixelBuffer contains address of image data in the internal WritableBitmap buffer
+	return (unsigned int*)bytePixelBuffer;
 }

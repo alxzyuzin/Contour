@@ -104,6 +104,16 @@
                         <KeyboardAccelerator Key="L" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="mfiRotateLeft" Text="Rotate left" Click="MenuOperationRotateLeft_Clicked" IsEnabled="{Binding ImageLoaded}">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="L" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="mfiRotateRight" Text="Rotate right" Click="MenuOperationRotateRight_Clicked" IsEnabled="{Binding ImageLoaded}">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="L" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
             </muxc:MenuBarItem>
 
             <muxc:MenuBarItem Title="Help">

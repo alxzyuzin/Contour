@@ -77,8 +77,6 @@ namespace ContourUI
             printDoc.AddPages += AddPages;
         }
 
-
-
         #endregion
 
 
@@ -166,11 +164,7 @@ namespace ContourUI
                 IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);
                 ExposedImage.Source = bitmap.ImageData;
-                //stream.Seek(0);
-                //BitmapImage img = new BitmapImage();
-                //img.SetSource(stream);
-                //ExposedImage.Source = img;
-
+ 
                 ApplicationStatus.ImageLoaded = true;
                 Palette.Clear();
             }
@@ -443,6 +437,19 @@ namespace ContourUI
             }
         }
 
+        private void MenuOperationRotateLeft_Clicked(object sender, RoutedEventArgs e)
+        {
+            bitmap.RotateLeft();
+            ExposedImage.Source = bitmap.ImageData;
+           
+        }
+
+        private void MenuOperationRotateRight_Clicked(object sender, RoutedEventArgs e)
+        {
+            bitmap.RotateRight();
+            ExposedImage.Source = bitmap.ImageData;
+            
+        }
         private async void MenuHelpAbout_Clicked(object sender, RoutedEventArgs e)
         {
             await AboutWindow.Show();
