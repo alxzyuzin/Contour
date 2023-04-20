@@ -22,4 +22,7 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="ColorGroup.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

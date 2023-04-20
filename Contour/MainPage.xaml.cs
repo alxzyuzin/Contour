@@ -38,11 +38,17 @@ namespace ContourUI
         private readonly GeneralOptions Options = new GeneralOptions();
         readonly AppStatus ApplicationStatus = new AppStatus();
         private ContourBitmap bitmap = null;
+        private double _pictureWidthToHeightRatio = 1;
 
         private string _imageFileNameExtention;
         private string _imageFilePath;
 
 
+        PrintMediaSize _printMediaSize;
+        PrintOrientation _printOrientation;
+        //double _actualImageWidth;
+        //double _actualImageHeight;
+        //private bool _printCompleted = false;
         private PrintManager printMan;
         private PrintDocument printDoc;
         private IPrintDocumentSource printDocSource;
@@ -59,8 +65,30 @@ namespace ContourUI
             ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
             Palette.PropertyChanged += Palette_PropertyChanged;
+            PictureArea.SizeChanged += PictureArea_SizeChanged;
         }
 
+        private void PictureArea_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            AjustPictureSizeToPictureArea();
+        }
+
+        private void AjustPictureSizeToPictureArea()
+        {
+            if (bitmap != null)
+            {
+                if ((bitmap.Width - PictureArea.ActualWidth) >= (bitmap.Height - PictureArea.ActualHeight))
+                {
+                    Picture.Width = PictureArea.ActualWidth;
+                }
+                else
+                {
+                    Picture.Height = PictureArea.ActualHeight;
+                }
+                Picture.HorizontalAlignment = HorizontalAlignment.Center;
+                Picture.VerticalAlignment = VerticalAlignment.Center;
+            }
+        }
         #region Register for printing
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -77,7 +105,119 @@ namespace ContourUI
             printDoc.AddPages += AddPages;
         }
 
+        private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs args)
+        {
+            // Create the PrintTask.
+            // Defines the title and delegate for PrintTaskSourceRequested
+            var printTask = args.Request.CreatePrintTask("Print", PrintTaskSourceRequrested);
+
+            var displayedOptions = printTask.Options.DisplayedOptions;
+            //printTask.Options.PrintQuality = PrintQuality.Normal;
+            // Choose the printer options to be shown.
+            // The order in which the options are appended determines the order in which they appear in the UI
+            //displayedOptions.Clear();
+            //displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Copies);
+            //displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Orientation);
+            displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.MediaSize);
+            //displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Collation);
+            //displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Duplex);
+            
+            // Handle PrintTask.Completed to catch failed print jobs
+            printTask.Completed += PrintTaskCompleted;
+        }
+
+        private void Paginate(object sender, PaginateEventArgs e)
+        {
+            // Get the page description to deterimine how big the page is
+            PrintPageDescription pageDescription = e.PrintTaskOptions.GetPageDescription(0);
+            if ((_printMediaSize != e.PrintTaskOptions.MediaSize))
+            {
+                _printMediaSize = e.PrintTaskOptions.MediaSize;
+                ResizeImageForPrint(pageDescription);
+                printDoc.InvalidatePreview();
+            }
+
+            if (_printOrientation != e.PrintTaskOptions.Orientation)
+            {
+                _printOrientation = e.PrintTaskOptions.Orientation;
+                ResizeImageForPrint(pageDescription);
+                printDoc.InvalidatePreview();
+            }
+            // As I only want to print one Rectangle, so I set the count to 1
+            printDoc.SetPreviewPageCount(1, PreviewPageCountType.Final);
+        }
+
+
+        private void ResizeImageForPrint(PrintPageDescription pageDescription)
+        {
+            if (bitmap == null) return;
+            if ((bitmap.Width - pageDescription.ImageableRect.Width) >= (bitmap.Height - pageDescription.ImageableRect.Height))
+            {
+                Picture.Width = pageDescription.ImageableRect.Width;
+            }
+            else
+            {
+                Picture.Height = pageDescription.ImageableRect.Height;
+            }
+            Picture.HorizontalAlignment = HorizontalAlignment.Left;
+            Picture.VerticalAlignment = VerticalAlignment.Top;
+        }
+        // Print preview
+
+        private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
+        {
+            // Provide a UIElement as the print preview.
+            try
+            {
+                printDoc.SetPreviewPage(e.PageNumber, this.Picture);
+            }
+            catch (System.ArgumentException ex) { }
+        }
+
+        //Add pages to send to the printer
+
+        private void AddPages(object sender, AddPagesEventArgs e)
+        {
+            printDoc.AddPage(this.Picture);
+
+            // Indicate that all of the print pages have been provided
+            printDoc.AddPagesComplete();
+        }
+
+        private void PrintTaskSourceRequrested(PrintTaskSourceRequestedArgs args)
+        {
+            // Set the document source.
+            args.SetSource(printDocSource);
+        }
+
+        private async void PrintTaskCompleted(PrintTask sender, PrintTaskCompletedEventArgs args)
+        {
+            // Notify the user when the print operation fails.
+            if (args.Completion == PrintTaskCompletion.Failed)
+            {
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    ContentDialog noPrintingDialog = new ContentDialog()
+                    {
+                        Title = "Printing error",
+                        Content = "\nSorry, failed to print.",
+                        PrimaryButtonText = "OK"
+                    };
+                    await noPrintingDialog.ShowAsync();
+                });
+            }
+            if (args.Completion == PrintTaskCompletion.Submitted || args.Completion == PrintTaskCompletion.Canceled)
+            {
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    AjustPictureSizeToPictureArea();
+                });
+            }
+        }
+
+
         #endregion
+
 
 
         private void Palette_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -163,8 +303,9 @@ namespace ContourUI
 
                 IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);
-                ExposedImage.Source = bitmap.ImageData;
- 
+                Picture.Source = bitmap.ImageData;
+                AjustPictureSizeToPictureArea();
+                _pictureWidthToHeightRatio = props.Width / props.Height;
                 ApplicationStatus.ImageLoaded = true;
                 Palette.Clear();
             }
@@ -233,8 +374,8 @@ namespace ContourUI
                 try
                 {
                     // Show print UI
-                    await PrintManager.ShowPrintUIAsync();
-                }
+                    bool v = await PrintManager.ShowPrintUIAsync();
+                 }
                 catch
                 {
                     // Printing cannot proceed at this time
@@ -260,64 +401,7 @@ namespace ContourUI
             }
         }
 
-        private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs args)
-        {
-            // Create the PrintTask.
-            // Defines the title and delegate for PrintTaskSourceRequested
-            var printTask = args.Request.CreatePrintTask("Print", PrintTaskSourceRequrested);
 
-            // Handle PrintTask.Completed to catch failed print jobs
-            printTask.Completed += PrintTaskCompleted;
-        }
-
-        private void PrintTaskSourceRequrested(PrintTaskSourceRequestedArgs args)
-        {
-            // Set the document source.
-            args.SetSource(printDocSource);
-        }
-
-        private async void PrintTaskCompleted(PrintTask sender, PrintTaskCompletedEventArgs args)
-        {
-            // Notify the user when the print operation fails.
-            if (args.Completion == PrintTaskCompletion.Failed)
-            {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    ContentDialog noPrintingDialog = new ContentDialog()
-                    {
-                        Title = "Printing error",
-                        Content = "\nSorry, failed to print.",
-                        PrimaryButtonText = "OK"
-                    };
-                    await noPrintingDialog.ShowAsync();
-                });
-            }
-        }
-
-        // Print preview
-
-        private void Paginate(object sender, PaginateEventArgs e)
-        {
-            // As I only want to print one Rectangle, so I set the count to 1
-            printDoc.SetPreviewPageCount(1, PreviewPageCountType.Final);
-        }
-
-        private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
-        {
-            // Provide a UIElement as the print preview.
-            printDoc.SetPreviewPage(e.PageNumber, this.ExposedImage);
-        }
-
-
-        //Add pages to send to the printer
-
-        private void AddPages(object sender, AddPagesEventArgs e)
-        {
-            printDoc.AddPage(this.ExposedImage);
-
-            // Indicate that all of the print pages have been provided
-            printDoc.AddPagesComplete();
-        }
         #endregion
         private void MenuFileExit_Clicked(object sender, RoutedEventArgs e)
         {
@@ -440,14 +524,14 @@ namespace ContourUI
         private void MenuOperationRotateLeft_Clicked(object sender, RoutedEventArgs e)
         {
             bitmap.RotateLeft();
-            ExposedImage.Source = bitmap.ImageData;
+            Picture.Source = bitmap.ImageData;
            
         }
 
         private void MenuOperationRotateRight_Clicked(object sender, RoutedEventArgs e)
         {
             bitmap.RotateRight();
-            ExposedImage.Source = bitmap.ImageData;
+            Picture.Source = bitmap.ImageData;
             
         }
         private async void MenuHelpAbout_Clicked(object sender, RoutedEventArgs e)

@@ -128,7 +128,13 @@
             <!-- Image -->
             <Rectangle Grid.Column="0" Fill="White" Margin="25,0,25,15" 
                    Visibility="Visible"/>
-            <Image  x:Name="ExposedImage" Grid.Column="0"  Margin="25,0,25,15"  />
+            <Grid x:Name="PictureArea" Grid.Column="0" Margin="25,0,25,15">
+                <ScrollViewer x:Name="PictureScroll" MinZoomFactor="1" ZoomMode="Enabled"
+                              HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible" 
+                              VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible">
+                    <Image  x:Name="Picture"/>
+                </ScrollViewer>
+             </Grid>
             <!-- Palette -->
             <!-- Grid.Column="1" Fill="#FFA0A0A0" Margin="25,25,25,15" / -->
             <local:PalettePanel x:Name="Palette" Grid.Column ="1" Margin="0,0,25,15"/>
