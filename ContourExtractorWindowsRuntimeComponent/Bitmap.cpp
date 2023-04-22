@@ -299,7 +299,6 @@ void ContourBitmap::RotateLeft()
 	SaveOriginalImageData();
 }
 
-
 void ContourBitmap::RotateRight()
 {
 	m_BufferBitmap = ref new WriteableBitmap(m_Bitmap->PixelHeight, m_Bitmap->PixelWidth);
@@ -349,8 +348,6 @@ void ContourBitmap::ClearRectangleArea(int left_top_x, int left_top_y, int size)
 	return;
 }
 
-
-
 /// <summary>
 /// Split color image to levels. Every level contains pixels of one color.
 /// For each color in original image function create separate level.
@@ -399,13 +396,9 @@ int ContourBitmap::ExtractLevels()
 }
 
 
-IAsyncOperation<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelColor)
+IAsyncActionWithProgress<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelColor)
 {
-	return create_async([this, levelColor]()->int
-		{
-			return m_Levels[levelColor]->FindAllContours();
-		}
-	);
+	return m_Levels[levelColor]->FindAllContours();
 }
 
 

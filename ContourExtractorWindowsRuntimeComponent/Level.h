@@ -1,12 +1,14 @@
 ﻿#pragma once
 #include <ctime>
 #include <map>
+#include <ppltasks.h>
 #include "Contour.h"
 #include "Color.h"
 
-
-
 using namespace std;
+using namespace concurrency;
+using namespace Windows::Foundation;
+
 
 namespace ContourExtractorWindowsRuntimeComponent
 {
@@ -57,7 +59,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Contour* FindExternalContour();
 		Contour* FindInternalContour(Contour* parentContour);
 		void EraseShape(Contour* externalContour, Contour*  internalContour);
-		int FindAllContours();
+		IAsyncActionWithProgress<int>^ FindAllContours();
 
 		void FillContour(Contour* contour, unsigned char color);
 		void RestoreContourContent(Contour* contour);

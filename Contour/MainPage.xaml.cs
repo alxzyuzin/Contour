@@ -10,6 +10,7 @@
 using ContourExtractorWindowsRuntimeComponent;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Printing;
+
 
 namespace ContourUI
 {
@@ -46,9 +48,7 @@ namespace ContourUI
 
         PrintMediaSize _printMediaSize;
         PrintOrientation _printOrientation;
-        //double _actualImageWidth;
-        //double _actualImageHeight;
-        //private bool _printCompleted = false;
+    
         private PrintManager printMan;
         private PrintDocument printDoc;
         private IPrintDocumentSource printDocSource;
@@ -115,7 +115,7 @@ namespace ContourUI
             //printTask.Options.PrintQuality = PrintQuality.Normal;
             // Choose the printer options to be shown.
             // The order in which the options are appended determines the order in which they appear in the UI
-            //displayedOptions.Clear();
+            displayedOptions.Clear();
             //displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Copies);
             //displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Orientation);
             displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.MediaSize);
@@ -420,8 +420,7 @@ namespace ContourUI
         {
             if (ApplicationStatus.ImageLoaded)
             {
-                ApplicationStatus.ProgressValue = 0;
-                ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
+                Progress.Show(ProgressPanel.ProgressPanelType.ProgressBar);
                 IAsyncActionWithProgress<double> asyncAction = null;
                 if (Options.ConversionType == TypeOfConvertion.Grayscale)
                 {
@@ -434,8 +433,8 @@ namespace ContourUI
 
                 asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
                 {
-                    double i = progress;
-                    ApplicationStatus.ProgressValue = ((float)progress);
+                   Progress.ProgressValue = ((float)progress);
+                   
                 });
                 await asyncAction;
 
@@ -445,7 +444,8 @@ namespace ContourUI
                 ApplicationStatus.ImageConverted = true;
                 ApplicationStatus.DisplayConverted = true;
                 bitmap.Invalidate();
-                ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
+                Progress.Hide();
+                
             }
             else
             {
@@ -463,22 +463,19 @@ namespace ContourUI
         private async void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
         {
             var starttime = DateTime.Now;
-
-            ApplicationStatus.ProgressValue = 0;
-            ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
+            Progress.Show(ProgressPanel.ProgressPanelType.ProgressBar);
             IAsyncActionWithProgress<double> asyncAction = null;
             asyncAction = bitmap.CleanUpImageAsync(Options.CleanupValue);
             asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
             {
-                double i = progress;
-                ApplicationStatus.ProgressValue = ((float)progress);
+                Progress.ProgressValue = ((float)progress);
             });
             await asyncAction;
 
             bitmap.ExtractLevels();
             Palette.Build(bitmap.Colors);
             bitmap.Invalidate();
-            ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
+            Progress.Hide();
             Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
          }
 
@@ -489,33 +486,36 @@ namespace ContourUI
             if (ApplicationStatus.ImageConverted)
             {
                 ApplicationStatus.ProgressValue = 0;
-                int progress = 0;
+                int totalProgress = 0;
                 ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
+
+                Progress.Show(ProgressPanel.ProgressPanelType.Counter);
 
                 int numberOfLevels = bitmap.LevelsCount;
 
                 ApplicationStatus.NumberOfLevels = numberOfLevels;
 
-                List<Windows.Foundation.IAsyncOperation<int>> taskList = new List<Windows.Foundation.IAsyncOperation<int>>();
+                List<IAsyncActionWithProgress<int>> taskList = new List<IAsyncActionWithProgress<int>>();
 
                 var starttime = DateTime.Now;
                 foreach (var color in Palette.ActiveColors)
-                    taskList.Add(bitmap.FindLevelContoursAsync(color.Key));
-
-
-                foreach (var task in taskList)
                 {
-                    await task;
-                    ApplicationStatus.ProgressValue = progress / Palette.ActiveColors.Count;
-                    ++progress;
+                    IAsyncActionWithProgress<int> asyncAction = null;
+                    asyncAction = bitmap.FindLevelContoursAsync(color.Key);
+                    asyncAction.Progress = new AsyncActionProgressHandler<int>((action, progress) =>
+                    {
+                        double i = progress;
+                        totalProgress += progress;
+                        Progress.CounterValue = totalProgress;
+                    });
+                    taskList.Add(asyncAction);
                 }
 
-
-                //bitmap.OutlineImage();
-                
+                foreach (var task in taskList)
+                     await task;
+ 
                 Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
-
-                ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
+                Progress.Hide();
                 ApplicationStatus.ImageOutlined = true;
                 ApplicationStatus.DisplayContour = true;
             }

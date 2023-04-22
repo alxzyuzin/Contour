@@ -132,6 +132,9 @@
     <Compile Include="PalettePanel.xaml.cs">
       <DependentUpon>PalettePanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ProgressPanel.xaml.cs">
+      <DependentUpon>ProgressPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserMessage.cs" />
   </ItemGroup>
@@ -181,6 +184,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PalettePanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ProgressPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

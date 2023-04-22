@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+//#include <ppltasks.h>
 #include "Level.h"
 
 
@@ -135,7 +136,6 @@ void Level::SetContoursToDisplayBuffer(unsigned int*  ImageData, ContourColors c
 	}
 }
 
-
 inline void Level::SetPixel(Point* point, unsigned char color)
 {
 	m_Buffer[point->Y * m_Width + point->X] = color;
@@ -145,8 +145,6 @@ inline void Level::SetPixel(int x, int y, unsigned char color)
 {
 	m_Buffer[y * m_Width + x] = color;
 }
-
-
 
 /*
 Ищет первую точку контура (первую попавшуюся точку области закрашенной цветом shapeColor.
@@ -363,33 +361,40 @@ Contour* Level::FindInternalContour(Contour* parentContour)
 	return contour;
 }
 
-int Level::FindAllContours()
+IAsyncActionWithProgress<int>^ Level::FindAllContours()
 {
-	Contour* externalContour = nullptr;
-	do
-	{
-		externalContour = FindExternalContour();
-		if (externalContour)
+	int contoursFound = 0;
+	return create_async([this](progress_reporter<int> reporter)
 		{
-			m_Contours.push_back(externalContour);
-			Contour* internalContour = nullptr;
+			int contoursFound = 0;
+			Contour* externalContour = nullptr;
 			do
 			{
-				internalContour = FindInternalContour(externalContour);
-				if (internalContour)
+				externalContour = FindExternalContour();
+				if (externalContour)
 				{
-					m_Contours.push_back(internalContour);
-					FillContour(internalContour, m_Color);
+					++contoursFound;
+					m_Contours.push_back(externalContour);
+					Contour* internalContour = nullptr;
+					do
+					{
+						internalContour = FindInternalContour(externalContour);
+						if (internalContour)
+						{
+							++contoursFound;
+							m_Contours.push_back(internalContour);
+							FillContour(internalContour, m_Color);
+						}
+					} while (internalContour);
+					FillContour(externalContour, EMPTY_COLOR);
 				}
-			} while (internalContour);
-			FillContour(externalContour, EMPTY_COLOR);
-		}
-	} while (externalContour);
+				reporter.report(contoursFound);
+			} while (externalContour);
 
-	// Restore data in the level buffer
-	memcpy(m_Buffer, m_BufferCopy,  m_BufferLength);
-
-	return (int)m_Contours.size();
+			// Restore data in the level buffer
+			memcpy(m_Buffer, m_BufferCopy, m_BufferLength);
+		});
+	//return (int)m_Contours.size();
 }
 
 /*

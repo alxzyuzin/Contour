@@ -19,6 +19,15 @@
             <Setter Property="FontSize" Value="15"/>
         </Style>
 
+        <Style x:Name="CancelButton" TargetType="Button">
+            
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="20,5,0,5"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Background" Value="#FFcFcFcF"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+
         <Style x:Name="DisplayLayersStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="13"/>
@@ -48,7 +57,7 @@
             <RowDefinition Height="*"/>
             <!-- View options and status row -->
             <RowDefinition Height="70px"/>
-            <RowDefinition Height="30px"/>
+            <RowDefinition Height="60px"/>
             
         </Grid.RowDefinitions>
         
@@ -156,25 +165,21 @@
         <!-- Status line -->
         <Grid Grid.Row="3" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="600"/>
              </Grid.ColumnDefinitions>
             
             <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                 <TextBlock Text="File name:" Style="{StaticResource StatusTextBlocksStyle}"/>
-                <TextBlock Text="{Binding ImageFileName}"   Style="{StaticResource StatusTextBlocksStyle}"/>
-                <TextBlock Text=" |  Conversion mode:"      Style="{StaticResource StatusTextBlocksStyle}"/>
-                <TextBlock Text="{Binding ConversionMode}"  Style="{StaticResource StatusTextBlocksStyle}"/>
-                <TextBlock Text=" |  Number of colors:"     Style="{StaticResource StatusTextBlocksStyle}"/>
-                <TextBlock Text="{Binding NumberOfLevels}"  Style="{StaticResource StatusTextBlocksStyle}"/>
-                <TextBlock Text=" !  Time spended:"         Style="{StaticResource StatusTextBlocksStyle}"/>
-                <TextBlock Text="{Binding TimeSpended}"     Style="{StaticResource StatusTextBlocksStyle}"/>
+                <TextBlock Text="{Binding ImageFileName}"    Style="{StaticResource StatusTextBlocksStyle}"/>
+                <TextBlock Text=" |  Conversion mode:"       Style="{StaticResource StatusTextBlocksStyle}"/>
+                <TextBlock Text="{Binding ConversionMode}"   Style="{StaticResource StatusTextBlocksStyle}"/>
+                <TextBlock Text=" |  Number of colors:"      Style="{StaticResource StatusTextBlocksStyle}"/>
+                <TextBlock Text="{Binding NumberOfLevels}"   Style="{StaticResource StatusTextBlocksStyle}"/>
+                
             </StackPanel>
-
-            <ProgressBar Grid.Column="1" Margin="30,0,30,0" Minimum="0" Value="{Binding ProgressValue}" Maximum="1" Height="10"  Background="White"
-                         Foreground="Orange"
-                         Visibility="{Binding ProgressBarVisibility}"/>
-           
+            <!-- Progress information -->
+            <local:ProgressPanel x:Name="Progress" Grid.Column ="1" Margin="20,0,25,0" Visibility="Collapsed"/>
         </Grid>
 
         <local:MessageBox x:Name="MsgBox" Grid.Row="0" Grid.Column="0" 
