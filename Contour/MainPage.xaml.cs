@@ -56,6 +56,9 @@ namespace ContourUI
         public MainPage()
         {
             InitializeComponent();
+
+            this.RequestedTheme = ElementTheme.Default;
+
             OptionsWindow.DataContext = Options;
             Options.Restore();
             gridMain.DataContext = ApplicationStatus;
@@ -66,6 +69,8 @@ namespace ContourUI
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
             Palette.PropertyChanged += Palette_PropertyChanged;
             PictureArea.SizeChanged += PictureArea_SizeChanged;
+
+            
         }
 
         private void PictureArea_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -85,6 +90,7 @@ namespace ContourUI
                 {
                     Picture.Height = PictureArea.ActualHeight;
                 }
+                //Picture.Width = PictureArea.ActualWidth;
                 Picture.HorizontalAlignment = HorizontalAlignment.Center;
                 Picture.VerticalAlignment = VerticalAlignment.Center;
             }
@@ -103,6 +109,10 @@ namespace ContourUI
             printDoc.Paginate += Paginate;
             printDoc.GetPreviewPage += GetPreviewPage;
             printDoc.AddPages += AddPages;
+
+            ApplicationStatus.ImageLoaded = false;
+            ApplicationStatus.ImageConverted = false;
+            ApplicationStatus.ImageOutlined = false;
         }
 
         private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs args)
@@ -228,7 +238,7 @@ namespace ContourUI
         private void ApplicationStatus_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             // Disable Display Converted/Original toggle switch if image hided 
-            ApplicationStatus.ImageConverted = !ApplicationStatus.HideImage;
+           // ApplicationStatus.ImageConverted = !ApplicationStatus.HideImage;
 
             if (e.PropertyName == "HideImage" || e.PropertyName == "DisplayConverted" || e.PropertyName == "DisplayContour")
             {
@@ -307,6 +317,8 @@ namespace ContourUI
                 AjustPictureSizeToPictureArea();
                 _pictureWidthToHeightRatio = props.Width / props.Height;
                 ApplicationStatus.ImageLoaded = true;
+                ApplicationStatus.ImageConverted = false;
+                ApplicationStatus.ImageOutlined = false;
                 Palette.Clear();
             }
             else
@@ -442,6 +454,7 @@ namespace ContourUI
                 this.Palette.Build(bitmap.Colors);
 
                 ApplicationStatus.ImageConverted = true;
+                ApplicationStatus.ImageOutlined = false;
                 ApplicationStatus.DisplayConverted = true;
                 bitmap.Invalidate();
                 Progress.Hide();
