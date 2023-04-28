@@ -18,37 +18,32 @@ using Windows.UI.Xaml.Navigation;
 
 namespace ContourUI
 {
-    public sealed partial class ProgressPanel : UserControl, INotifyPropertyChanged
+    public sealed partial class ProgressCounterPanel : UserControl, INotifyPropertyChanged
     {
-        public enum ProgressPanelType { ProgressBar, Counter}
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public ProgressPanel()
+        public ProgressCounterPanel()
         {
             this.InitializeComponent();
             this.DataContext = this;
-            this.Visibility = Visibility.Collapsed;
         }
 
-        private float _progress = 0;
-        public float ProgressValue
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private string _title = string.Empty;
+        public string Title
         {
-            get => _progress;
-            
+            get => _title;
+
             set
             {
-               if (_progress != value)
+                if (_title != value)
                 {
-                    _progress = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressValue)));
+                    _title = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Title)));
                 }
             }
         }
 
         private int _counter = 0;
-
-       
-
         public int CounterValue
         {
             get => _counter;
@@ -63,27 +58,15 @@ namespace ContourUI
             }
         }
 
-
-        public void Show(ProgressPanelType progressPanelType)
+        public void Show()
         {
-            switch (progressPanelType) 
-            {
-                case ProgressPanelType.ProgressBar:
-                    ActionProgress.Visibility = Visibility.Visible; break;
-                case ProgressPanelType.Counter:
-                    ActionCounter.Visibility = Visibility.Visible;   break;
-            }
-            this.Visibility = Visibility.Visible;   
+            this.Visibility = Visibility.Visible;
         }
 
 
         public void Hide()
         {
-            ActionProgress.Visibility = Visibility.Collapsed;
-            ActionCounter.Visibility = Visibility.Collapsed;
             this.Visibility = Visibility.Collapsed;
         }
     }
-
-   
 }

@@ -7,6 +7,7 @@
  *
  ---------------------------------------------------------------------------------*/
 
+using ContourUI;
 using ContourExtractorWindowsRuntimeComponent;
 using System;
 using System.Collections.Generic;
@@ -432,21 +433,21 @@ namespace ContourUI
         {
             if (ApplicationStatus.ImageLoaded)
             {
-                Progress.Show(ProgressPanel.ProgressPanelType.ProgressBar);
                 IAsyncActionWithProgress<double> asyncAction = null;
                 if (Options.ConversionType == TypeOfConvertion.Grayscale)
                 {
-                    asyncAction = bitmap.ConvertToGrayscaleAsync(Options.NumberOfColors);
+                    ProgressBar.Title = "Converting to grayscale.";
+                     asyncAction = bitmap.ConvertToGrayscaleAsync(Options.NumberOfColors);
                 }
                 if (Options.ConversionType == TypeOfConvertion.ReducedColors)
                 {
+                    ProgressBar.Title = "Reduce number of image colors.";
                     asyncAction = bitmap.ConvertToReducedColorsAsync(Options.NumberOfColors);
                 }
-
+                ProgressBar.Show();
                 asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
                 {
-                   Progress.ProgressValue = ((float)progress);
-                   
+                   ProgressBar.ProgressValue = progress;
                 });
                 await asyncAction;
 
@@ -457,9 +458,8 @@ namespace ContourUI
                 ApplicationStatus.ImageOutlined = false;
                 ApplicationStatus.DisplayConverted = true;
                 bitmap.Invalidate();
-                Progress.Hide();
-                
-            }
+                ProgressBar.Hide();
+              }
             else
             {
                 UserMessage message = new UserMessage()
@@ -476,34 +476,35 @@ namespace ContourUI
         private async void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
         {
             var starttime = DateTime.Now;
-            Progress.Show(ProgressPanel.ProgressPanelType.ProgressBar);
+            ProgressBar.Title = "Cleaning.";
+            ProgressBar.Show();
             IAsyncActionWithProgress<double> asyncAction = null;
             asyncAction = bitmap.CleanUpImageAsync(Options.CleanupValue);
             asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
             {
-                Progress.ProgressValue = ((float)progress);
+                ProgressBar.ProgressValue = progress;
             });
             await asyncAction;
 
             bitmap.ExtractLevels();
             Palette.Build(bitmap.Colors);
             bitmap.Invalidate();
-            Progress.Hide();
+            ProgressBar.Hide();
             Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
          }
 
         private async void MenuOperationOutline_Clicked(object sender, RoutedEventArgs e)
         {
             ApplicationStatus.DisplayContour = false;
-
+            
             if (ApplicationStatus.ImageConverted)
             {
+                ProgressCounter.Title = "Searching for contours.";
+                ProgressCounter.Show();
+
                 ApplicationStatus.ProgressValue = 0;
                 int totalProgress = 0;
-                ApplicationStatus.ProgressBarVisibility = Visibility.Visible;
-
-                Progress.Show(ProgressPanel.ProgressPanelType.Counter);
-
+               
                 int numberOfLevels = bitmap.LevelsCount;
 
                 ApplicationStatus.NumberOfLevels = numberOfLevels;
@@ -519,7 +520,7 @@ namespace ContourUI
                     {
                         double i = progress;
                         totalProgress += progress;
-                        Progress.CounterValue = totalProgress;
+                        ProgressCounter.CounterValue = totalProgress;
                     });
                     taskList.Add(asyncAction);
                 }
@@ -528,7 +529,7 @@ namespace ContourUI
                      await task;
  
                 Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
-                Progress.Hide();
+                ProgressCounter.Hide();
                 ApplicationStatus.ImageOutlined = true;
                 ApplicationStatus.DisplayContour = true;
             }

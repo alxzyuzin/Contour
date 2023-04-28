@@ -185,8 +185,7 @@
                 <TextBlock Text="{Binding NumberOfLevels}"   Style="{StaticResource StatusTextBlocksStyle}"/>
                 
             </StackPanel>
-            <!-- Progress information -->
-            <local:ProgressPanel x:Name="Progress" Grid.Column ="1" Margin="20,0,25,0" Visibility="Collapsed"/>
+           
         </Grid>
 
         <local:MessageBox x:Name="MsgBox" Grid.Row="0" Grid.Column="0" 
@@ -197,6 +196,11 @@
 
         <local:AboutContour x:Name="AboutWindow" Grid.Row="0" Grid.Column="0" 
                          Grid.RowSpan="4" Visibility="Collapsed" InnerBoxHeight="240" InnerBoxWidth="300" />
+
+        <!-- Progress information -->
+        <local:ProgressBarPanel x:Name="ProgressBar" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Visibility="Collapsed"/>
+        <local:ProgressCounterPanel x:Name="ProgressCounter" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Visibility="Collapsed"/>
+
     </Grid>
 
 </Page>
