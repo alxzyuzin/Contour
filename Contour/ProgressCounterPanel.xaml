@@ -7,7 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="200"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+ 
+    >
 
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
@@ -33,7 +35,9 @@
                            Margin="20,0,20,0" VerticalAlignment="Center"/>
                 <TextBlock Text=" contours foud."          Style="{StaticResource ProgressTextBlocksStyle}"/>
             </StackPanel>
-            <Button  Grid.Row="2" HorizontalAlignment="Right" Content="Cancel" Style="{StaticResource ProgressCancelButtonStyle}"/>
+            <Button  Grid.Row="2" HorizontalAlignment="Right" Content="Cancel" 
+                     Style="{StaticResource ProgressCancelButtonStyle}"
+                     Tapped="ButtonCancel_Tapped" />
         </Grid>
     </Grid>
 </UserControl>

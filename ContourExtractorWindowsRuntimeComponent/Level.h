@@ -47,6 +47,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	public:
 		Level();
+		Level(int width, int height);
 		Level(int width, int height, pair<unsigned int, unsigned char> colorPair, unsigned int* imageData);
 				
 		~Level();

@@ -152,35 +152,50 @@ namespace ContourUI
             }
         }
 
-        private double _progressValue = 0;
-        public double ProgressValue
+        private int _numberOfColors = 0;
+        public int NumberOfColors
         {
-            get => _progressValue;
+            get => _numberOfColors;
             set
             {
-                if (_progressValue != value)
+                if (_numberOfColors != value)
                 {
-                    _progressValue = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressValue)));
+                    _numberOfColors = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NumberOfColors)));
                 }
 
             }
         }
 
-        private Visibility _progressBarVisibility = 0;
-        public Visibility ProgressBarVisibility
-        {
-            get => _progressBarVisibility;
-            set
-            {
-                if (_progressBarVisibility != value)
-                {
-                    _progressBarVisibility = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressBarVisibility)));
-                }
+        //private double _progressValue = 0;
+        //public double ProgressValue
+        //{
+        //    get => _progressValue;
+        //    set
+        //    {
+        //        if (_progressValue != value)
+        //        {
+        //            _progressValue = value;
+        //            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressValue)));
+        //        }
 
-            }
-        }
+        //    }
+        //}
+
+        //private Visibility _progressBarVisibility = 0;
+        //public Visibility ProgressBarVisibility
+        //{
+        //    get => _progressBarVisibility;
+        //    set
+        //    {
+        //        if (_progressBarVisibility != value)
+        //        {
+        //            _progressBarVisibility = value;
+        //            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressBarVisibility)));
+        //        }
+
+        //    }
+        //}
 
         public void Reset()
         {
@@ -193,8 +208,9 @@ namespace ContourUI
             ImageFileName = string.Empty;
             NumberOfContours = 0;
             NumberOfLevels = 0;
-            ProgressValue = 0;
-            ProgressBarVisibility = Visibility.Collapsed;
+            NumberOfColors = 0;
+            //ProgressValue = 0;
+            //ProgressBarVisibility = Visibility.Collapsed;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -20,10 +21,15 @@ namespace ContourUI
 {
     public sealed partial class ProgressCounterPanel : UserControl, INotifyPropertyChanged
     {
+        public event TappedEventHandler CancelButtonTapped;
+        //public delegate void TappedEventHandler([In] object sender, [In] TappedRoutedEventArgs e);
         public ProgressCounterPanel()
         {
             this.InitializeComponent();
             this.DataContext = this;
+
+            Button b = new Button();
+            b.Tapped += null;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -67,6 +73,11 @@ namespace ContourUI
         public void Hide()
         {
             this.Visibility = Visibility.Collapsed;
+        }
+
+        private void ButtonCancel_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            CancelButtonTapped?.Invoke(this, e);
         }
     }
 }

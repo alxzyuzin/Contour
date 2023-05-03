@@ -41,18 +41,21 @@ namespace ContourUI
         private readonly GeneralOptions Options = new GeneralOptions();
         readonly AppStatus ApplicationStatus = new AppStatus();
         private ContourBitmap bitmap = null;
-        private double _pictureWidthToHeightRatio = 1;
+        //private double _pictureWidthToHeightRatio = 1;
 
         private string _imageFileNameExtention;
         private string _imageFilePath;
 
 
-        PrintMediaSize _printMediaSize;
-        PrintOrientation _printOrientation;
+        private PrintMediaSize _printMediaSize;
+        private PrintOrientation _printOrientation;
     
         private PrintManager printMan;
         private PrintDocument printDoc;
         private IPrintDocumentSource printDocSource;
+
+       //private IAsyncActionWithProgress<double> asyncAction = null;
+        private System.Threading.CancellationTokenSource _cancelationTokenSource = new System.Threading.CancellationTokenSource();
 
         public MainPage()
         {
@@ -64,13 +67,13 @@ namespace ContourUI
             Options.Restore();
             gridMain.DataContext = ApplicationStatus;
             ApplicationStatus.PropertyChanged += ApplicationStatus_PropertyChanged;
-            ApplicationStatus.ProgressValue = 0;
-            ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
+            //ApplicationStatus.ProgressValue = 0;
+            //ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
+            ApplicationStatus.NumberOfColors = Options.NumberOfColors;
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
             Palette.PropertyChanged += Palette_PropertyChanged;
             PictureArea.SizeChanged += PictureArea_SizeChanged;
-
             
         }
 
@@ -302,7 +305,7 @@ namespace ContourUI
 
             if (file != null)
             {
-                ApplicationStatus.Reset();
+                //ApplicationStatus.Reset();
 
                 ApplicationStatus.ImageFileName = file.Name;
                 _imageFilePath = file.Path.Replace(ApplicationStatus.ImageFileName, "");
@@ -316,10 +319,11 @@ namespace ContourUI
                 bitmap.SetSource(stream);
                 Picture.Source = bitmap.ImageData;
                 AjustPictureSizeToPictureArea();
-                _pictureWidthToHeightRatio = props.Width / props.Height;
+                //_pictureWidthToHeightRatio = props.Width / props.Height;
                 ApplicationStatus.ImageLoaded = true;
                 ApplicationStatus.ImageConverted = false;
                 ApplicationStatus.ImageOutlined = false;
+                
                 Palette.Clear();
             }
             else
@@ -413,8 +417,6 @@ namespace ContourUI
                 await noPrintingDialog.ShowAsync();
             }
         }
-
-
         #endregion
         private void MenuFileExit_Clicked(object sender, RoutedEventArgs e)
         {
@@ -431,36 +433,8 @@ namespace ContourUI
 
         private async void MenuOperationConvert_Clicked(object sender, RoutedEventArgs e)
         {
-            if (ApplicationStatus.ImageLoaded)
-            {
-                IAsyncActionWithProgress<double> asyncAction = null;
-                if (Options.ConversionType == TypeOfConvertion.Grayscale)
-                {
-                    ProgressBar.Title = "Converting to grayscale.";
-                     asyncAction = bitmap.ConvertToGrayscaleAsync(Options.NumberOfColors);
-                }
-                if (Options.ConversionType == TypeOfConvertion.ReducedColors)
-                {
-                    ProgressBar.Title = "Reduce number of image colors.";
-                    asyncAction = bitmap.ConvertToReducedColorsAsync(Options.NumberOfColors);
-                }
-                ProgressBar.Show();
-                asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
-                {
-                   ProgressBar.ProgressValue = progress;
-                });
-                await asyncAction;
-
-                bitmap.ExtractLevels();
-                this.Palette.Build(bitmap.Colors);
-
-                ApplicationStatus.ImageConverted = true;
-                ApplicationStatus.ImageOutlined = false;
-                ApplicationStatus.DisplayConverted = true;
-                bitmap.Invalidate();
-                ProgressBar.Hide();
-              }
-            else
+           
+            if (!ApplicationStatus.ImageLoaded)
             {
                 UserMessage message = new UserMessage()
                 {
@@ -470,7 +444,60 @@ namespace ContourUI
                     BoxHeight = 150
                 };
                 await DisplayMessage(message);
+                return;
             }
+
+            this.Palette.Clear();
+            ProgressBar.ProgressValue = 0;
+            IAsyncActionWithProgress<double> asyncAction1 = null;
+            if (Options.ConversionType == TypeOfConvertion.Grayscale)
+            {
+                ProgressBar.Title = "Converting to grayscale.";
+                asyncAction1 = bitmap.ConvertToGrayscaleAsync(Options.NumberOfColors);
+            }
+            if (Options.ConversionType == TypeOfConvertion.ReducedColors)
+            {
+                ProgressBar.Title = "Reduce number of image colors.";
+                asyncAction1 = bitmap.ConvertToReducedColorsAsync(Options.NumberOfColors);
+            }
+            ProgressBar.Show();
+            asyncAction1.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
+            {
+                ProgressBar.ProgressValue = progress;
+            });
+
+            try
+            {
+                await asyncAction1;
+                ProgressBar.Title = "Extract colors.";
+                ProgressBar.ProgressValue = 0;
+                IAsyncActionWithProgress<double> asyncAction2 = bitmap.ExtractLevelsAsync(Options.NumberOfColors);
+                asyncAction2.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
+                {
+                    ProgressBar.ProgressValue = progress;
+                });
+
+                await asyncAction2;
+                try
+                {
+                    this.Palette.Build(bitmap.Colors);
+                }
+                catch(Exception ex)
+                {
+                    int i = 0;
+                }
+                ApplicationStatus.ImageConverted = true;
+                ApplicationStatus.ImageOutlined = false;
+                ApplicationStatus.DisplayConverted = true;
+                bitmap.Invalidate();
+               
+            }
+            catch (TaskCanceledException ex)
+            {
+                AsyncStatus s = asyncAction1.Status;
+            }
+
+            ProgressBar.Hide();
         }
 
         private async void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
@@ -486,7 +513,7 @@ namespace ContourUI
             });
             await asyncAction;
 
-            bitmap.ExtractLevels();
+            await bitmap.ExtractLevelsAsync(Options.NumberOfColors);
             Palette.Build(bitmap.Colors);
             bitmap.Invalidate();
             ProgressBar.Hide();
@@ -502,7 +529,7 @@ namespace ContourUI
                 ProgressCounter.Title = "Searching for contours.";
                 ProgressCounter.Show();
 
-                ApplicationStatus.ProgressValue = 0;
+                //ApplicationStatus.ProgressValue = 0;
                 int totalProgress = 0;
                
                 int numberOfLevels = bitmap.LevelsCount;
@@ -551,8 +578,14 @@ namespace ContourUI
         private async void MenuHelpAbout_Clicked(object sender, RoutedEventArgs e)
         {
             await AboutWindow.Show();
+            
         }
 
+        private void Progress_CancelButtonTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            bitmap.CancelOperation();
+           
+        }
     } // End of MainPage class definition
 
 }

@@ -153,6 +153,11 @@ void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 	SaveOriginalImageData();
 }
 
+void ContourExtractorWindowsRuntimeComponent::ContourBitmap::CancelOperation()
+{
+	m_CancellationTokenSource->cancel();
+}
+
 /// <summary>
 /// Convert original color image into grayscale with defined number of gray tints
 /// </summary>
@@ -356,43 +361,52 @@ void ContourBitmap::ClearRectangleArea(int left_top_x, int left_top_y, int size)
 /// other pixels set to color 0xFF (mean empty color)
 /// </summary>
 /// <param name="conversionType"></param>
-int ContourBitmap::ExtractLevels()
+IAsyncActionWithProgress<double>^ ContourBitmap::ExtractLevelsAsync(int numcolors)
 {
-	map<unsigned int, unsigned char> colormap;
-		
-	// Build list of color in image
-	for (int i = 0; i < m_uintPixelBufferLength; i++)
-	{
-		unsigned int c = m_PixelBuffer[i];
-		// If pixel color not in the list of colos add it to list
-		if (colormap.count(c) == 0)
-		{
-			colormap.insert(pair<unsigned int, unsigned char>(c, 0x00));
-		}
-	}
-	
 	// Delete results of previouse extracting levels
 	for (auto& l : m_Levels)
 		delete l.second;
 	m_Levels.clear();
 	
-	// Move each color into separate buffer
-	// Variable m_Levels contains list of levels (objects of class Level). Each Level presents slice of image by one color
-	// Levels data stored in byte array. Each pixel of source image represents with one byte in level data.
-	// Level constructor extract pixels with color defaned by parameter levelColor from m_pPixelBuffer
-	// and create slice of source image by color levelColor
-	// Create new levels
-	for (pair<unsigned int, unsigned char> colorPair : colormap)
-	{
-		m_Levels.insert(pair<unsigned int, Level*>(colorPair.first, new Level(m_Width, m_Height, colorPair, m_PixelBuffer)));
-	}
-	// Sort array of levels by level color
-	//std::sort(m_Levels.begin(), m_Levels.end(), [](pair<unsigned int, Level*>& a, pair<unsigned int, Level*>& b)
-	//	{
-	//		return true;// a.second->m_OriginalColor < b.second->m_OriginalColor;
-	//	});
+	m_CancellationTokenSource = new cancellation_token_source();
+	cancellation_token cancellationToken = m_CancellationTokenSource->get_token();
 	
-	return (int)m_Levels.size();
+	return create_async([this, numcolors, cancellationToken](progress_reporter<double> reporter)
+	{
+			ContourBitmap^ _this = this;
+			return create_task([_this, numcolors, cancellationToken,  reporter]()
+				{
+					double progress = 0;
+					
+					map<unsigned int, unsigned char> colormap;
+					reporter.report(++progress / numcolors);
+					// Build list of color in image
+					for (int i = 0; i < _this->m_uintPixelBufferLength; i++)
+					{
+						if (cancellationToken.is_canceled())
+							cancel_current_task();
+						unsigned int c = _this->m_PixelBuffer[i];
+						// If pixel color not in the list of colos add it to list
+						if (colormap.count(c) == 0)
+						{
+							pair<unsigned int, unsigned char> colorPair;
+							colorPair.first = c;
+							colorPair.second = 0x00;
+							//colormap.insert(pair<unsigned int, unsigned char>(c, 0x00));
+							colormap.insert(colorPair);
+							_this->m_Levels.insert(pair<unsigned int, Level*>(colorPair.first, new Level(_this->m_Width, _this->m_Height, colorPair, _this->m_PixelBuffer)));
+							reporter.report(++progress / numcolors);
+						}
+					}
+				});
+
+		// Sort array of levels by level color
+		//std::sort(m_Levels.begin(), m_Levels.end(), [](pair<unsigned int, Level*>& a, pair<unsigned int, Level*>& b)
+		//	{
+		//		return true;// a.second->m_OriginalColor < b.second->m_OriginalColor;
+		//	});
+	});
+	
 }
 
 

@@ -95,7 +95,7 @@ namespace ContourUI
                     }
                     else
                     {
-                        _arrNumberOfColorsList = new byte[] { 2, 3, 5, 8, 13, 19, 32, 51, 83, 128 };
+                        _arrNumberOfColorsList = new byte[] { 2, 3, 5, 8, 13, 19, 32, 51, 83, 127 };
                     }
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConversionTypeName)));

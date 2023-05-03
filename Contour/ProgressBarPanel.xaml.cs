@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -9,6 +10,7 @@ namespace ContourUI
     public sealed partial class ProgressBarPanel : UserControl, INotifyPropertyChanged
     {
         //public enum ProgressPanelType { ProgressBar, Counter}
+        public event TappedEventHandler CancelButtonTapped;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public ProgressBarPanel()
@@ -58,6 +60,11 @@ namespace ContourUI
         public void Hide()
         {
              this.Visibility = Visibility.Collapsed;
+        }
+
+        private void ButtonCancel_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            CancelButtonTapped?.Invoke(this, e);
         }
     }
 

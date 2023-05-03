@@ -15,7 +15,7 @@
 #include "Level.h"
 #include "Color.h"
 
-
+using namespace concurrency;
 using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::Storage::Streams;
@@ -78,11 +78,12 @@ namespace ContourExtractorWindowsRuntimeComponent
 		
 		void Invalidate();
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
-		int  ExtractLevels();
-		IAsyncActionWithProgress<int>^  FindLevelContoursAsync(unsigned int levelColor);
+		void CancelOperation();
+		IAsyncActionWithProgress<double>^ ExtractLevelsAsync(int numcolors);
+		IAsyncActionWithProgress<int>^    FindLevelContoursAsync(unsigned int levelColor);
 		IAsyncActionWithProgress<double>^ ConvertToGrayscaleAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ ConvertToReducedColorsAsync(unsigned int numberOfColors);
-		IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size);
+		IAsyncActionWithProgress<double>^ CleanUpImageAsync(int size);
 		
 		void RotateLeft();
 		void RotateRight();
@@ -99,8 +100,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 		
 
-	/*internal:
-		ContourBitmap(int width, int height, unsigned int* imageData);*/
 	private:
 		unsigned int* GetPointerToWriteableBitmapPixelData(WriteableBitmap^ bitmap);
 		void SaveOriginalImageData();
@@ -109,6 +108,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void RestoreConvertedImageData();
 		void ClearRectangleArea(int x, int y, int size);
 
+		void ConvertToGrayscale(unsigned int numberOfColors, progress_reporter<double> reporter);
 		
 	private:	//Members
 		int m_Width;					// Image width in pixels
@@ -126,6 +126,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		//Windows::UI::Xaml::Controls::Page^ m_pMainPage;
 		
 		std::map<unsigned int, Level*> m_Levels;
+
+		cancellation_token_source* m_CancellationTokenSource;
+
 	};
 
 }

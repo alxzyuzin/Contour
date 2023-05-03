@@ -11,7 +11,7 @@
     >
 
     <Page.Resources>
-        
+
         <Color x:Key="darkThemeBackgroundColor">#00FFFFFF</Color>
         <Color x:Key="lightThemeBackgroundColor">#00FFFFFF</Color>
         <!--<Color x:Key="darkThemeBackgroundColor">#87FFFFFF</Color>
@@ -27,7 +27,7 @@
         </Style>
 
         <Style x:Name="CancelButton" TargetType="Button">
-            
+
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Margin" Value="20,5,0,5"/>
             <Setter Property="CornerRadius" Value="4"/>
@@ -41,7 +41,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
 
         </Style>
-<!--
+        <!--
         <Style x:Key="MenuFlyoutAcrilickThemeResources" TargetType="MenuFlyoutPresenter">
             <Setter Property="CornerRadius" Value="0" />
             <Setter Property="Padding" Value="0,3" />
@@ -65,9 +65,9 @@
             <!-- View options and status row -->
             <RowDefinition Height="70px"/>
             <RowDefinition Height="60px"/>
-            
+
         </Grid.RowDefinitions>
-        
+
         <muxc:MenuBar x:Name="menuMain" Grid.Row="0" Height="50"  Margin="0,-6,0,10" 
                      Background="Transparent"  >
             <muxc:MenuBarItem Title="File" FocusVisualMargin="2" CornerRadius="0" >
@@ -133,7 +133,7 @@
             </muxc:MenuBarItem>
 
             <muxc:MenuBarItem Title="Help">
-                 <MenuFlyoutItem x:Name="mfiAbout" Text="About" Click="MenuHelpAbout_Clicked"/>
+                <MenuFlyoutItem x:Name="mfiAbout" Text="About" Click="MenuHelpAbout_Clicked"/>
             </muxc:MenuBarItem>
         </muxc:MenuBar>
         <Grid Grid.Row="1" Visibility="Visible">
@@ -150,7 +150,7 @@
                               VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible">
                     <Image  x:Name="Picture"/>
                 </ScrollViewer>
-             </Grid>
+            </Grid>
             <!-- Palette -->
             <!-- Grid.Column="1" Fill="#FFA0A0A0" Margin="25,25,25,15" / -->
             <local:PalettePanel x:Name="Palette" Grid.Column ="1" Margin="0,0,25,15"/>
@@ -172,20 +172,21 @@
         <!-- Status line -->
         <Grid Grid.Row="3" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="87*"/>
+                <ColumnDefinition Width="113*"/>
                 <ColumnDefinition Width="600"/>
-             </Grid.ColumnDefinitions>
-            
-            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Grid.ColumnSpan="3">
                 <TextBlock Text="File name:" Style="{StaticResource StatusTextBlocksStyle}"/>
                 <TextBlock Text="{Binding ImageFileName}"    Style="{StaticResource StatusTextBlocksStyle}"/>
                 <TextBlock Text=" |  Conversion mode:"       Style="{StaticResource StatusTextBlocksStyle}"/>
                 <TextBlock Text="{Binding ConversionMode}"   Style="{StaticResource StatusTextBlocksStyle}"/>
                 <TextBlock Text=" |  Number of colors:"      Style="{StaticResource StatusTextBlocksStyle}"/>
-                <TextBlock Text="{Binding NumberOfLevels}"   Style="{StaticResource StatusTextBlocksStyle}"/>
-                
+                <TextBlock Text="{Binding NumberOfColors}"   Style="{StaticResource StatusTextBlocksStyle}"/>
+
             </StackPanel>
-           
+
         </Grid>
 
         <local:MessageBox x:Name="MsgBox" Grid.Row="0" Grid.Column="0" 
@@ -198,8 +199,12 @@
                          Grid.RowSpan="4" Visibility="Collapsed" InnerBoxHeight="240" InnerBoxWidth="300" />
 
         <!-- Progress information -->
-        <local:ProgressBarPanel x:Name="ProgressBar" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Visibility="Collapsed"/>
-        <local:ProgressCounterPanel x:Name="ProgressCounter" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Visibility="Collapsed"/>
+        <local:ProgressBarPanel x:Name="ProgressBar" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" 
+                                CancelButtonTapped="Progress_CancelButtonTapped"
+                                Visibility="Collapsed"/>
+        <local:ProgressCounterPanel x:Name="ProgressCounter" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4"
+                                    CancelButtonTapped="Progress_CancelButtonTapped"
+                                    Visibility="Collapsed"/>
 
     </Grid>
 

@@ -8,6 +8,20 @@ using namespace ContourExtractorWindowsRuntimeComponent;
 
 Level::Level() {};
 
+Level::Level(int width, int height)
+{
+	if (width <= 0)
+		throw std::invalid_argument("parameter width <= 0");
+	if (height <= 0)
+		throw std::invalid_argument("parameter width <= 0");
+	
+
+	m_Width = width;
+	m_Height = height;
+	m_BufferLength = width * height;
+	m_Buffer = new unsigned char[m_BufferLength];
+	m_BufferCopy = new unsigned char[m_BufferLength];
+}
 
 Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair, unsigned int* imageData)
 {
