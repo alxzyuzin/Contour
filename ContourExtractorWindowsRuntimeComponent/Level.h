@@ -26,6 +26,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 	private:	 // Members
 		int m_Width;
 		int m_Height;
+		vector<unsigned char>* m_B;
+		vector<unsigned char>* m_BC;
 		unsigned char* m_Buffer;
 		unsigned char* m_BufferCopy;
 		int m_BufferLength;
@@ -48,7 +50,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 	public:
 		Level();
 		Level(int width, int height);
-		Level(int width, int height, pair<unsigned int, unsigned char> colorPair, unsigned int* imageData);
+		Level(int width, int height, unsigned int originalColor, unsigned int* imageData);
 				
 		~Level();
 		void Clear();

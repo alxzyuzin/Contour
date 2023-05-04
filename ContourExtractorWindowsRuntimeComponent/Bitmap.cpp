@@ -68,6 +68,39 @@ int ContourBitmap::LevelsCount::get()
 	return (int) m_Levels.size();
 }
 
+
+//int ContourBitmap::AvailableColorsAmount::get()
+//{
+//	// Максимальный требуемый объём памяти для обработки изображения
+//	// (Ширина * высоту) - размер буфера в Level
+//	// умножить на 2 (два буфера)
+//	// умножить на количество цветов
+//	// + плюс память для хранения контуров ( подсчитаем позднее)
+//
+//	// Пытаемся выделить требуемый объём памяти
+//	bool memoryAllocated = false;
+//	int colorsNumber = 128;
+//	unsigned char* buffer = nullptr;
+//
+//	while (!memoryAllocated && colorsNumber > 1)
+//	{
+//		try
+//		{
+//			long requiredMemoryAmount = m_Width * m_Height * colorsNumber * 256;
+//			unsigned char* buffer = new unsigned char[requiredMemoryAmount];
+//			memoryAllocated = true;
+//		}
+//		catch (bad_alloc ex)
+//		{
+//			colorsNumber--;
+//		}
+//	}
+//
+//	delete[] buffer;
+//
+//	return colorsNumber;
+//}
+
 //-----------------------------------------------------------------------------
 // Public members
 //-----------------------------------------------------------------------------
@@ -155,8 +188,11 @@ void ContourBitmap::SetSource(IRandomAccessStream^ stream)
 
 void ContourExtractorWindowsRuntimeComponent::ContourBitmap::CancelOperation()
 {
-	m_CancellationTokenSource->cancel();
+	if (m_CancellationTokenSource != nullptr)
+		m_CancellationTokenSource->cancel();
 }
+
+
 
 /// <summary>
 /// Convert original color image into grayscale with defined number of gray tints
@@ -219,6 +255,9 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToGrayscaleAsync(unsigne
 
 IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(unsigned int numberOfColors)
 {
+	
+	m_CancellationTokenSource = new cancellation_token_source();
+	cancellation_token cancellationToken = m_CancellationTokenSource->get_token();
 	// Check if input parameter is correct
 	if (numberOfColors < 2 || numberOfColors > 128) throw ref new InvalidArgumentException();
 	return create_async([this, numberOfColors](progress_reporter<double> reporter)
@@ -246,9 +285,12 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 			ColorGroup* a = new ColorGroup();
 			ColorGroup* b = new ColorGroup();
 			cg->Split(a, b);
-			// Remove pointer to splitted color group from color groupss list and delete it from the list
-			colorGroups.erase(colorGroups.begin());
+
+			// Remove pointer to splitted color group from color groups list and delete it from the list
 			delete cg;
+			colorGroups.erase(colorGroups.begin());
+			int i =  colorGroups.size();
+			
 
 			// Add two new color groups to color groups list
 			colorGroups.push_back(a);
@@ -267,6 +309,12 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 					m_PixelBuffer[i] = group->AverageGroupColor();
 				}
 			}
+		}
+
+		colorGroups.clear();
+		for (ColorGroup* group : colorGroups)
+		{
+			delete group;
 		}
 		// Save converted image to the buffer for later use
 		SaveConvertedImageData();
@@ -363,10 +411,9 @@ void ContourBitmap::ClearRectangleArea(int left_top_x, int left_top_y, int size)
 /// <param name="conversionType"></param>
 IAsyncActionWithProgress<double>^ ContourBitmap::ExtractLevelsAsync(int numcolors)
 {
+	
 	// Delete results of previouse extracting levels
-	for (auto& l : m_Levels)
-		delete l.second;
-	m_Levels.clear();
+	DeleteAllLevels();
 	
 	m_CancellationTokenSource = new cancellation_token_source();
 	cancellation_token cancellationToken = m_CancellationTokenSource->get_token();
@@ -374,28 +421,59 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ExtractLevelsAsync(int numcolor
 	return create_async([this, numcolors, cancellationToken](progress_reporter<double> reporter)
 	{
 			ContourBitmap^ _this = this;
-			return create_task([_this, numcolors, cancellationToken,  reporter]()
+			return create_task([_this, numcolors, cancellationToken, reporter]()
 				{
+
+					/*bool memoryAllocated = false;
+					int colorsNumber = 128;
+					unsigned char* buffer = nullptr;
+
+					while (!memoryAllocated && colorsNumber > 1)
+					{
+						try
+						{
+							long requiredMemoryAmount = _this->m_Width * _this->m_Height * colorsNumber * 2;
+							unsigned char* buffer = new unsigned char[requiredMemoryAmount];
+							memoryAllocated = true;
+						}
+						catch (bad_alloc ex)
+						{
+							colorsNumber--;
+						}
+					}
+
+					delete[] buffer;*/
+
+
+					/*return;*/
+
 					double progress = 0;
-					
-					map<unsigned int, unsigned char> colormap;
+					set<unsigned int> colorset;
 					reporter.report(++progress / numcolors);
 					// Build list of color in image
 					for (int i = 0; i < _this->m_uintPixelBufferLength; i++)
 					{
 						if (cancellationToken.is_canceled())
-							cancel_current_task();
-						unsigned int c = _this->m_PixelBuffer[i];
-						// If pixel color not in the list of colos add it to list
-						if (colormap.count(c) == 0)
 						{
-							pair<unsigned int, unsigned char> colorPair;
-							colorPair.first = c;
-							colorPair.second = 0x00;
-							//colormap.insert(pair<unsigned int, unsigned char>(c, 0x00));
-							colormap.insert(colorPair);
-							_this->m_Levels.insert(pair<unsigned int, Level*>(colorPair.first, new Level(_this->m_Width, _this->m_Height, colorPair, _this->m_PixelBuffer)));
-							reporter.report(++progress / numcolors);
+							_this->DeleteAllLevels();
+							cancel_current_task();
+
+						}
+						unsigned int color = _this->m_PixelBuffer[i];
+						// If pixel color not in the list of colos add it to list
+						if (colorset.count(color) == 0)
+						{
+							try
+							{
+								Level* level = new Level(_this->m_Width, _this->m_Height, color, _this->m_PixelBuffer);
+								colorset.insert(color);
+								_this->m_Levels.insert(pair<unsigned int, Level*>(color, level));
+								reporter.report(++progress / numcolors);
+							}
+							catch (bad_alloc)
+							{
+								int k = 0;
+							}
 						}
 					}
 				});
@@ -409,7 +487,13 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ExtractLevelsAsync(int numcolor
 	
 }
 
-
+void ContourBitmap::DeleteAllLevels()
+{
+	for (auto& l : this->m_Levels)
+		delete l.second;
+	this->m_Levels.clear();
+	
+}
 IAsyncActionWithProgress<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelColor)
 {
 	return m_Levels[levelColor]->FindAllContours();
@@ -514,7 +598,29 @@ inline void ContourBitmap::RestoreConvertedImageData()
 	memcpy(m_PixelBuffer, m_pConvertedImageData, m_bytePixelBufferLength);
 }
 
+int ContourBitmap::GetPossibleNumberOfColors(int numberOfColors)
+{
+	vector<Level*> levels;
+	int i = 0;
+	try
+	{
+		for (; i < numberOfColors; i++)
+		{
+			Level* level = new Level(this->m_Width, this->m_Height, 0x000000000, this->m_PixelBuffer);
+			levels.push_back(level);
+		}
+	}
+	catch (bad_alloc)
+	{
+		for (Level* l : levels)
+		{
+			delete l;
+		}
+		levels.clear();
 
+	}
+	return i;
+}
 //======================================================================
 // Private functions
 //======================================================================

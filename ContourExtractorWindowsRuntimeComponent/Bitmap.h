@@ -72,6 +72,11 @@ namespace ContourExtractorWindowsRuntimeComponent
 			int get();
 		}
 
+		/*property int AvailableColorsAmount
+		{
+			int get();
+		}*/
+
 	public:
 		ContourBitmap();
 		ContourBitmap(int width, int height);
@@ -98,6 +103,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void DisplayContours(ContourColors color, int minContourLength, unsigned char contourDensity);
 		void Clear();
 
+		int GetPossibleNumberOfColors(int numberOfColors);
+		
+
 		
 
 	private:
@@ -108,7 +116,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void RestoreConvertedImageData();
 		void ClearRectangleArea(int x, int y, int size);
 
-		void ConvertToGrayscale(unsigned int numberOfColors, progress_reporter<double> reporter);
+		void DeleteAllLevels();
+
+		//void ConvertToGrayscale(unsigned int numberOfColors, progress_reporter<double> reporter);
 		
 	private:	//Members
 		int m_Width;					// Image width in pixels

@@ -67,14 +67,14 @@ namespace ContourUI
             Options.Restore();
             gridMain.DataContext = ApplicationStatus;
             ApplicationStatus.PropertyChanged += ApplicationStatus_PropertyChanged;
-            //ApplicationStatus.ProgressValue = 0;
-            //ApplicationStatus.ProgressBarVisibility = Visibility.Collapsed;
             ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
             ApplicationStatus.NumberOfColors = Options.NumberOfColors;
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
             Palette.PropertyChanged += Palette_PropertyChanged;
             PictureArea.SizeChanged += PictureArea_SizeChanged;
-            
+            ProgressBar.CancelButtonTapped += Progress_CancelButtonTapped;
+
+
         }
 
         private void PictureArea_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -319,7 +319,6 @@ namespace ContourUI
                 bitmap.SetSource(stream);
                 Picture.Source = bitmap.ImageData;
                 AjustPictureSizeToPictureArea();
-                //_pictureWidthToHeightRatio = props.Width / props.Height;
                 ApplicationStatus.ImageLoaded = true;
                 ApplicationStatus.ImageConverted = false;
                 ApplicationStatus.ImageOutlined = false;
@@ -382,6 +381,7 @@ namespace ContourUI
 
             await encoder.FlushAsync();
         }
+       
         #region Showing print dialog
         private async void MenuFilePrint_Clicked(object sender, RoutedEventArgs e)
         {
@@ -428,6 +428,7 @@ namespace ContourUI
             Options.Restore();
             await OptionsWindow.Show();
             ApplicationStatus.NumberOfLevels = Options.NumberOfColors;
+            ApplicationStatus.NumberOfColors = Options.NumberOfColors;
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
         }
 
@@ -436,17 +437,30 @@ namespace ContourUI
            
             if (!ApplicationStatus.ImageLoaded)
             {
-                UserMessage message = new UserMessage()
+                ContentDialog dialog = new ContentDialog()
                 {
-                    Type = MsgBoxType.Error,
-                    Text = "Image not loaded.",
-                    BoxWidth = 350,
-                    BoxHeight = 150
+                    
+                    Content = "Image not loaded.",
+                    PrimaryButtonText = "OK"
                 };
-                await DisplayMessage(message);
+                await dialog.ShowAsync();
                 return;
             }
 
+            //int possibleColors = bitmap.GetPossibleNumberOfColors(ApplicationStatus.NumberOfColors);
+            //if (possibleColors < ApplicationStatus.NumberOfColors)
+            //{
+            //     string dialogContent = $"\nNot ehough memory to convert image with defined number of colors.\nThis image may be converted only to {possibleColors} colors.\nOr you can use image with less dimentions.";
+
+            //    ContentDialog dialog = new ContentDialog()
+            //    {
+            //        Title = "Convertion error",
+            //        Content = dialogContent,
+            //        PrimaryButtonText = "OK"
+            //    };
+            //    await dialog.ShowAsync();
+            //    return;
+            //}
             this.Palette.Clear();
             ProgressBar.ProgressValue = 0;
             IAsyncActionWithProgress<double> asyncAction1 = null;
@@ -469,6 +483,7 @@ namespace ContourUI
             try
             {
                 await asyncAction1;
+                
                 ProgressBar.Title = "Extract colors.";
                 ProgressBar.ProgressValue = 0;
                 IAsyncActionWithProgress<double> asyncAction2 = bitmap.ExtractLevelsAsync(Options.NumberOfColors);
@@ -478,14 +493,9 @@ namespace ContourUI
                 });
 
                 await asyncAction2;
-                try
-                {
-                    this.Palette.Build(bitmap.Colors);
-                }
-                catch(Exception ex)
-                {
-                    int i = 0;
-                }
+                
+                this.Palette.Build(bitmap.Colors);
+                
                 ApplicationStatus.ImageConverted = true;
                 ApplicationStatus.ImageOutlined = false;
                 ApplicationStatus.DisplayConverted = true;

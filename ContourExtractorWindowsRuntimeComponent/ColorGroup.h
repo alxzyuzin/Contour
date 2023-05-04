@@ -37,7 +37,10 @@ namespace ContourExtractorWindowsRuntimeComponent
 	public:
 		ColorGroup();
 		ColorGroup(unsigned int* imgData, int bufferLength);
+		
 		ColorGroup(std::vector<Color>* color_values);
+
+		~ColorGroup();
 		unsigned char MaxColorRange();
 		void Split(ColorGroup* group1, ColorGroup* group2);
 		void AddColorValues(vector<Color> *color_values);

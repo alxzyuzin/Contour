@@ -23,7 +23,7 @@ Level::Level(int width, int height)
 	m_BufferCopy = new unsigned char[m_BufferLength];
 }
 
-Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair, unsigned int* imageData)
+Level::Level(int width, int height, unsigned int originalColor, unsigned int* imageData)
 {
 	if (width <= 0)
 		throw std::invalid_argument("parameter width <= 0");
@@ -34,20 +34,21 @@ Level::Level(int width, int height, pair<unsigned int, unsigned char> colorPair,
 
 	m_Width = width;
 	m_Height = height;
-	m_Color = colorPair.second;
-	m_OriginalColor = colorPair.first;
+	m_Color = 0x00;
+	m_OriginalColor = originalColor;
 	m_BufferLength = width * height;
-	m_Buffer = new unsigned char[m_BufferLength]; 
+	
+	//m_B = new vector<unsigned char>(m_BufferLength);
+	//m_BC = new vector<unsigned char>(m_BufferLength);
+	m_Buffer = new unsigned char[m_BufferLength];
 	m_BufferCopy = new unsigned char[m_BufferLength];
+	
 	// Сожмём данные исходного изображения
 	// 4 байта исходного изображения в оттенках серого сохраняем в буфере слоя в одном байте
 	// поскольку байты RGB исходного изображения содержат одинаковые значения 
 	for (int i = 0; i < m_BufferLength; i++)
 	{
-		if (imageData[i] == colorPair.first)
-			m_Buffer[i] = colorPair.second;
-		else
-			m_Buffer[i] = 0xFF;
+		m_Buffer[i] = (imageData[i] == m_OriginalColor) ? 0x00 : 0xFF;
 	}
 	// Make copy built data to m_BufferCopy.
 	// We will use data from this buffer to to draw level on the screen
@@ -69,6 +70,7 @@ void Level::Clear()
 		delete contour;
 
 	delete[] m_Buffer;
+	delete[] m_BufferCopy;
 	m_BufferLength = 0;
 	m_Width = 0;
 	m_Height = 0;

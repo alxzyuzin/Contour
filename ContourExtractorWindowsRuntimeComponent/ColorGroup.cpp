@@ -19,7 +19,13 @@ namespace ContourExtractorWindowsRuntimeComponent
 		}
 		CalcColorGroupParams();
 	}
+
+	ColorGroup::~ColorGroup()
+	{
+			m_color_values.clear();
+	}
 	
+
 	unsigned char ColorGroup::MaxColorRange()
 	{
 		return m_maxColorRange;
