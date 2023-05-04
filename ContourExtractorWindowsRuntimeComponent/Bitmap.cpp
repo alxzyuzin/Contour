@@ -260,7 +260,7 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 	cancellation_token cancellationToken = m_CancellationTokenSource->get_token();
 	// Check if input parameter is correct
 	if (numberOfColors < 2 || numberOfColors > 128) throw ref new InvalidArgumentException();
-	return create_async([this, numberOfColors](progress_reporter<double> reporter)
+	return create_async([this, numberOfColors, cancellationToken](progress_reporter<double> reporter)
 		{
 			double progress = 1;
 
@@ -277,6 +277,14 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 			// Split first color group according number of desired colors in image
 		for (unsigned int k = 1; k < numberOfColors; k++)
 		{
+			if (cancellationToken.is_canceled())
+			{
+				colorGroups.clear();
+				for (ColorGroup* group : colorGroups)
+					delete group;
+				cancel_current_task();
+				return;
+			}
 			// Find color group with max base color range
 			sort(colorGroups.begin(), colorGroups.end(), [](ColorGroup* a, ColorGroup* b) { return a->MaxColorRange() > b->MaxColorRange(); });
 			ColorGroup* cg = colorGroups[0];
@@ -421,7 +429,7 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ExtractLevelsAsync(int numcolor
 	return create_async([this, numcolors, cancellationToken](progress_reporter<double> reporter)
 	{
 			ContourBitmap^ _this = this;
-			return create_task([_this, numcolors, cancellationToken, reporter]()
+			return create_task([_this, numcolors, reporter]()
 				{
 
 					/*bool memoryAllocated = false;
@@ -453,12 +461,12 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ExtractLevelsAsync(int numcolor
 					// Build list of color in image
 					for (int i = 0; i < _this->m_uintPixelBufferLength; i++)
 					{
-						if (cancellationToken.is_canceled())
+						/*if (cancellationToken.is_canceled())
 						{
 							_this->DeleteAllLevels();
 							cancel_current_task();
 
-						}
+						}*/
 						unsigned int color = _this->m_PixelBuffer[i];
 						// If pixel color not in the list of colos add it to list
 						if (colorset.count(color) == 0)
@@ -476,7 +484,7 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ExtractLevelsAsync(int numcolor
 							}
 						}
 					}
-				});
+				}, cancellationToken);
 
 		// Sort array of levels by level color
 		//std::sort(m_Levels.begin(), m_Levels.end(), [](pair<unsigned int, Level*>& a, pair<unsigned int, Level*>& b)
