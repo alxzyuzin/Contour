@@ -84,7 +84,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void Invalidate();
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		void CancelOperation();
-		IAsyncActionWithProgress<double>^ ExtractLevelsAsync(int numcolors);
+		IAsyncOperationWithProgress<int, double>^ ExtractLevelsAsync(int numcolors);
 		IAsyncActionWithProgress<int>^    FindLevelContoursAsync(unsigned int levelColor);
 		IAsyncActionWithProgress<double>^ ConvertToGrayscaleAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ ConvertToReducedColorsAsync(unsigned int numberOfColors);

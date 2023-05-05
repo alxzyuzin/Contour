@@ -206,42 +206,53 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToGrayscaleAsync(unsigne
 
 	// Убедимся что входной параметр нажодится в допустимом диапазоне
 	if (numberOfColors < 2 || numberOfColors > 255) throw ref new InvalidArgumentException();
-	return create_async([this, numberOfColors](progress_reporter<double> reporter)
+
+	m_CancellationTokenSource = new cancellation_token_source();
+	cancellation_token cancellationToken = m_CancellationTokenSource->get_token();
+
+	return create_async([this, numberOfColors, cancellationToken](progress_reporter<double> reporter)
 		{
-			int progress = 1;
-	//Restore original image data
-	RestoreOriginalImageData();
-	// Split full range of possible gray colors into ranges
-	int range = 255 / numberOfColors;
-	vector<GrayColorRange> colorRanges;
-	GrayColorRange grayColorRange;
-	unsigned char bottomLevel = 0;
-	// Define for each range top and bottom value
-	while (grayColorRange.top < 255)
-	{
-		grayColorRange.bottom = bottomLevel;
-		grayColorRange.top = bottomLevel + range;
+			double progress = 0;
+			reporter.report(progress / numberOfColors + 1);
+			//Restore original image data
+			RestoreOriginalImageData();
 
-		if ((bottomLevel + range) > 255)
-			grayColorRange.top = 255;
-
-		colorRanges.push_back(grayColorRange);
-		bottomLevel += (range + 1);
-	}
-	reporter.report((double)progress / numberOfColors + 1);
-	// Convert source image to grayscaled image
-	for (auto& colorRange : colorRanges)
-	{
-		for (int i = 0; i < m_uintPixelBufferLength; i++)
-			if (colorRange.ContainsColor(m_PixelBuffer[i]))
+			// Split full range of possible gray colors into ranges
+			int range = 255 / numberOfColors;
+			vector<GrayColorRange> colorRanges;
+			GrayColorRange grayColorRange;
+			unsigned char bottomLevel = 0;
+			// Define for each range top and bottom value
+			while (grayColorRange.top < 255)
 			{
-				(m_PixelBuffer)[i] = colorRange.Value();
+				grayColorRange.bottom = bottomLevel;
+				grayColorRange.top = bottomLevel + range;
+
+				if ((bottomLevel + range) > 255)
+						grayColorRange.top = 255;
+
+				colorRanges.push_back(grayColorRange);
+				bottomLevel += (range + 1);
 			}
-		reporter.report((double)progress / numberOfColors + 1);
-		progress++;
-	}
-	// Save converted image to the buffer for later use
-	SaveConvertedImageData();
+			reporter.report(++progress / numberOfColors + 1);
+			// Convert source image to grayscaled image
+			for (auto& colorRange : colorRanges)
+			{
+				if (cancellationToken.is_canceled())
+				{
+					colorRanges.clear();
+					cancel_current_task();
+				}
+				for (int i = 0; i < m_uintPixelBufferLength; i++)
+					if (colorRange.ContainsColor(m_PixelBuffer[i]))
+					{
+						m_PixelBuffer[i] = colorRange.Value();
+					}
+				reporter.report(++progress / numberOfColors + 1);
+			}
+			// Save converted image to the buffer for later use
+			SaveConvertedImageData();
+			colorRanges.clear();
 		});
 }
 
@@ -417,82 +428,54 @@ void ContourBitmap::ClearRectangleArea(int left_top_x, int left_top_y, int size)
 /// other pixels set to color 0xFF (mean empty color)
 /// </summary>
 /// <param name="conversionType"></param>
-IAsyncActionWithProgress<double>^ ContourBitmap::ExtractLevelsAsync(int numcolors)
+IAsyncOperationWithProgress<int, double>^ ContourBitmap::ExtractLevelsAsync(int numcolors)
 {
-	
 	// Delete results of previouse extracting levels
 	DeleteAllLevels();
 	
 	m_CancellationTokenSource = new cancellation_token_source();
 	cancellation_token cancellationToken = m_CancellationTokenSource->get_token();
 	
-	return create_async([this, numcolors, cancellationToken](progress_reporter<double> reporter)
+	return create_async([this, numcolors, cancellationToken](progress_reporter<double> reporter)->int
 	{
-			ContourBitmap^ _this = this;
-			return create_task([_this, numcolors, reporter]()
+		double progress = 0;
+		set<unsigned int> colorset;
+		reporter.report(++progress / numcolors);
+		// Build list of color in image
+		for (int i = 0; i < this->m_uintPixelBufferLength; i++)
+		{
+			if (cancellationToken.is_canceled())
+			{
+				this->DeleteAllLevels();
+				cancel_current_task();
+			}
+			unsigned int color = this->m_PixelBuffer[i];
+			// If pixel color not in the list of colos add it to list
+			if (colorset.count(color) == 0)
+			{
+				try
 				{
-
-					/*bool memoryAllocated = false;
-					int colorsNumber = 128;
-					unsigned char* buffer = nullptr;
-
-					while (!memoryAllocated && colorsNumber > 1)
-					{
-						try
-						{
-							long requiredMemoryAmount = _this->m_Width * _this->m_Height * colorsNumber * 2;
-							unsigned char* buffer = new unsigned char[requiredMemoryAmount];
-							memoryAllocated = true;
-						}
-						catch (bad_alloc ex)
-						{
-							colorsNumber--;
-						}
-					}
-
-					delete[] buffer;*/
-
-
-					/*return;*/
-
-					double progress = 0;
-					set<unsigned int> colorset;
+					Level* level = new Level(this->m_Width, this->m_Height, color, this->m_PixelBuffer);
+					colorset.insert(color);
+					this->m_Levels.insert(pair<unsigned int, Level*>(color, level));
 					reporter.report(++progress / numcolors);
-					// Build list of color in image
-					for (int i = 0; i < _this->m_uintPixelBufferLength; i++)
-					{
-						/*if (cancellationToken.is_canceled())
-						{
-							_this->DeleteAllLevels();
-							cancel_current_task();
-
-						}*/
-						unsigned int color = _this->m_PixelBuffer[i];
-						// If pixel color not in the list of colos add it to list
-						if (colorset.count(color) == 0)
-						{
-							try
-							{
-								Level* level = new Level(_this->m_Width, _this->m_Height, color, _this->m_PixelBuffer);
-								colorset.insert(color);
-								_this->m_Levels.insert(pair<unsigned int, Level*>(color, level));
-								reporter.report(++progress / numcolors);
-							}
-							catch (bad_alloc)
-							{
-								int k = 0;
-							}
-						}
-					}
-				}, cancellationToken);
-
+				}
+				catch (bad_alloc)
+				{
+					int res = m_Levels.size();
+					this->DeleteAllLevels();
+					return res;
+				}
+			}
+		}
+		
 		// Sort array of levels by level color
 		//std::sort(m_Levels.begin(), m_Levels.end(), [](pair<unsigned int, Level*>& a, pair<unsigned int, Level*>& b)
 		//	{
 		//		return true;// a.second->m_OriginalColor < b.second->m_OriginalColor;
 		//	});
+		//return 0;
 	});
-	
 }
 
 void ContourBitmap::DeleteAllLevels()

@@ -130,7 +130,7 @@ namespace PosterPrint
                
              
             }
-            catch(System.ArgumentException ex) {}
+            catch(System.ArgumentException) {}
         }
 
         private void ResizeImage()

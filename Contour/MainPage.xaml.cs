@@ -29,6 +29,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Printing;
+using System.Threading;
 
 
 namespace ContourUI
@@ -185,7 +186,7 @@ namespace ContourUI
             {
                 printDoc.SetPreviewPage(e.PageNumber, this.Picture);
             }
-            catch (System.ArgumentException ex) { }
+            catch (System.ArgumentException) { }
         }
 
         //Add pages to send to the printer
@@ -447,22 +448,9 @@ namespace ContourUI
                 return;
             }
 
-            //int possibleColors = bitmap.GetPossibleNumberOfColors(ApplicationStatus.NumberOfColors);
-            //if (possibleColors < ApplicationStatus.NumberOfColors)
-            //{
-            //     string dialogContent = $"\nNot ehough memory to convert image with defined number of colors.\nThis image may be converted only to {possibleColors} colors.\nOr you can use image with less dimentions.";
 
-            //    ContentDialog dialog = new ContentDialog()
-            //    {
-            //        Title = "Convertion error",
-            //        Content = dialogContent,
-            //        PrimaryButtonText = "OK"
-            //    };
-            //    await dialog.ShowAsync();
-            //    return;
-            //}
             this.Palette.Clear();
-            ProgressBar.ProgressValue = 0;
+            
             IAsyncActionWithProgress<double> asyncAction1 = null;
             if (Options.ConversionType == TypeOfConvertion.Grayscale)
             {
@@ -474,7 +462,7 @@ namespace ContourUI
                 ProgressBar.Title = "Reduce number of image colors.";
                 asyncAction1 = bitmap.ConvertToReducedColorsAsync(Options.NumberOfColors);
             }
-            ProgressBar.Show();
+           
             asyncAction1.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
             {
                 ProgressBar.ProgressValue = progress;
@@ -482,18 +470,36 @@ namespace ContourUI
 
             try
             {
+                ProgressBar.Show();
+                ProgressBar.ProgressValue = 0;
                 await asyncAction1;
                 
                 ProgressBar.Title = "Extract colors.";
                 ProgressBar.ProgressValue = 0;
-                IAsyncActionWithProgress<double> asyncAction2 = bitmap.ExtractLevelsAsync(Options.NumberOfColors);
-                asyncAction2.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
+
+                IAsyncOperationWithProgress<int, double> asyncAction2 = bitmap.ExtractLevelsAsync(Options.NumberOfColors);
+                asyncAction2.Progress = new AsyncOperationProgressHandler<int, double>((action, progress) =>
                 {
                     ProgressBar.ProgressValue = progress;
                 });
 
-                await asyncAction2;
-                
+                int availableNumberOfColors = await asyncAction2;
+                ProgressBar.Hide();
+                if (availableNumberOfColors < Options.NumberOfColors)
+                {
+                    string dialogContent = $"\nNot ehough memory to convert image with defined number of colors.\nThis image may be converted only to {availableNumberOfColors} colors.\nOr you can use image with less dimentions.";
+
+                    ContentDialog dialog = new ContentDialog()
+                    {
+                        Title = "Convertion error",
+                        Content = dialogContent,
+                        PrimaryButtonText = "OK"
+                    };
+                    await dialog.ShowAsync();
+
+                    return;
+
+                }
                 this.Palette.Build(bitmap.Colors);
                 
                 ApplicationStatus.ImageConverted = true;
@@ -502,12 +508,20 @@ namespace ContourUI
                 bitmap.Invalidate();
                
             }
-            catch (TaskCanceledException ex)
+            catch (TaskCanceledException)
             {
+                ProgressBar.Hide();
+                ContentDialog dialog = new ContentDialog()
+                {
+                    Content = "Operation canceled.",
+                    PrimaryButtonText = "OK"
+                };
+                await dialog.ShowAsync();
+
+                return;
                 AsyncStatus s = asyncAction1.Status;
             }
-
-            ProgressBar.Hide();
+         
         }
 
         private async void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
