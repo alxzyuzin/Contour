@@ -274,7 +274,6 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 	return create_async([this, numberOfColors, cancellationToken](progress_reporter<double> reporter)
 		{
 			double progress = 1;
-
 			std::vector<ColorGroup*> colorGroups;
 	
 			//Restore original image data
@@ -286,57 +285,56 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 
 			reporter.report(progress++ / numberOfColors);
 			// Split first color group according number of desired colors in image
-		for (unsigned int k = 1; k < numberOfColors; k++)
-		{
-			if (cancellationToken.is_canceled())
+			for (unsigned int k = 1; k < numberOfColors; k++)
 			{
-				colorGroups.clear();
-				for (ColorGroup* group : colorGroups)
-					delete group;
-				cancel_current_task();
-				return;
-			}
-			// Find color group with max base color range
-			sort(colorGroups.begin(), colorGroups.end(), [](ColorGroup* a, ColorGroup* b) { return a->MaxColorRange() > b->MaxColorRange(); });
-			ColorGroup* cg = colorGroups[0];
-
-			// Split found color group with max base color range to two color groups
-			ColorGroup* a = new ColorGroup();
-			ColorGroup* b = new ColorGroup();
-			cg->Split(a, b);
-
-			// Remove pointer to splitted color group from color groups list and delete it from the list
-			delete cg;
-			colorGroups.erase(colorGroups.begin());
-			int i =  colorGroups.size();
-			
-
-			// Add two new color groups to color groups list
-			colorGroups.push_back(a);
-			colorGroups.push_back(b);
-
-			reporter.report(progress++ / numberOfColors);
-		}
-		// Convert source image to image with reduced number of colors
-		for (ColorGroup* group : colorGroups)
-		{
-			for (int i = 0; i < m_uintPixelBufferLength; i++)
-			{
-				// If pixel color belongs to group change pixel color to group average color
-				if (group->Contains(m_PixelBuffer[i]))
+				if (cancellationToken.is_canceled())
 				{
+					
+					for (ColorGroup* group : colorGroups)
+						delete group;
+					colorGroups.clear();
+					cancel_current_task();
+					return;
+				}
+				// Find color group with max base color range
+				sort(colorGroups.begin(), colorGroups.end(), [](ColorGroup* a, ColorGroup* b) { return a->MaxColorRange() > b->MaxColorRange(); });
+				ColorGroup* cg = colorGroups[0];
+
+				// Split found color group with max base color range to two color groups
+				ColorGroup* a = new ColorGroup();
+				ColorGroup* b = new ColorGroup();
+				cg->Split(a, b);
+
+				// Remove pointer to splitted color group from color groups list and delete it from the list
+				delete cg;
+				colorGroups.erase(colorGroups.begin());
+				int i =  colorGroups.size();
+			
+				// Add two new color groups to color groups list
+				colorGroups.push_back(a);
+				colorGroups.push_back(b);
+
+				reporter.report(progress++ / numberOfColors);
+			}
+			// Convert source image to image with reduced number of colors
+			for (ColorGroup* group : colorGroups)
+			{
+				for (int i = 0; i < m_uintPixelBufferLength; i++)
+				{
+					// If pixel color belongs to group change pixel color to group average color
+					if (group->Contains(m_PixelBuffer[i]))
+					{
 					m_PixelBuffer[i] = group->AverageGroupColor();
+					}
 				}
 			}
-		}
-
-		colorGroups.clear();
-		for (ColorGroup* group : colorGroups)
-		{
-			delete group;
-		}
-		// Save converted image to the buffer for later use
-		SaveConvertedImageData();
+			for (ColorGroup* group : colorGroups)
+			{
+				delete group;
+			}
+			colorGroups.clear();
+			// Save converted image to the buffer for later use
+			SaveConvertedImageData();
 		});
 }
 

@@ -77,20 +77,16 @@ namespace ContourExtractorWindowsRuntimeComponent
 	}
 
 	// Define if particular color belongs to this group
-	bool ColorGroup::Contains(unsigned char r, unsigned char g, unsigned char b)
+	inline bool ColorGroup::Contains(unsigned char r, unsigned char g, unsigned char b)
 	{
-		if (r >= m_r_min && r <= m_r_max && g >= m_g_min && g <= m_g_max && b >= m_b_min && b <= m_b_max)
-			return true;
-		return false;
+		return r >= m_r_min && r <= m_r_max && g >= m_g_min && g <= m_g_max && b >= m_b_min && b <= m_b_max;
 	}
 
 	bool ColorGroup::Contains(CharToIntColor color)
 	{
-		if (color.charcolor.red >= m_r_min && color.charcolor.red <= m_r_max &&
+		return color.charcolor.red >= m_r_min && color.charcolor.red <= m_r_max &&
 			color.charcolor.green >= m_g_min && color.charcolor.green <= m_g_max &&
-			color.charcolor.blue >= m_b_min && color.charcolor.blue <= m_b_max)
-			return true;
-		return false;
+			color.charcolor.blue >= m_b_min && color.charcolor.blue <= m_b_max;
 	}
 
 	// Calculate max and min value for each color component, max range and color component with max range
