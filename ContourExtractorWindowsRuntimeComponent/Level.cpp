@@ -38,8 +38,6 @@ Level::Level(int width, int height, unsigned int originalColor, unsigned int* im
 	m_OriginalColor = originalColor;
 	m_BufferLength = width * height;
 	
-	//m_B = new vector<unsigned char>(m_BufferLength);
-	//m_BC = new vector<unsigned char>(m_BufferLength);
 	m_Buffer = new unsigned char[m_BufferLength];
 	m_BufferCopy = new unsigned char[m_BufferLength];
 	
@@ -377,10 +375,11 @@ Contour* Level::FindInternalContour(Contour* parentContour)
 	return contour;
 }
 
-IAsyncActionWithProgress<int>^ Level::FindAllContours()
+IAsyncActionWithProgress<int>^ Level::FindAllContoursAsync(cancellation_token_source* cancellationTokenSource)
 {
 	int contoursFound = 0;
-	return create_async([this](progress_reporter<int> reporter)
+	cancellation_token cancellationToken = cancellationTokenSource->get_token();
+	return create_async([this, cancellationToken](progress_reporter<int> reporter)
 		{
 			int contoursFound = 0;
 			Contour* externalContour = nullptr;
@@ -394,6 +393,12 @@ IAsyncActionWithProgress<int>^ Level::FindAllContours()
 					Contour* internalContour = nullptr;
 					do
 					{
+						bool b = cancellationToken.is_canceled();
+						if (cancellationToken.is_canceled())
+						{
+							cancel_current_task();
+							return;
+						}
 						internalContour = FindInternalContour(externalContour);
 						if (internalContour)
 						{
@@ -404,13 +409,54 @@ IAsyncActionWithProgress<int>^ Level::FindAllContours()
 					} while (internalContour);
 					FillContour(externalContour, EMPTY_COLOR);
 				}
-				reporter.report(contoursFound);
+			//	reporter.report(contoursFound);
 			} while (externalContour);
 
 			// Restore data in the level buffer
 			memcpy(m_Buffer, m_BufferCopy, m_BufferLength);
+			reporter.report(1);
 		});
 	//return (int)m_Contours.size();
+}
+
+unsigned int Level::FindAllContours(progress_reporter<double> reporter, cancellation_token cancellationToken)
+{
+	int contoursFound = 0;
+	Contour* externalContour = nullptr;
+	do
+	{
+		externalContour = FindExternalContour();
+		if (externalContour)
+		{
+			++contoursFound;
+			m_Contours.push_back(externalContour);
+			Contour* internalContour = nullptr;
+			do
+			{
+				if (cancellationToken.is_canceled())
+				{
+					for (Contour* contour : m_Contours)
+						delete contour;
+					cancel_current_task();
+				}
+				internalContour = FindInternalContour(externalContour);
+				if (internalContour)
+				{
+					++contoursFound;
+					m_Contours.push_back(internalContour);
+					FillContour(internalContour, m_Color);
+				}
+			} while (internalContour);
+			FillContour(externalContour, EMPTY_COLOR);
+		}
+		//reporter.report(contoursFound);
+	} while (externalContour);
+
+	// Restore data in the level buffer
+	memcpy(m_Buffer, m_BufferCopy, m_BufferLength);
+	reporter.report(1);
+	
+	return contoursFound;
 }
 
 /*

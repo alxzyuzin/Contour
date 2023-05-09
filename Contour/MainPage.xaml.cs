@@ -459,7 +459,7 @@ namespace ContourUI
             }
             if (Options.ConversionType == TypeOfConvertion.ReducedColors)
             {
-                ProgressBar.Title = "Reduce number of image colors.";
+                ProgressBar.Title = "Reducing number of image colors.";
                 asyncAction1 = bitmap.ConvertToReducedColorsAsync(Options.NumberOfColors);
             }
            
@@ -474,10 +474,10 @@ namespace ContourUI
                 ProgressBar.ProgressValue = 0;
                 await asyncAction1;
                 
-                ProgressBar.Title = "Extract colors.";
+                ProgressBar.Title = "Building palette.";
                 ProgressBar.ProgressValue = 0;
 
-                IAsyncOperationWithProgress<int, double> asyncAction2 = bitmap.ExtractLevelsAsync(Options.NumberOfColors);
+                IAsyncOperationWithProgress<int, double> asyncAction2 = (IAsyncOperationWithProgress<int, double>)bitmap.ExtractLevelsAsync(Options.NumberOfColors);
                 asyncAction2.Progress = new AsyncOperationProgressHandler<int, double>((action, progress) =>
                 {
                     ProgressBar.ProgressValue = progress;
@@ -517,9 +517,7 @@ namespace ContourUI
                     PrimaryButtonText = "OK"
                 };
                 await dialog.ShowAsync();
-
                 return;
-                AsyncStatus s = asyncAction1.Status;
             }
          
         }
@@ -550,37 +548,60 @@ namespace ContourUI
             
             if (ApplicationStatus.ImageConverted)
             {
-                ProgressCounter.Title = "Searching for contours.";
-                ProgressCounter.Show();
-
-                //ApplicationStatus.ProgressValue = 0;
-                int totalProgress = 0;
+                ProgressBar.Show();
+                ProgressBar.Title = "Searching for contours.";
+                ProgressBar.ProgressValue = 0;
+       
+               double totalProgress = 0;
+               int numberOfLevels = bitmap.LevelsCount;
+               ApplicationStatus.NumberOfLevels = numberOfLevels;
                
-                int numberOfLevels = bitmap.LevelsCount;
+               var starttime = DateTime.Now;
 
-                ApplicationStatus.NumberOfLevels = numberOfLevels;
-
-                List<IAsyncActionWithProgress<int>> taskList = new List<IAsyncActionWithProgress<int>>();
-
-                var starttime = DateTime.Now;
-                foreach (var color in Palette.ActiveColors)
+                IAsyncActionWithProgress<double> asyncAction = bitmap.OutlineImageAsync();
+                asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
                 {
-                    IAsyncActionWithProgress<int> asyncAction = null;
-                    asyncAction = bitmap.FindLevelContoursAsync(color.Key);
-                    asyncAction.Progress = new AsyncActionProgressHandler<int>((action, progress) =>
-                    {
-                        double i = progress;
-                        totalProgress += progress;
-                        ProgressCounter.CounterValue = totalProgress;
-                    });
-                    taskList.Add(asyncAction);
-                }
+                    totalProgress += progress;
+                    ProgressBar.ProgressValue = totalProgress / ApplicationStatus.NumberOfColors;
+                });
 
-                foreach (var task in taskList)
-                     await task;
- 
+                try
+                {
+                    await asyncAction;
+                }
+                catch (TaskCanceledException)
+                {
+                    ProgressBar.Hide();
+                    ContentDialog dialog = new ContentDialog()
+                    {
+                        Content = "Operation canceled.",
+                        PrimaryButtonText = "OK"
+                    };
+                    await dialog.ShowAsync();
+                    return;
+                }
+                
+                //List<IAsyncActionWithProgress<int>> taskList = new List<IAsyncActionWithProgress<int>>();
+
+                //foreach (var color in Palette.ActiveColors)
+                //{
+                //    IAsyncActionWithProgress<int> asyncAction = null;
+                //    asyncAction = bitmap.FindLevelContoursAsync(color.Key);
+                //    asyncAction.Progress = new AsyncActionProgressHandler<int>((action, progress) =>
+                //    {
+                //        ProgressBar.ProgressValue = ++totalProgress / ApplicationStatus.NumberOfColors;
+                //    });
+                //    taskList.Add(asyncAction);
+                //}
+                //foreach (var task in taskList)
+                //{
+                //    await task;
+                //}
+
                 Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
-                ProgressCounter.Hide();
+                ProgressBar.Hide();
+                // 511584.0 run_for_each 3 colors (19 colors 700 002.0)
+                // 525395.0 create separate tasks 3 colors(19 colors 544 877.0)
                 ApplicationStatus.ImageOutlined = true;
                 ApplicationStatus.DisplayContour = true;
             }

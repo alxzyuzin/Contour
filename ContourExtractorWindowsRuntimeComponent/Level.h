@@ -26,8 +26,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 	private:	 // Members
 		int m_Width;
 		int m_Height;
-		vector<unsigned char>* m_B;
-		vector<unsigned char>* m_BC;
+//		vector<unsigned char>* m_B;
+//		vector<unsigned char>* m_BC;
 		unsigned char* m_Buffer;
 		unsigned char* m_BufferCopy;
 		int m_BufferLength;
@@ -62,7 +62,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Contour* FindExternalContour();
 		Contour* FindInternalContour(Contour* parentContour);
 		void EraseShape(Contour* externalContour, Contour*  internalContour);
-		IAsyncActionWithProgress<int>^ FindAllContours();
+		IAsyncActionWithProgress<int>^ FindAllContoursAsync(cancellation_token_source* cancellationTokenSource);
+		unsigned int FindAllContours(progress_reporter<double> reporter, cancellation_token cancellationToken);
 
 		void FillContour(Contour* contour, unsigned char color);
 		void RestoreContourContent(Contour* contour);

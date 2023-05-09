@@ -32,7 +32,7 @@ namespace PosterPrint
         PrintMediaSize _printMediaSize;
         PrintOrientation _printOrientation;
         //PrintPageDescription _pageDescription;
-        private readonly WriteableBitmap _imageData = null;
+        //private readonly WriteableBitmap _imageData = null;
         private readonly DataModel _options = new DataModel();
 
         private bool _printCompleted = false;

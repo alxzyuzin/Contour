@@ -308,7 +308,7 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 				// Remove pointer to splitted color group from color groups list and delete it from the list
 				delete cg;
 				colorGroups.erase(colorGroups.begin());
-				int i =  colorGroups.size();
+				size_t i =  colorGroups.size();
 			
 				// Add two new color groups to color groups list
 				colorGroups.push_back(a);
@@ -460,13 +460,13 @@ IAsyncOperationWithProgress<int, double>^ ContourBitmap::ExtractLevelsAsync(int 
 				}
 				catch (bad_alloc)
 				{
-					int res = m_Levels.size();
+					int res = (int)m_Levels.size();
 					this->DeleteAllLevels();
 					return res;
 				}
 			}
 		}
-		
+		return (int)m_Levels.size();
 		// Sort array of levels by level color
 		//std::sort(m_Levels.begin(), m_Levels.end(), [](pair<unsigned int, Level*>& a, pair<unsigned int, Level*>& b)
 		//	{
@@ -483,10 +483,11 @@ void ContourBitmap::DeleteAllLevels()
 	this->m_Levels.clear();
 	
 }
-IAsyncActionWithProgress<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelColor)
-{
-	return m_Levels[levelColor]->FindAllContours();
-}
+//IAsyncActionWithProgress<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelColor)
+//{
+//	m_CancellationTokenSource = new cancellation_token_source();
+//	return m_Levels[levelColor]->FindAllContoursAsync(m_CancellationTokenSource);
+//}
 
 
 void ContourBitmap::SetOriginalImageDataToDisplayBuffer()
@@ -534,18 +535,29 @@ void ContourBitmap::Clear()
 /// <summary>
 /// Выполняет поиск всех контуров в изображении
 /// </summary>
-double ContourBitmap::OutlineImage()
+IAsyncActionWithProgress<double>^  ContourBitmap::OutlineImageAsync()
 {
+	
+	return create_async([this](progress_reporter<double> reporter)
+	{
+		m_CancellationTokenSource = new cancellation_token_source();
+		cancellation_token cancellationToken = m_CancellationTokenSource->get_token();
+		return parallel_for_each(begin(m_Levels), end(m_Levels), [reporter, cancellationToken](pair<unsigned int, Level*> pair)
+		{
+			pair.second->FindAllContours(reporter, cancellationToken);
+		});
+	});
+
 	clock_t start = clock();
 
-	for (auto& level : m_Levels)
-		level.second->FindAllContours();
+	/*for (auto& level : m_Levels)
+		level.second->FindAllContours();*/
 	// time содержит время выполнения функции в милисекундах 
 	double time = (clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
 	// Изображение разделено на 8 слоёв. Исходное время построения контуров 58818 ms (760 контуров)
 	// Изображение разделено на 2 слоя. Исходное время построения контуров  5774 (4587) ms (40 контуров)
 	// Изображение разделено на 4 слоя. Исходное время построения контуров 409 818 ms (760 контуров)
-	return time;
+	//return time;
 }
 
 /// <summary>

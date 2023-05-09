@@ -30,8 +30,10 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	Contour::~Contour()
 	{
-		for (unsigned int y = 0; y < m_PointsMap.size(); y++)
-			delete m_PointsMap[y];
+		m_PointsMap.clear();
+		m_Points.clear();
+		//for (unsigned int y = 0; y < m_PointsMap.size(); y++)
+		//	delete m_PointsMap[y];
 	}
 
 	Point* Contour::operator[](unsigned int i)

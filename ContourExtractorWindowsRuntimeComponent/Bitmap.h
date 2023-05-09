@@ -12,6 +12,7 @@
 #pragma once
 #include <robuffer.h>
 #include <ppltasks.h>
+#include <ppl.h>
 #include "Level.h"
 #include "Color.h"
 
@@ -85,15 +86,16 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		void CancelOperation();
 		IAsyncOperationWithProgress<int, double>^ ExtractLevelsAsync(int numcolors);
-		IAsyncActionWithProgress<int>^    FindLevelContoursAsync(unsigned int levelColor);
+		//IAsyncActionWithProgress<int>^    FindLevelContoursAsync(unsigned int levelColor);
 		IAsyncActionWithProgress<double>^ ConvertToGrayscaleAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ ConvertToReducedColorsAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ CleanUpImageAsync(int size);
+		IAsyncActionWithProgress<double>^ OutlineImageAsync();
 		
 		void RotateLeft();
 		void RotateRight();
 
-		double OutlineImage();
+		
 		void RectifyLevel(unsigned int color, int size);
 
 		void ClearPixelBuffer();
