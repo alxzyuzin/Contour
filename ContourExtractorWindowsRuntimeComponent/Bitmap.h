@@ -40,11 +40,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 			WriteableBitmap^ get();
 		}
 
-		property  IRandomAccessStream^ ImageDataStream
-		{
-			IRandomAccessStream^ get();
-		}
-
 		property  unsigned int Width
 		{
 			unsigned int get();
@@ -73,10 +68,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 			int get();
 		}
 
-		/*property int AvailableColorsAmount
-		{
-			int get();
-		}*/
 
 	public:
 		ContourBitmap();
@@ -86,7 +77,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void SetSource(Windows::Storage::Streams::IRandomAccessStream^ stream);
 		void CancelOperation();
 		IAsyncOperationWithProgress<int, double>^ ExtractLevelsAsync(int numcolors);
-		//IAsyncActionWithProgress<int>^    FindLevelContoursAsync(unsigned int levelColor);
 		IAsyncActionWithProgress<double>^ ConvertToGrayscaleAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ ConvertToReducedColorsAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ CleanUpImageAsync(int size);
@@ -105,11 +95,6 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void DisplayContours(ContourColors color, int minContourLength, unsigned char contourDensity);
 		void Clear();
 
-		int GetPossibleNumberOfColors(int numberOfColors);
-		
-
-		
-
 	private:
 		unsigned int* GetPointerToWriteableBitmapPixelData(WriteableBitmap^ bitmap);
 		void SaveOriginalImageData();
@@ -117,11 +102,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void RestoreOriginalImageData();
 		void RestoreConvertedImageData();
 		void ClearRectangleArea(int x, int y, int size);
-
 		void DeleteAllLevels();
 
-		//void ConvertToGrayscale(unsigned int numberOfColors, progress_reporter<double> reporter);
-		
 	private:	//Members
 		int m_Width;					// Image width in pixels
 		int m_Height;					// Image width in pixels
@@ -135,12 +117,9 @@ namespace ContourExtractorWindowsRuntimeComponent
 		WriteableBitmap^ m_Bitmap = nullptr;
 		WriteableBitmap^ m_BufferBitmap = nullptr;
 
-		//Windows::UI::Xaml::Controls::Page^ m_pMainPage;
-		
 		std::map<unsigned int, Level*> m_Levels;
 
 		cancellation_token_source* m_CancellationTokenSource;
-
 	};
 
 }

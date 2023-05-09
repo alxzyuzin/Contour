@@ -34,12 +34,6 @@ WriteableBitmap^	ContourBitmap::ImageData::get() { return m_Bitmap; }
 unsigned int ContourBitmap::Width::get()  { return (unsigned int) m_Width; }
 unsigned int ContourBitmap::Height::get() { return (unsigned int) m_Height; }
 
-IRandomAccessStream^ ContourBitmap::ImageDataStream::get()
-{
-	//return m_Bitmap->PixelBuffer.;
-	return nullptr;
-}
-
 // Массив оттенков серого содержащихся в изображении
 Array<unsigned char>^ ContourBitmap::GrayScaleColorMap::get()
 {
@@ -69,38 +63,6 @@ int ContourBitmap::LevelsCount::get()
 }
 
 
-//int ContourBitmap::AvailableColorsAmount::get()
-//{
-//	// Максимальный требуемый объём памяти для обработки изображения
-//	// (Ширина * высоту) - размер буфера в Level
-//	// умножить на 2 (два буфера)
-//	// умножить на количество цветов
-//	// + плюс память для хранения контуров ( подсчитаем позднее)
-//
-//	// Пытаемся выделить требуемый объём памяти
-//	bool memoryAllocated = false;
-//	int colorsNumber = 128;
-//	unsigned char* buffer = nullptr;
-//
-//	while (!memoryAllocated && colorsNumber > 1)
-//	{
-//		try
-//		{
-//			long requiredMemoryAmount = m_Width * m_Height * colorsNumber * 256;
-//			unsigned char* buffer = new unsigned char[requiredMemoryAmount];
-//			memoryAllocated = true;
-//		}
-//		catch (bad_alloc ex)
-//		{
-//			colorsNumber--;
-//		}
-//	}
-//
-//	delete[] buffer;
-//
-//	return colorsNumber;
-//}
-
 //-----------------------------------------------------------------------------
 // Public members
 //-----------------------------------------------------------------------------
@@ -117,34 +79,6 @@ ContourBitmap::ContourBitmap()
 	m_pOriginalImageData = nullptr;
 	m_pConvertedImageData = nullptr;
 }
-
-/// <summary>
-/// ContourBitmap constructor (we will use this constructor for testing only)
-/// </summary>
-/// <param name="width">
-/// Image width
-/// </param>
-/// <param name="height">
-/// Image height
-/// </param>
-/// <param name="imageData">
-/// Pointer to image data
-/// </param>
-//ContourBitmap::ContourBitmap(int width, int height, unsigned int* imageData)
-//{
-//	m_Width = width;
-//	m_Height = height;
-//
-//	m_uintPixelBufferLength = width * height;
-//	m_bytePixelBufferLength = m_uintPixelBufferLength * 4;
-//
-//	m_Bitmap = ref new WriteableBitmap(width, height);
-//	m_pOriginalImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for original image data
-//	m_pConvertedImageData = new unsigned char[m_bytePixelBufferLength];  // Create buffer for converted image data
-//	m_PixelBuffer = imageData;
-//	// Make copy image data to m_pOriginalImageData before any manipulations
-//	SaveOriginalImageData();
-//}
 
 /// <summary>
 /// ContourBitmap constructor
@@ -266,7 +200,6 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToGrayscaleAsync(unsigne
 
 IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(unsigned int numberOfColors)
 {
-	
 	m_CancellationTokenSource = new cancellation_token_source();
 	cancellation_token cancellationToken = m_CancellationTokenSource->get_token();
 	// Check if input parameter is correct
@@ -289,7 +222,6 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 			{
 				if (cancellationToken.is_canceled())
 				{
-					
 					for (ColorGroup* group : colorGroups)
 						delete group;
 					colorGroups.clear();
@@ -348,7 +280,7 @@ IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size)
 				ClearRectangleArea(x, y, size);
 			reporter.report((double)y / (m_Height - size));
 		}
-		});
+	});
 }
 
 void ContourBitmap::RotateLeft()
@@ -481,14 +413,7 @@ void ContourBitmap::DeleteAllLevels()
 	for (auto& l : this->m_Levels)
 		delete l.second;
 	this->m_Levels.clear();
-	
 }
-//IAsyncActionWithProgress<int>^ ContourBitmap::FindLevelContoursAsync(unsigned int levelColor)
-//{
-//	m_CancellationTokenSource = new cancellation_token_source();
-//	return m_Levels[levelColor]->FindAllContoursAsync(m_CancellationTokenSource);
-//}
-
 
 void ContourBitmap::SetOriginalImageDataToDisplayBuffer()
 {
@@ -537,7 +462,6 @@ void ContourBitmap::Clear()
 /// </summary>
 IAsyncActionWithProgress<double>^  ContourBitmap::OutlineImageAsync()
 {
-	
 	return create_async([this](progress_reporter<double> reporter)
 	{
 		m_CancellationTokenSource = new cancellation_token_source();
@@ -550,14 +474,12 @@ IAsyncActionWithProgress<double>^  ContourBitmap::OutlineImageAsync()
 
 	clock_t start = clock();
 
-	/*for (auto& level : m_Levels)
-		level.second->FindAllContours();*/
 	// time содержит время выполнения функции в милисекундах 
 	double time = (clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
 	// Изображение разделено на 8 слоёв. Исходное время построения контуров 58818 ms (760 контуров)
 	// Изображение разделено на 2 слоя. Исходное время построения контуров  5774 (4587) ms (40 контуров)
 	// Изображение разделено на 4 слоя. Исходное время построения контуров 409 818 ms (760 контуров)
-	//return time;
+
 }
 
 /// <summary>
@@ -575,7 +497,7 @@ void ContourBitmap::RectifyLevel(unsigned int color, int size)
 }
 
 // Закрашивает буфер изображения белым цветом
-void inline ContourBitmap::ClearPixelBuffer()
+inline void ContourBitmap::ClearPixelBuffer()
 {
 	for (int i = 0; i < m_uintPixelBufferLength; i++)
 		m_PixelBuffer[i] = 0xFFFFFFFF;
@@ -599,29 +521,7 @@ inline void ContourBitmap::RestoreConvertedImageData()
 	memcpy(m_PixelBuffer, m_pConvertedImageData, m_bytePixelBufferLength);
 }
 
-int ContourBitmap::GetPossibleNumberOfColors(int numberOfColors)
-{
-	vector<Level*> levels;
-	int i = 0;
-	try
-	{
-		for (; i < numberOfColors; i++)
-		{
-			Level* level = new Level(this->m_Width, this->m_Height, 0x000000000, this->m_PixelBuffer);
-			levels.push_back(level);
-		}
-	}
-	catch (bad_alloc)
-	{
-		for (Level* l : levels)
-		{
-			delete l;
-		}
-		levels.clear();
 
-	}
-	return i;
-}
 //======================================================================
 // Private functions
 //======================================================================
