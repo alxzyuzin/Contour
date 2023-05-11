@@ -550,24 +550,34 @@ namespace ContourUI
             if (ApplicationStatus.ImageConverted)
             {
                 ProgressBar.Show();
-                ProgressBar.Title = "Searching for contours.";
-                ProgressBar.ProgressValue = 0;
+               
        
                double totalProgress = 0;
                int numberOfLevels = bitmap.LevelsCount;
                ApplicationStatus.NumberOfLevels = numberOfLevels;
                
                var starttime = DateTime.Now;
-
-                IAsyncActionWithProgress<double> asyncAction = bitmap.OutlineImageAsync();
-                asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
-                {
-                    totalProgress += progress;
-                    ProgressBar.ProgressValue = totalProgress / ApplicationStatus.NumberOfColors;
-                });
-
                 try
                 {
+                    IAsyncActionWithProgress<double> asyncAction = null;
+
+                    ProgressBar.Title = "Cleaning.";
+                    ProgressBar.ProgressValue = 0;
+                    asyncAction = bitmap.CleanUpAsync(Options.CleanupValue); ;
+                    asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
+                    {
+                        ProgressBar.ProgressValue = progress;
+                    });
+                    await asyncAction;
+
+                    ProgressBar.Title = "Searching for contours.";
+                    ProgressBar.ProgressValue = 0;
+                    asyncAction = bitmap.OutlineImageAsync();
+                    asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
+                    {
+                        totalProgress += progress;
+                        ProgressBar.ProgressValue = totalProgress / ApplicationStatus.NumberOfColors;
+                    });
                     await asyncAction;
                 }
                 catch (TaskCanceledException)
