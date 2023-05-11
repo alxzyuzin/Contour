@@ -510,13 +510,7 @@ namespace ContourUI
             }
             catch (TaskCanceledException)
             {
-                ProgressBar.Hide();
-                ContentDialog dialog = new ContentDialog()
-                {
-                    Content = "Operation canceled.",
-                    PrimaryButtonText = "OK"
-                };
-                await dialog.ShowAsync();
+                ReportOperationCanceled();
                 return;
             }
          
@@ -539,13 +533,7 @@ namespace ContourUI
             }
             catch (TaskCanceledException)
             {
-                ProgressBar.Hide();
-                ContentDialog dialog = new ContentDialog()
-                {
-                    Content = "Operation canceled.",
-                    PrimaryButtonText = "OK"
-                };
-                await dialog.ShowAsync();
+                ReportOperationCanceled();
                 return;
             }
 
@@ -596,13 +584,7 @@ namespace ContourUI
                 }
                 catch (TaskCanceledException)
                 {
-                    ProgressBar.Hide();
-                    ContentDialog dialog = new ContentDialog()
-                    {
-                        Content = "Operation canceled.",
-                        PrimaryButtonText = "OK"
-                    };
-                    await dialog.ShowAsync();
+                    ReportOperationCanceled();
                     return;
                 }
                 
@@ -655,6 +637,18 @@ namespace ContourUI
         {
             bitmap.CancelOperation();
            
+        }
+
+        private async void ReportOperationCanceled()
+        {
+            ProgressBar.Hide();
+            ContentDialog dialog = new ContentDialog()
+            {
+                Content = "Operation canceled.",
+                PrimaryButtonText = "OK"
+            };
+            await dialog.ShowAsync();
+            return;
         }
     } // End of MainPage class definition
 
