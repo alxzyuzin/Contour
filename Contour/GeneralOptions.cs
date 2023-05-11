@@ -66,7 +66,6 @@ namespace ContourUI
         
         public byte[] NumberOfColorsList => _arrNumberOfColorsList;
 
-
         //private readonly int[] _arrcbxCleanupValues = { 3, 4, 5, 6, 7, 8, 9, 10, 11 };
         private readonly int[] _arrcbxCleanupValues = { 1, 2, 4, 8, 16, 32, 64 };
         public int[] cbxCleanupValuesList => _arrcbxCleanupValues; 
@@ -121,7 +120,19 @@ namespace ContourUI
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NumberOfColors)));
                 }
             }
-
+        }
+        private bool _performCleanUpBeforeOutlining = false;
+        public bool PerformCleanUpBeforeOutlining
+        {
+            get => _performCleanUpBeforeOutlining;
+            set
+            {
+                if (_performCleanUpBeforeOutlining != value)
+                {
+                    _performCleanUpBeforeOutlining = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PerformCleanUpBeforeOutlining)));
+                }
+            }
         }
 
         private int _cleanupValue;
@@ -138,20 +149,6 @@ namespace ContourUI
             }
         }
 
-        //private int _maxContourLength;
-        //public int MaxContourLength
-        //{
-        //    get => _maxContourLength;
-        //    set
-        //    {
-        //        if (_maxContourLength != value)
-        //        {
-        //            _maxContourLength = value;
-        //            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MaxContourLength)));
-        //        }
-        //    }
-        //}
-
         private string _contourColorName;
         public string ContourColorName
         {
@@ -165,8 +162,6 @@ namespace ContourUI
                 }
             }
         }
-
-
       
         private byte _contourDensityValue = 255;
         public byte ContourDensityValue
@@ -181,7 +176,6 @@ namespace ContourUI
                 }
             }
         }
-
         
         private int _minContourLength = 0;
         public int MinContourLength
@@ -212,12 +206,8 @@ namespace ContourUI
                 }
             }
         }
-
        
         public bool SaveData { get; set; }
-
-
-
 
         public void Save()
         {
@@ -229,7 +219,7 @@ namespace ContourUI
             LocalSettings.Values["MinContourLength"] = MinContourLength;
             LocalSettings.Values["ContourColorName"] = ContourColorName;
             LocalSettings.Values["ContourDensityValue"] = ContourDensityValue;
-                   
+            LocalSettings.Values["PerformCleanUpBeforeOutlining"] = PerformCleanUpBeforeOutlining;
         }
 
         public void Restore()
@@ -255,7 +245,10 @@ namespace ContourUI
 
             value = LocalSettings.Values["ContourDensityValue"];
             ContourDensityValue = value != null ? (byte)value : (byte)0xFF;
-             
+
+            value = LocalSettings.Values["PerformCleanUpBeforeOutlining"];
+            PerformCleanUpBeforeOutlining = value != null ? (bool)value : false;
+
         }
 
     }

@@ -35,38 +35,20 @@ namespace ContourExtractorWindowsRuntimeComponent
 
 	public:
 
-		property  WriteableBitmap^ ImageData
-		{
-			WriteableBitmap^ get();
-		}
+		property  WriteableBitmap^ ImageData { WriteableBitmap^ get(); }
 
-		property  unsigned int Width
-		{
-			unsigned int get();
-		}
+		property  unsigned int Width { unsigned int get(); }
 
-		property  unsigned int Height
-		{
-			unsigned int get();
-		}
+		property  unsigned int Height { unsigned int get(); }
 
 		// List of gray colors present in image after converting  
-		property Array<byte>^ GrayScaleColorMap
-		{
-			Array<byte>^ get();
-		}
+		property Array<byte>^ GrayScaleColorMap { Array<byte>^ get(); }
 
 		// List of colors present in image after converting  
-		property Array<unsigned int>^ Colors
-		{
-			Array<unsigned int>^ get();
-		}
+		property Array<unsigned int>^ Colors { 	Array<unsigned int>^ get(); }
 
 		// Number of levels in converted image  
-		property int LevelsCount
-		{
-			int get();
-		}
+		property int LevelsCount { int get(); }
 
 
 	public:
@@ -80,6 +62,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		IAsyncActionWithProgress<double>^ ConvertToGrayscaleAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ ConvertToReducedColorsAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ CleanUpImageAsync(int size);
+		IAsyncActionWithProgress<double>^ CleanUpAsync(int size);
 		IAsyncActionWithProgress<double>^ OutlineImageAsync();
 		
 		void RotateLeft();

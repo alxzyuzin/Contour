@@ -528,16 +528,17 @@ namespace ContourUI
             ProgressBar.Title = "Cleaning.";
             ProgressBar.Show();
             IAsyncActionWithProgress<double> asyncAction = null;
-            asyncAction = bitmap.CleanUpImageAsync(Options.CleanupValue);
+            asyncAction = bitmap.CleanUpAsync(Options.CleanupValue);
             asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
             {
                 ProgressBar.ProgressValue = progress;
             });
             await asyncAction;
 
-            await bitmap.ExtractLevelsAsync(Options.NumberOfColors);
-            Palette.Build(bitmap.Colors);
-            bitmap.Invalidate();
+            //await bitmap.ExtractLevelsAsync(Options.NumberOfColors);
+            //Palette.Build(bitmap.Colors);
+            //bitmap.Invalidate();
+            RedrawImageArea();
             ProgressBar.Hide();
             Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
          }

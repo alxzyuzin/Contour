@@ -79,7 +79,7 @@ void Level::Rectify(int size)
 {
 	for (int y = 0; y <= m_Height - size; y++)
 		for (int x = 0; x <= m_Width - size; x++)
-			ClearArea(x, y, size, 0xFF);
+			ClearArea(x, y, size);
 }
 
 /// <summary>
@@ -692,7 +692,7 @@ inline unsigned char Level::GetPixel(int x, int y)
 		true - if all ppoint on border has color equal empty color (0xFF)
 		false - if at least one point on border has point with color not equal empty color (0xFF)
 */
-bool Level::ClearArea(int left_top_x, int left_top_y, int size, unsigned char color)
+bool Level::ClearArea(int left_top_x, int left_top_y, int size)
 {
 	if (size > m_Width || size > m_Height)
 		return false;
@@ -702,12 +702,17 @@ bool Level::ClearArea(int left_top_x, int left_top_y, int size, unsigned char co
 	int rightTopOffsetY = leftTopOffsetY + size - 1;
 
 	int ltox = leftTopOffsetX;
-			
+	
+	unsigned char fillColor = m_Buffer[leftTopOffsetX];
+
+	// Check if all contours point of rectangle
+	// left_top_x, left_top_y, left_top_x + size, left_top_y + sise
+	// have same color as point in left top rectangle point
 	for (int i = 0; i < size; i++)
 	{
 		if (
-			!(m_Buffer[leftTopOffsetX] == color && m_Buffer[leftBottomOffsetX] == color &&
-				m_Buffer[leftTopOffsetY] == color && m_Buffer[rightTopOffsetY] == color)
+			!(m_Buffer[leftTopOffsetX] == fillColor && m_Buffer[leftBottomOffsetX] == fillColor &&
+				m_Buffer[leftTopOffsetY] == fillColor && m_Buffer[rightTopOffsetY] == fillColor)
 		   )
 			return false;
 				
@@ -716,12 +721,12 @@ bool Level::ClearArea(int left_top_x, int left_top_y, int size, unsigned char co
 		leftTopOffsetY += m_Width;
 		rightTopOffsetY += m_Width;
 	}
-	// All border points color is empty color
-	// Fill area inside borders with empty color
+	// For all border points color is equal to color parameter value
+	// Fill area inside borders with color parameter value
 	
 	for (int y = 1,  y_offset = m_Width; y < size - 1; y++, y_offset += m_Width)
 		for (int x = 1; x < size - 1; x++)
-			m_Buffer[ltox + y_offset + x] = color;
+			m_Buffer[ltox + y_offset + x] = fillColor;
 
 	return true;
 }
@@ -766,7 +771,6 @@ bool Level::CompareLevelDataWithReferenceData(unsigned char* pReferenceData, wch
 	return true;
 
 }
-
 bool Level::CompareLevelBufferWithReferenceData(unsigned char* referenceData)
 {
 	vector<unsigned char> a;

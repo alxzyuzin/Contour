@@ -73,37 +73,42 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
-                            
-                           
+                            <RowDefinition Height="*"/>
+
+
                     </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="5*"/>
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
-                    <TextBlock Text="Contour options" FontSize="20" FontWeight="Medium" Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Image conversion type:"/>
-                        <ComboBox   Grid.Row="1" Grid.Column="2" 
-                                    ItemsSource="{Binding ConvertionTypesList}"
-                                    SelectedValue="{Binding ConversionTypeName , Mode=TwoWay}" SelectionChanged="cbxConvType_SelectionChanged"/>
-                        <TextBlock  Grid.Row="2" Grid.Column="0" Text="Number of colors:"/>
-                        <ComboBox   Grid.Row="2" Grid.Column="2"
+                        <TextBlock Text="Contour options" FontSize="20" FontWeight="Medium" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Image conversion type:"/>
+                        <ComboBox  Grid.Row="1" Grid.Column="2" 
+                                   ItemsSource="{Binding ConvertionTypesList}"
+                                   SelectedValue="{Binding ConversionTypeName , Mode=TwoWay}" SelectionChanged="cbxConvType_SelectionChanged"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Number of colors:"/>
+                        <ComboBox  Grid.Row="2" Grid.Column="2"
                                     ItemsSource="{Binding NumberOfColorsList}"
                                     SelectedValue="{Binding NumberOfColors, Mode=TwoWay}"/>
-                        <TextBlock  Grid.Row="3" Grid.Column="0" Text="Cleanup value:"/>
-                        <ComboBox   Grid.Row="3" Grid.Column="2"
+                        <TextBlock  Grid.Row="3" Grid.Column="0" Text="Perform cleanup before outlining:"/>
+                        <ToggleSwitch Grid.Row="3" Grid.Column="2"
+                                    IsOn="{Binding PerformCleanUpBeforeOutlining, Mode=TwoWay}"/>
+
+                        <TextBlock  Grid.Row="4" Grid.Column="0" Text="Cleanup value:"/>
+                        <ComboBox   Grid.Row="4" Grid.Column="2"
                                     ItemsSource="{Binding cbxCleanupValuesList}"
                                     SelectedValue="{Binding CleanupValue, Mode=TwoWay}" />
-                        <TextBlock  Grid.Row="4" Grid.Column="0" Text="Don't dislay contours with lengt less then:" />
-                        <TextBox    Grid.Row="4" Grid.Column="2" 
+                        <TextBlock  Grid.Row="5" Grid.Column="0" Text="Don't dislay contours with lengt less then:" />
+                        <TextBox    Grid.Row="5" Grid.Column="2" 
                                     Text="{Binding MinContourLength, Mode=TwoWay}" Width="30px" 
                                     HorizontalAlignment="Left" Height="40"/>
-                        <TextBlock  Grid.Row="5" Grid.Column="0" Text="Contour color:"/>
-                        <ComboBox   Grid.Row="5" Grid.Column="2"
+                        <TextBlock  Grid.Row="6" Grid.Column="0" Text="Contour color:"/>
+                        <ComboBox   Grid.Row="6" Grid.Column="2"
                                     ItemsSource="{Binding ContourColorsList}"
                                     SelectedValue="{Binding ContourColorName,Mode=TwoWay}"   />
-                        <TextBlock  Grid.Row="6" Grid.Column="0" Text="Contour dencity:"/>
-                    <ComboBox   Grid.Row="6" Grid.Column="2"
+                        <TextBlock  Grid.Row="7" Grid.Column="0" Text="Contour dencity:"/>
+                        <ComboBox   Grid.Row="7" Grid.Column="2"
                                     ItemsSource="{Binding ContourDensityList}"
                                     SelectedValue="{Binding ContourDensityValue,Mode=TwoWay}"/>
                 </Grid>

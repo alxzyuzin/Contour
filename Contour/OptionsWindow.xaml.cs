@@ -22,9 +22,6 @@ namespace ContourUI
     public sealed partial class OptionsWindow : UserControl
     {
         //private string[] arrConversionTypesNames = { "Grayscale", "Reduced colors" };
-
-
-
         private bool _stopWating;
         private readonly int _width;
         private readonly int _height;

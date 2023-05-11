@@ -92,7 +92,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		Direction NextDirection(Direction direction);
 	
 	public:
-		bool Level::ClearArea(int x, int y, int size, unsigned char color);
+		bool Level::ClearArea(int x, int y, int size);
 	/*----------------------------------*/
 	/* Debug functions section start    */
 	public:

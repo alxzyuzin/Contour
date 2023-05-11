@@ -126,8 +126,6 @@ void ContourExtractorWindowsRuntimeComponent::ContourBitmap::CancelOperation()
 		m_CancellationTokenSource->cancel();
 }
 
-
-
 /// <summary>
 /// Convert original color image into grayscale with defined number of gray tints
 /// </summary>
@@ -189,7 +187,6 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToGrayscaleAsync(unsigne
 			colorRanges.clear();
 		});
 }
-
 
 /// <summary>
 /// Convert original color image into image with reduced number of colors
@@ -281,6 +278,25 @@ IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size)
 			reporter.report((double)y / (m_Height - size));
 		}
 	});
+}
+
+IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpAsync(int size)
+{
+	return create_async([this, size](progress_reporter<double> reporter)
+		{
+			unsigned int totalY = 0;
+			double reportValue = 0;
+			for (pair<unsigned int, Level*> levelitem : m_Levels)
+			{
+				for (int y = 0; y <= m_Height - size; y++, totalY++)
+				{
+					for (int x = 0; x <= m_Width - size; x++)
+						levelitem.second->ClearArea(x, y, size);
+					reportValue = totalY / (m_Height - size);
+					reporter.report(reportValue);
+				}
+			}
+		});
 }
 
 void ContourBitmap::RotateLeft()
