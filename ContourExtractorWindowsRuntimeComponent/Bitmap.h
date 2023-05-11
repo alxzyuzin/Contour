@@ -62,7 +62,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		IAsyncActionWithProgress<double>^ ConvertToGrayscaleAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ ConvertToReducedColorsAsync(unsigned int numberOfColors);
 		IAsyncActionWithProgress<double>^ CleanUpImageAsync(int size);
-		IAsyncActionWithProgress<double>^ CleanUpAsync(int size);
+		IAsyncActionWithProgress<double>^ CleanUpLevelsAsync(int size);
 		IAsyncActionWithProgress<double>^ OutlineImageAsync();
 		
 		void RotateLeft();

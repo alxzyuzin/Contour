@@ -266,7 +266,12 @@ IAsyncActionWithProgress<double>^ ContourBitmap::ConvertToReducedColorsAsync(uns
 			SaveConvertedImageData();
 		});
 }
-
+/// <summary>
+/// Function handle image as whole object and paint small objects 
+/// with color equal to color of surrouding pixels
+/// </summary>
+/// <param name="size"></param>
+/// <returns></returns>
 IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size)
 {
 	return create_async([this, size](progress_reporter<double> reporter)
@@ -280,22 +285,37 @@ IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpImageAsync(int size)
 	});
 }
 
-IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpAsync(int size)
+/// <summary>
+/// Function handle image level by level and paint small objects 
+/// with color equal to color of surrouding pixels
+/// </summary>
+/// <param name="size"></param>
+/// <returns></returns>
+IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpLevelsAsync(int size)
 {
 	return create_async([this, size](progress_reporter<double> reporter)
-		{
-			unsigned int totalY = 0;
-			double reportValue = 0;
-			for (pair<unsigned int, Level*> levelitem : m_Levels)
+	{
+		m_CancellationTokenSource = new cancellation_token_source();
+		cancellation_token cancellationToken = m_CancellationTokenSource->get_token();
+		ContourBitmap^ _this = this;
+		double totalY = 0;
+		
+		return parallel_for_each(begin(m_Levels), end(m_Levels), [_this, size, &totalY, reporter, cancellationToken](pair<unsigned int, Level*> pair)
 			{
-				for (int y = 0; y <= m_Height - size; y++, totalY++)
+				double reportValue = 0;
+					
+				for (int y = 0; y <= _this->m_Height - size; y++, totalY+=1)
 				{
-					for (int x = 0; x <= m_Width - size; x++)
-						levelitem.second->ClearArea(x, y, size);
-					reportValue = totalY / (m_Height - size);
+					if (cancellationToken.is_canceled())
+					{
+						cancel_current_task();
+					}
+					for (int x = 0; x <= _this->m_Width - size; x++)
+						pair.second->ClearArea(x, y, size);
+					reportValue = totalY / (_this->m_Height - size);
 					reporter.report(reportValue);
 				}
-			}
+			});
 		});
 }
 

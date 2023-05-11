@@ -528,12 +528,26 @@ namespace ContourUI
             ProgressBar.Title = "Cleaning.";
             ProgressBar.Show();
             IAsyncActionWithProgress<double> asyncAction = null;
-            asyncAction = bitmap.CleanUpAsync(Options.CleanupValue);
+            asyncAction = bitmap.CleanUpLevelsAsync(Options.CleanupValue);
             asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
             {
                 ProgressBar.ProgressValue = progress;
             });
-            await asyncAction;
+            try
+            {
+                await asyncAction;
+            }
+            catch (TaskCanceledException)
+            {
+                ProgressBar.Hide();
+                ContentDialog dialog = new ContentDialog()
+                {
+                    Content = "Operation canceled.",
+                    PrimaryButtonText = "OK"
+                };
+                await dialog.ShowAsync();
+                return;
+            }
 
             //await bitmap.ExtractLevelsAsync(Options.NumberOfColors);
             //Palette.Build(bitmap.Colors);
@@ -563,7 +577,7 @@ namespace ContourUI
 
                     ProgressBar.Title = "Cleaning.";
                     ProgressBar.ProgressValue = 0;
-                    asyncAction = bitmap.CleanUpAsync(Options.CleanupValue); ;
+                    asyncAction = bitmap.CleanUpLevelsAsync(Options.CleanupValue); ;
                     asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
                     {
                         ProgressBar.ProgressValue = progress;
