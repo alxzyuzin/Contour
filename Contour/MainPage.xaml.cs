@@ -30,6 +30,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Printing;
 using System.Threading;
+using Windows.UI.Xaml.Controls.Maps;
 
 
 namespace ContourUI
@@ -73,6 +74,7 @@ namespace ContourUI
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
             Palette.PropertyChanged += Palette_PropertyChanged;
             PictureArea.SizeChanged += PictureArea_SizeChanged;
+            //WhiteRect.SizeChanged += PictureArea_SizeChanged;
             ProgressBar.CancelButtonTapped += Progress_CancelButtonTapped;
 
 
@@ -80,22 +82,37 @@ namespace ContourUI
 
         private void PictureArea_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            AjustPictureSizeToPictureArea();
+            AjustPictureSizeToPictureArea(e);
         }
 
-        private void AjustPictureSizeToPictureArea()
+        private void AjustPictureSizeToPictureArea(SizeChangedEventArgs e)
         {
             if (bitmap != null)
             {
-                if ((bitmap.Width - PictureArea.ActualWidth) >= (bitmap.Height - PictureArea.ActualHeight))
-                {
-                    Picture.Width = PictureArea.ActualWidth;
-                }
-                else
-                {
+                //double deltaX = bitmap.Width - PictureArea.ActualWidth;
+                //double deltaY = bitmap.Height - PictureArea.ActualHeight;
+
+                //float areaRatio = (float)( PictureArea.ActualWidth / PictureArea.ActualHeight);
+                //float bitmapRatio = (float)bitmap.Width / (float)bitmap.Height;
+
+
+                Picture.Width = PictureArea.ActualWidth;
+                if (bitmap.Height > PictureArea.ActualHeight)
                     Picture.Height = PictureArea.ActualHeight;
-                }
-                //Picture.Width = PictureArea.ActualWidth;
+
+                //Picture.Width = PictureScroll.ActualWidth;
+                //if (bitmap.Height > PictureScroll.ActualHeight)
+                //    Picture.Height = PictureScroll.ActualHeight;
+                //if (PictureArea.ActualWidth > bitmap.Width)
+                //{
+                //    Thickness m = PictureArea.Margin;
+                //    m.Left = (PictureArea.ActualWidth - bitmap.Width)/2;
+
+                //    PictureArea.Margin = m;
+                //}
+
+
+
                 Picture.HorizontalAlignment = HorizontalAlignment.Center;
                 Picture.VerticalAlignment = VerticalAlignment.Center;
             }
@@ -225,7 +242,7 @@ namespace ContourUI
             {
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    AjustPictureSizeToPictureArea();
+                    AjustPictureSizeToPictureArea(null);
                 });
             }
         }
@@ -319,7 +336,7 @@ namespace ContourUI
                 IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read);
                 bitmap.SetSource(stream);
                 Picture.Source = bitmap.ImageData;
-                AjustPictureSizeToPictureArea();
+                AjustPictureSizeToPictureArea(null);
                 ApplicationStatus.ImageLoaded = true;
                 ApplicationStatus.ImageConverted = false;
                 ApplicationStatus.ImageOutlined = false;
