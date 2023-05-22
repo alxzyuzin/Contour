@@ -89,29 +89,9 @@ namespace ContourUI
         {
             if (bitmap != null)
             {
-                //double deltaX = bitmap.Width - PictureArea.ActualWidth;
-                //double deltaY = bitmap.Height - PictureArea.ActualHeight;
-
-                //float areaRatio = (float)( PictureArea.ActualWidth / PictureArea.ActualHeight);
-                //float bitmapRatio = (float)bitmap.Width / (float)bitmap.Height;
-
-
                 Picture.Width = PictureArea.ActualWidth;
                 if (bitmap.Height > PictureArea.ActualHeight)
                     Picture.Height = PictureArea.ActualHeight;
-
-                //Picture.Width = PictureScroll.ActualWidth;
-                //if (bitmap.Height > PictureScroll.ActualHeight)
-                //    Picture.Height = PictureScroll.ActualHeight;
-                //if (PictureArea.ActualWidth > bitmap.Width)
-                //{
-                //    Thickness m = PictureArea.Margin;
-                //    m.Left = (PictureArea.ActualWidth - bitmap.Width)/2;
-
-                //    PictureArea.Margin = m;
-                //}
-
-
 
                 Picture.HorizontalAlignment = HorizontalAlignment.Center;
                 Picture.VerticalAlignment = VerticalAlignment.Center;
