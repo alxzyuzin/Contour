@@ -74,10 +74,7 @@ namespace ContourUI
             ApplicationStatus.ConversionMode = Options.ConversionTypeName + ".";
             Palette.PropertyChanged += Palette_PropertyChanged;
             PictureArea.SizeChanged += PictureArea_SizeChanged;
-            //WhiteRect.SizeChanged += PictureArea_SizeChanged;
             ProgressBar.CancelButtonTapped += Progress_CancelButtonTapped;
-
-
         }
 
         private void PictureArea_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -611,16 +608,15 @@ namespace ContourUI
             }
         }
 
-        private void MenuOperationRotateLeft_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuOperationRotateLeft_Clicked(object sender, RoutedEventArgs e)
         {
-            bitmap.RotateLeft();
+            await bitmap.RotateLeftAsync();
             Picture.Source = bitmap.ImageData;
-           
         }
 
-        private void MenuOperationRotateRight_Clicked(object sender, RoutedEventArgs e)
+        private async void MenuOperationRotateRight_Clicked(object sender, RoutedEventArgs e)
         {
-            bitmap.RotateRight();
+            await bitmap.RotateRightAsync();
             Picture.Source = bitmap.ImageData;
             
         }

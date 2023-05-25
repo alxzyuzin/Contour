@@ -319,41 +319,7 @@ IAsyncActionWithProgress<double>^ ContourBitmap::CleanUpLevelsAsync(int size)
 		});
 }
 
-void ContourBitmap::RotateLeft()
-{
-	m_BufferBitmap = ref new WriteableBitmap(m_Bitmap->PixelHeight, m_Bitmap->PixelWidth);
-	unsigned int* newPixelBuffer = GetPointerToWriteableBitmapPixelData(m_BufferBitmap);
 
-	int h = m_Bitmap->PixelHeight;
-	int w = m_Bitmap->PixelWidth;
-	for (int y = 0; y < h; y++)
-		for (int x = 0; x < w; x++)
-			newPixelBuffer[(w - 1 - x) * h + y] = m_PixelBuffer[y * w + x];
-	m_Bitmap = m_BufferBitmap;
-	
-	int m_Height = m_BufferBitmap->PixelHeight;
-	int m_Width  = m_BufferBitmap->PixelWidth;
-	m_PixelBuffer = newPixelBuffer;
-	SaveOriginalImageData();
-}
-
-void ContourBitmap::RotateRight()
-{
-	m_BufferBitmap = ref new WriteableBitmap(m_Bitmap->PixelHeight, m_Bitmap->PixelWidth);
-	unsigned int* newPixelBuffer = GetPointerToWriteableBitmapPixelData(m_BufferBitmap);
-
-	int h = m_Bitmap->PixelHeight;
-	int w = m_Bitmap->PixelWidth;
-	for (int y = 0; y < h; y++)
-		for (int x = 0; x < w; x++)
-			newPixelBuffer[h * x + h - y - 1] = m_PixelBuffer[y * w + x];
-	m_Bitmap = m_BufferBitmap;
-
-	int m_Height = m_BufferBitmap->PixelHeight;
-	int m_Width = m_BufferBitmap->PixelWidth;
-	m_PixelBuffer = newPixelBuffer;
-	SaveOriginalImageData();
-}
 
 void ContourBitmap::ClearRectangleArea(int left_top_x, int left_top_y, int size)
 {
@@ -518,6 +484,45 @@ IAsyncActionWithProgress<double>^  ContourBitmap::OutlineImageAsync()
 
 }
 
+IAsyncAction^ ContourBitmap::RotateLeftAsync()
+{
+
+	m_BufferBitmap = ref new WriteableBitmap(m_Height, m_Width);
+	unsigned int* newPixelBuffer = GetPointerToWriteableBitmapPixelData(m_BufferBitmap);
+	return create_async([this, newPixelBuffer]()
+		{
+			int height = m_Height;
+			int width = m_Width;
+			for (int y = 0; y < height; y++)
+				for (int x = 0; x < width; x++)
+					newPixelBuffer[(width - 1 - x) * height + y] = m_PixelBuffer[y * width + x];
+			m_Bitmap = m_BufferBitmap;
+			m_PixelBuffer = newPixelBuffer;
+			m_Height = width;
+			m_Width = height;
+			SaveOriginalImageData();
+		});
+}
+
+IAsyncAction^ ContourBitmap::RotateRightAsync()
+{
+	m_BufferBitmap = ref new WriteableBitmap(m_Bitmap->PixelHeight, m_Bitmap->PixelWidth);
+	unsigned int* newPixelBuffer = GetPointerToWriteableBitmapPixelData(m_BufferBitmap);
+	return create_async([this, newPixelBuffer]()
+		{
+			int height = m_Height;
+			int width = m_Width;
+			for (int y = 0; y < height; y++)
+				for (int x = 0; x < width; x++)
+					newPixelBuffer[height * x + height - y - 1] = m_PixelBuffer[y * width + x];
+			m_Bitmap = m_BufferBitmap;
+			m_PixelBuffer = newPixelBuffer;
+			m_Height = width;
+			m_Width = height;
+			SaveOriginalImageData();
+		});
+}
+
 /// <summary>
 /// Удаляет из слоя группы пикселей которые вписываются в квадрат со стороной равной size пикселей
 /// </summary>
@@ -561,6 +566,7 @@ inline void ContourBitmap::RestoreConvertedImageData()
 //======================================================================
 // Private functions
 //======================================================================
+
 
 unsigned int* ContourBitmap::GetPointerToWriteableBitmapPixelData(WriteableBitmap^ bitmap)
 {

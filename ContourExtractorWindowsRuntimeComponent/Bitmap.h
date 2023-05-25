@@ -65,9 +65,8 @@ namespace ContourExtractorWindowsRuntimeComponent
 		IAsyncActionWithProgress<double>^ CleanUpLevelsAsync(int size);
 		IAsyncActionWithProgress<double>^ OutlineImageAsync();
 		
-		void RotateLeft();
-		void RotateRight();
-
+		IAsyncAction^ RotateLeftAsync();
+		IAsyncAction^ RotateRightAsync();
 		
 		void RectifyLevel(unsigned int color, int size);
 
@@ -77,7 +76,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void SetLevelDataToDisplayBuffer(unsigned int levelColor);
 		void DisplayContours(ContourColors color, int minContourLength, unsigned char contourDensity);
 		void Clear();
-
+		
 	private:
 		unsigned int* GetPointerToWriteableBitmapPixelData(WriteableBitmap^ bitmap);
 		void SaveOriginalImageData();
@@ -86,7 +85,7 @@ namespace ContourExtractorWindowsRuntimeComponent
 		void RestoreConvertedImageData();
 		void ClearRectangleArea(int x, int y, int size);
 		void DeleteAllLevels();
-
+	
 	private:	//Members
 		int m_Width;					// Image width in pixels
 		int m_Height;					// Image width in pixels
