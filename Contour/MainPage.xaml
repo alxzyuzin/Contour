@@ -197,22 +197,19 @@
 
         <local:OptionsWindow x:Name="OptionsWindow" Grid.Row="0" Grid.Column="0" 
                          Grid.RowSpan="4" Visibility="Collapsed" InnerBoxHeight="450" InnerBoxWidth="550" />
-<!--
-        <local:AboutContour x:Name="AboutWindow" Grid.Row="0" Grid.Column="0" 
-                         Grid.RowSpan="4" Visibility="Collapsed" InnerBoxHeight="240" InnerBoxWidth="300" />
--->
+
         <ContentDialog x:Name="AboutDialog" PrimaryButtonText="OK">
             <ContentDialog.TitleTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="ms-appx:///Assets/SmallLogo.png" Width="40" Height="40" Margin="10,0"/>
+                        <Image Source="ms-appx:///Assets/StoreLogo.scale-100.png" Width="40" Height="40" Margin="10,0,40,0"/>
                         <TextBlock Text="Contour v1.6"/>
                     </StackPanel>
                 </DataTemplate>
             </ContentDialog.TitleTemplate>
             <StackPanel>
                 <TextBlock TextWrapping="WrapWholeWords">
-                    <Run>Author: Aleksandr Ziuzn.</Run><LineBreak/>
+                    <Run>Author: Aleksandr Ziuzin.</Run><LineBreak/>
                     <Run>e-mail: alx.zyuzin@gmail.com</Run><LineBreak/>
                 </TextBlock>
             </StackPanel>
@@ -221,12 +218,6 @@
         <local:ProgressBarPanel x:Name="ProgressBar" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" 
                                 CancelButtonTapped="Progress_CancelButtonTapped"  CornerRadius="4"
                                 Visibility="Collapsed"/>
-        <!--
-        <local:ProgressCounterPanel x:Name="ProgressCounter" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4"
-                                    CancelButtonTapped="Progress_CancelButtonTapped"
-                                    Visibility="Collapsed"/>
-        -->
-
     </Grid>
 
 </Page>

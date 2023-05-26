@@ -7,11 +7,9 @@
  *
  ---------------------------------------------------------------------------------*/
 
-using ContourUI;
 using ContourExtractorWindowsRuntimeComponent;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -26,12 +24,8 @@ using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Printing;
-using System.Threading;
-using Windows.UI.Xaml.Controls.Maps;
-
 
 namespace ContourUI
 {
@@ -43,20 +37,16 @@ namespace ContourUI
         private readonly GeneralOptions Options = new GeneralOptions();
         readonly AppStatus ApplicationStatus = new AppStatus();
         private ContourBitmap bitmap = null;
-        //private double _pictureWidthToHeightRatio = 1;
 
         private string _imageFileNameExtention;
         private string _imageFilePath;
 
-
         private PrintMediaSize _printMediaSize;
         private PrintOrientation _printOrientation;
-    
         private PrintManager printMan;
         private PrintDocument printDoc;
         private IPrintDocumentSource printDocSource;
 
-       //private IAsyncActionWithProgress<double> asyncAction = null;
         private System.Threading.CancellationTokenSource _cancelationTokenSource = new System.Threading.CancellationTokenSource();
 
         public MainPage()
@@ -170,8 +160,8 @@ namespace ContourUI
             Picture.HorizontalAlignment = HorizontalAlignment.Left;
             Picture.VerticalAlignment = VerticalAlignment.Top;
         }
-        // Print preview
 
+        // Print preview
         private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
         {
             // Provide a UIElement as the print preview.
@@ -187,7 +177,6 @@ namespace ContourUI
         private void AddPages(object sender, AddPagesEventArgs e)
         {
             printDoc.AddPage(this.Picture);
-
             // Indicate that all of the print pages have been provided
             printDoc.AddPagesComplete();
         }
@@ -232,9 +221,6 @@ namespace ContourUI
 
         private void ApplicationStatus_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            // Disable Display Converted/Original toggle switch if image hided 
-           // ApplicationStatus.ImageConverted = !ApplicationStatus.HideImage;
-
             if (e.PropertyName == "HideImage" || e.PropertyName == "DisplayConverted" || e.PropertyName == "DisplayContour")
             {
                 RedrawImageArea();
@@ -259,7 +245,6 @@ namespace ContourUI
             }
             if (ApplicationStatus.DisplayContour)
                 bitmap.DisplayContours(Options.ContourColorValue, Options.MinContourLength, Options.ContourDensityValue);
-
              bitmap.Invalidate();
         }
 
@@ -270,12 +255,6 @@ namespace ContourUI
             MsgBox.InnerBoxHeight = message.BoxHeight;
             MsgBox.InnerBoxWidth = message.BoxWidth;
             return await MsgBox.Show();
-        }
-
-        private async void FunctionNotImplementerMessage()
-        {
-            UserMessage msg = new UserMessage(MsgBoxType.Info, "Function not imlemented");
-            MsgBoxButton mbb = await DisplayMessage(msg);
         }
 
         /// <summary>
@@ -296,8 +275,6 @@ namespace ContourUI
 
             if (file != null)
             {
-                //ApplicationStatus.Reset();
-
                 ApplicationStatus.ImageFileName = file.Name;
                 _imageFilePath = file.Path.Replace(ApplicationStatus.ImageFileName, "");
                 _imageFileNameExtention = file.FileType;
@@ -376,8 +353,7 @@ namespace ContourUI
         #region Showing print dialog
         private async void MenuFilePrint_Clicked(object sender, RoutedEventArgs e)
         {
-           
-            if (PrintManager.IsSupported())
+             if (PrintManager.IsSupported())
             {
                 try
                 {
@@ -425,7 +401,6 @@ namespace ContourUI
 
         private async void MenuOperationConvert_Clicked(object sender, RoutedEventArgs e)
         {
-           
             if (!ApplicationStatus.ImageLoaded)
             {
                 ContentDialog dialog = new ContentDialog()
@@ -437,10 +412,7 @@ namespace ContourUI
                 await dialog.ShowAsync();
                 return;
             }
-
-
             this.Palette.Clear();
-            
             IAsyncActionWithProgress<double> asyncAction1 = null;
             if (Options.ConversionType == TypeOfConvertion.Grayscale)
             {
@@ -486,24 +458,19 @@ namespace ContourUI
                         PrimaryButtonText = "OK"
                     };
                     await dialog.ShowAsync();
-
                     return;
-
                 }
-                this.Palette.Build(bitmap.Colors);
-                
+                Palette.Build(bitmap.Colors);
                 ApplicationStatus.ImageConverted = true;
                 ApplicationStatus.ImageOutlined = false;
                 ApplicationStatus.DisplayConverted = true;
                 bitmap.Invalidate();
-               
             }
             catch (TaskCanceledException)
             {
                 ReportOperationCanceled();
                 return;
             }
-         
         }
 
         private async void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
@@ -541,9 +508,7 @@ namespace ContourUI
             
             if (ApplicationStatus.ImageConverted)
             {
-                ProgressBar.Show();
-               
-       
+               ProgressBar.Show();
                double totalProgress = 0;
                int numberOfLevels = bitmap.LevelsCount;
                ApplicationStatus.NumberOfLevels = numberOfLevels;
@@ -552,7 +517,6 @@ namespace ContourUI
                 try
                 {
                     IAsyncActionWithProgress<double> asyncAction = null;
-
                     ProgressBar.Title = "Cleaning.";
                     ProgressBar.ProgressValue = 0;
                     asyncAction = bitmap.CleanUpLevelsAsync(Options.CleanupValue); ;
@@ -578,23 +542,6 @@ namespace ContourUI
                     return;
                 }
                 
-                //List<IAsyncActionWithProgress<int>> taskList = new List<IAsyncActionWithProgress<int>>();
-
-                //foreach (var color in Palette.ActiveColors)
-                //{
-                //    IAsyncActionWithProgress<int> asyncAction = null;
-                //    asyncAction = bitmap.FindLevelContoursAsync(color.Key);
-                //    asyncAction.Progress = new AsyncActionProgressHandler<int>((action, progress) =>
-                //    {
-                //        ProgressBar.ProgressValue = ++totalProgress / ApplicationStatus.NumberOfColors;
-                //    });
-                //    taskList.Add(asyncAction);
-                //}
-                //foreach (var task in taskList)
-                //{
-                //    await task;
-                //}
-
                 Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
                 ProgressBar.Hide();
                 // 511584.0 run_for_each 3 colors (19 colors 700 002.0)
@@ -614,28 +561,16 @@ namespace ContourUI
         {
             await bitmap.RotateRightAsync();
             Picture.Source = bitmap.ImageData;
-            
         }
         
         private async void MenuHelpAbout_Clicked(object sender, RoutedEventArgs e)
         {
-            //await AboutWindow.Show();
-            //ContentDialog dialog = new ContentDialog()
-            //{
-            //    Title = "AZ",
-            //    Content = "Author: Alexandr Ziuzin.\ne-mail: alx.zyuzin@gmail.com",
-            //    PrimaryButtonText = "OK"
-            //};
-
-            //await dialog.ShowAsync();
-            //return;
             await AboutDialog.ShowAsync();
         }
 
         private void Progress_CancelButtonTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             bitmap.CancelOperation();
-           
         }
 
         private async void ReportOperationCanceled()
