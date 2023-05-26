@@ -486,7 +486,6 @@ IAsyncActionWithProgress<double>^  ContourBitmap::OutlineImageAsync()
 
 IAsyncAction^ ContourBitmap::RotateLeftAsync()
 {
-
 	m_BufferBitmap = ref new WriteableBitmap(m_Height, m_Width);
 	unsigned int* newPixelBuffer = GetPointerToWriteableBitmapPixelData(m_BufferBitmap);
 	return create_async([this, newPixelBuffer]()

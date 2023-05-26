@@ -156,7 +156,6 @@ namespace ContourUI
             printDoc.SetPreviewPageCount(1, PreviewPageCountType.Final);
         }
 
-
         private void ResizeImageForPrint(PrintPageDescription pageDescription)
         {
             if (bitmap == null) return;
@@ -224,10 +223,7 @@ namespace ContourUI
             }
         }
 
-
         #endregion
-
-
 
         private void Palette_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -513,27 +509,27 @@ namespace ContourUI
         private async void MenuOperationClean_Clicked(object sender, RoutedEventArgs e)
         {
             var starttime = DateTime.Now;
-            ProgressBar.Title = "Cleaning.";
+           
             ProgressBar.Show();
             IAsyncActionWithProgress<double> asyncAction = null;
-            asyncAction = bitmap.CleanUpLevelsAsync(Options.CleanupValue);
-            asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
+            for (int i = 1; i <= Options.CleanupValue; i++)
             {
-                ProgressBar.ProgressValue = progress;
-            });
-            try
-            {
-                await asyncAction;
+                ProgressBar.Title = $"Cleaning. Pass {i}.";
+                asyncAction = bitmap.CleanUpLevelsAsync(Options.CleanupValue);
+                asyncAction.Progress = new AsyncActionProgressHandler<double>((action, progress) =>
+                {
+                    ProgressBar.ProgressValue = progress;
+                });
+                try
+                {
+                    await asyncAction;
+                }
+                catch (TaskCanceledException)
+                {
+                    ReportOperationCanceled();
+                    return;
+                }
             }
-            catch (TaskCanceledException)
-            {
-                ReportOperationCanceled();
-                return;
-            }
-
-            //await bitmap.ExtractLevelsAsync(Options.NumberOfColors);
-            //Palette.Build(bitmap.Colors);
-            //bitmap.Invalidate();
             RedrawImageArea();
             ProgressBar.Hide();
             Options.TimeSpended = (DateTime.Now - starttime).TotalMilliseconds;
@@ -620,10 +616,20 @@ namespace ContourUI
             Picture.Source = bitmap.ImageData;
             
         }
+        
         private async void MenuHelpAbout_Clicked(object sender, RoutedEventArgs e)
         {
-            await AboutWindow.Show();
-            
+            //await AboutWindow.Show();
+            //ContentDialog dialog = new ContentDialog()
+            //{
+            //    Title = "AZ",
+            //    Content = "Author: Alexandr Ziuzin.\ne-mail: alx.zyuzin@gmail.com",
+            //    PrimaryButtonText = "OK"
+            //};
+
+            //await dialog.ShowAsync();
+            //return;
+            await AboutDialog.ShowAsync();
         }
 
         private void Progress_CancelButtonTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
